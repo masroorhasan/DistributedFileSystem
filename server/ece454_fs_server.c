@@ -4,6 +4,15 @@
 #include "ece454rpc_types.h"
 #include "ece454_fs_server.h"
 
+
+/* We allocate a global variable for returns. However,
+ * r.return_val is allocated dynamically. We look to
+ * the server_stub to deallocate after it returns the
+ * response to the client. */
+return_type r;
+
+
+
 /*
  * Mounts a remote server folder locally.
  *
@@ -14,7 +23,6 @@ extern return_type fsMount(const int nparams, arg_type *a) {
 
   // Right now this performs the "addtwo" procedure but it is wrapped
   // in our API for testing purposes.
-  return_type r;
 
     if(nparams != 2) {
 	/* Error! */

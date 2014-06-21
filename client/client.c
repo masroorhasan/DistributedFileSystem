@@ -12,7 +12,6 @@
 #include <unistd.h>
 #include <limits.h>
 
-#include "ece454rpc_types.h"
 #include "ece454_fs.h"
 
 

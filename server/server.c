@@ -7,12 +7,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ece454rpc_types.h"
+#include "ece454_fs_server.h"
 
 #if 0
 #define _DEBUG_1_
 #endif
 
-/* We allocate a global variable for returns. However, 
+/* We allocate a global variable for returns. However,
  * r.return_val is allocated dynamically. We look to
  * the server_stub to deallocate after it returns the
  * response to the client. */
@@ -133,6 +134,18 @@ int main() {
     register_procedure("pickFirst", 2, pickFirst);
     register_procedure("max_of_integer_array", 1, max);
     register_procedure("concatenate_five_strings", 5, concatStr);
+
+    // Register file system procedures
+    register_procedure("fsMount", 3, fsMount);
+    register_procedure("fsUnmount", 1, fsUnmount);
+    register_procedure("fsOpenDir", 1, fsOpenDir);
+    register_procedure("fsCloseDir", 1, fsCloseDir);
+    register_procedure("fsReadDir", 1, fsReadDir);
+    register_procedure("fsOpen", 2, fsOpen);
+    register_procedure("fsClose", 1, fsClose);
+    register_procedure("fsRead", 3, fsRead);
+    register_procedure("fsWrite", 3, fsWrite);
+    register_procedure("fsRemove", 1, fsRemove);
 
 #ifdef _DEBUG_1_
     printRegisteredProcedures();

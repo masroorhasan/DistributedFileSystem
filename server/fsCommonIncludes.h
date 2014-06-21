@@ -12,4 +12,10 @@
 
 typedef DIR FSDIR;
 
+struct fsDirent {
+    char entName[256];
+    unsigned char entType; /* 0 for file, 1 for folder,
+			      -1 otherwise. */
+};
+
 #endif

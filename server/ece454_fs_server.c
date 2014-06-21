@@ -1,5 +1,7 @@
 #include <stdio.h>
-#include "ece454_fs.h"
+
+#include "ece454rpc_types.h"
+#include "ece454_fs_server.h"
 
 /*
  * Mounts a remote server folder locally.
@@ -7,8 +9,9 @@
  * Returns 0 on success.
  * Returns -1 on failure and sets errno.
  */
-extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const char *localFolderName) {
-    return -1;
+extern return_type fsMount(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 
 /*
@@ -17,8 +20,9 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
  * Returns 0 on success.
  * Returns -1 on failure and sets errno.
  */
-extern int fsUnmount(const char *localFolderName) {
-    return -1;
+extern return_type fsUnmount(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 
 /*
@@ -28,9 +32,9 @@ extern int fsUnmount(const char *localFolderName) {
  * Returns pointer to folder on success.
  * Returns NULL on failures and sets errno.
  */
-extern FSDIR* fsOpenDir(const char *folderName) {
-    FSDIR *d;
-    return d;
+extern return_type fsOpenDir(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 
 /*
@@ -39,8 +43,9 @@ extern FSDIR* fsOpenDir(const char *folderName) {
  * Returns 0 on success.
  * Returns -1 on failure and sets errno.
  */
-extern int fsCloseDir(FSDIR * folder) {
-    return -1;
+extern return_type fsCloseDir(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 
 /*
@@ -51,9 +56,9 @@ extern int fsCloseDir(FSDIR * folder) {
  * Returns NULL on failure and sets errno.
  * Returns NULL when end of folder reacherd.
  */
-extern struct fsDirent *fsReadDir(FSDIR * folder) {
-    struct fsDirent *d;
-    return d;
+extern return_type fsReadDir(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 
 /*
@@ -63,8 +68,9 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
  * Returns a positive integer file descriptor on success.
  * Returns -1 on failure and sets errno.
  */
-extern int fsOpen(const char *fname, int mode) {
-    return -1;
+extern return_type fsOpen(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 
 
@@ -75,8 +81,9 @@ extern int fsOpen(const char *fname, int mode) {
  * Returns 0 on success.
  * Returns -1 on failure and sets errno.
  */
-extern int fsClose(int fd) {
-    return -1;
+extern return_type fsClose(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 
 /*
@@ -88,8 +95,9 @@ extern int fsClose(int fd) {
  * Returns number of bytes read into buf on success.
  * Returns -1 on error and sets errno.
  */
-extern int fsRead(int fd, void *buf, const unsigned int count) {
-    return -1;
+extern return_type fsRead(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 
 /*
@@ -102,8 +110,9 @@ extern int fsRead(int fd, void *buf, const unsigned int count) {
  * Returns number of bytes written on success.
  * Returns -1 on error and sets errno.
  */
-extern int fsWrite(int fd, const void *buf, const unsigned int count) {
-    return -1;
+extern return_type fsWrite(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 
 /*
@@ -113,7 +122,8 @@ extern int fsWrite(int fd, const void *buf, const unsigned int count) {
  * Returns fd of the file removed on success.
  * Returns -1 on error and sets errno.
  */
-extern int fsRemove(const char *name) {
-    return -1;
+extern return_type fsRemove(const int nparams, arg_type *a) {
+    return_type r;
+    return r;
 }
 

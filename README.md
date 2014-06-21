@@ -2,15 +2,15 @@
 
 <h2>RPC Files:</h2>
 
-ece454rpc_types.h
-helper.c
-client_stub.c
+ece454rpc_types.h<br>
+helper.c<br>
+client_stub.c<br>
 
 <h2>FS Files:</h2>
 
-ece454_fs.h
-fsOtherIncludes.h
-ece454_fs_client.c
+ece454_fs.h<br>
+fsOtherIncludes.h<br>
+ece454_fs_client.c<br>
 
 <h2>Sample:</h2>
 
@@ -25,16 +25,16 @@ gcc helper.c client_stub.c ece454_fs_client.c sample_client_app.c
 
 <h2>RPC Files:</h2>
 
-ece454rpc_types.h
-helper.c
-mybind.c
-server_stub.c
+ece454rpc_types.h<br>
+helper.c<br>
+mybind.c<br>
+server_stub.c<br>
 
 <h2>FS Files:</h2>
 
-ece454_fs.h
-fsOtherIncludes.h
-ece454_fs_server
+ece454_fs.h<br>
+fsOtherIncludes.h<br>
+ece454_fs_server<br>
 
 <h2>Application:</h2>
 

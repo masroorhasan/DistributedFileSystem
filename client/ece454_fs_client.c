@@ -9,6 +9,19 @@
  * Returns -1 on failure and sets errno.
  */
 extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const char *localFolderName) {
+
+    // Right now this performs the "addtwo" procedure but it is wrapped
+    // in our API for testing purposes.
+    int a = -10, b = 20;
+    return_type ans;
+    ans = make_remote_call(srvIpOrDomName,
+		       srvPort,
+		       "fsMount", 2,
+	               sizeof(int), (void *)(&a),
+	               sizeof(int), (void *)(&b));
+    int i = *(int *)(ans.return_val);
+    printf("fsMount (addtwo) (%d, %d) = %d\n", a, b, i);
+
     return -1;
 }
 
@@ -27,8 +40,7 @@ extern int fsUnmount(const char *localFolderName) {
  * This may or may not be a subfolder within a folder perviously mounted.
  *
  * Returns pointer to folder on success.
- * Returns NULL on failures and sets errno.
- */
+ * Returns NULL on failures and sets errno.  */
 extern FSDIR* fsOpenDir(const char *folderName) {
     FSDIR *d;
     return d;

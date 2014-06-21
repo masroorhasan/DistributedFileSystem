@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "ece454rpc_types.h"
 #include "ece454_fs_server.h"
@@ -10,7 +11,37 @@
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsMount(const int nparams, arg_type *a) {
-    return_type r;
+
+  // Right now this performs the "addtwo" procedure but it is wrapped
+  // in our API for testing purposes.
+  return_type r;
+
+    if(nparams != 2) {
+	/* Error! */
+	r.return_val = NULL;
+	r.return_size = 0;
+	return r;
+    }
+
+    if(a->arg_size != sizeof(int) ||
+       a->next->arg_size != sizeof(int)) {
+	/* Error! */
+	r.return_val = NULL;
+	r.return_size = 0;
+	return r;
+    }
+
+    int i = *(int *)(a->arg_val);
+    int j = *(int *)(a->next->arg_val);
+
+    int *ret_int = (int *)malloc(sizeof(int));
+
+    *ret_int = i+j;
+    r.return_val = (void *)(ret_int);
+    r.return_size = sizeof(int);
+
+    printf("Perfoming fsMount operation.\n");
+
     return r;
 }
 

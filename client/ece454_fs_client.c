@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "ece454_fs.h"
+#include "ece454rpc_types.h"
 
 /*
  * Mounts a remote server folder locally.

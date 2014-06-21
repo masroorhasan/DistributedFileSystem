@@ -1,4 +1,4 @@
-/* 
+/*
  * Mahesh V. Tripunitara
  * University of Waterloo
  * You specify what goes in this file. I just have a "dummy"
@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+// This typedef must match that of server
 typedef DIR FSDIR;
 
 #endif

@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 // File type and struct definitions
-#include "fsOtherIncludes.h"
+#include "ServerFSHelper.h"
 
 
 extern return_type fsMount(const int nparams, arg_type *a);

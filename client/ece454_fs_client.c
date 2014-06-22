@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "ece454_fs.h"
 #include "ece454rpc_types.h"
@@ -12,17 +13,16 @@
 extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const char *localFolderName) {
 
     return_type ans;
-    int a = 10;
-    int b = 20;
     ans = make_remote_call(srvIpOrDomName,
 		       srvPort,
-		       "fsMount", 2,
-	               sizeof(int), (void *)(&a),
-	               sizeof(int), (void *)(&b));
+		       "fsMount", 1,
+	               strlen(localFolderName) + 1, localFolderName);
     printf("Got response.\n");
     int size = ans.return_size;
     int value = *(int *)(ans.return_val);
-    printf("fsMount return size: %d value: %d\n", size, value);
+    if (value == 0) {
+        printf("Folder was successfully mounted.\n");
+    }
 
     return -1;
 }

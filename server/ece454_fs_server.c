@@ -40,7 +40,10 @@ extern void setHostFolder(char* folder_name) {
 extern return_type fsMount(const int nparams, arg_type *a) {
     struct dirent *ep;
 
-    printf("Called fsMount.\n");
+    char *client_local_name = a->arg_val;
+
+    printf("Mounting folder with local name %s \n", client_local_name);
+    printf("Printing folder contents and size.\n");
 
     if (hosted_dir != NULL) {
         while ((ep = readdir(hosted_dir))) {
@@ -53,9 +56,9 @@ extern return_type fsMount(const int nparams, arg_type *a) {
     // Reset directory stream for the next time this is called
     setHostFolder(hosted_folder_name);
 
-    // Send useless data back to client for time being
+    // Always return success for the time being
     int *ret_int = (int *) malloc(sizeof(int));
-    *ret_int = 100;
+    *ret_int = 0;
     r.return_size = sizeof(int);
     r.return_val = (void*)(ret_int);
     return r;

@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     setHostFolder(hosted_folder);
 
     // Register file system procedures
-    register_procedure("fsMount", 2, fsMount); // Should be 3 parameters
+    register_procedure("fsMount", 1, fsMount); // Should be 3 parameters
     register_procedure("fsUnmount", 1, fsUnmount);
     register_procedure("fsOpenDir", 1, fsOpenDir);
     register_procedure("fsCloseDir", 1, fsCloseDir);

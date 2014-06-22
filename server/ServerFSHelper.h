@@ -10,6 +10,10 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+/*
+ * Allows you to create variables of type FSDIR
+ * which is just a wrapper around DIR for the time being.
+ */
 typedef DIR FSDIR;
 
 struct fsDirent {

@@ -53,7 +53,7 @@ extern return_type fsMount(const int nparams, arg_type *a) {
         (void) closedir(hosted_dir);
     }
 
-    // Reset directory stream for the next time this is called
+    // Reset directory stream for the next time procedure called
     setHostFolder(hosted_folder_name);
 
     // Always return success for the time being

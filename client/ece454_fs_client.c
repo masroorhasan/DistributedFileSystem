@@ -16,15 +16,18 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     ans = make_remote_call(srvIpOrDomName,
 		       srvPort,
 		       "fsMount", 1,
-	               strlen(localFolderName) + 1, localFolderName);
-    printf("Got response.\n");
+	         strlen(localFolderName) + 1, localFolderName);
+
+    printf("Got response from fsMount RPC.\n");
+
     int size = ans.return_size;
     int value = *(int *)(ans.return_val);
+
     if (value == 0) {
         printf("Folder was successfully mounted.\n");
     }
 
-    return -1;
+    return value;
 }
 
 /*

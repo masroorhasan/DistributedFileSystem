@@ -10,6 +10,7 @@
 #include "ServerFSHelper.h"
 
 
+extern void setHostFolder(char* folder_name);
 extern return_type fsMount(const int nparams, arg_type *a);
 extern return_type fsUnmount(const int nparams, arg_type *a);
 extern return_type fsOpenDir(const int nparams, arg_type *a);

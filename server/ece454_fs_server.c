@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Directory related imports
+#include <stddef.h>
+#include <sys/types.h>
+#include <dirent.h>
+
 #include "ece454rpc_types.h"
 #include "ece454_fs_server.h"
 
@@ -11,7 +16,20 @@
  * response to the client. */
 return_type r;
 
+// Stores the directory hosted by the server
+FSDIR* hosted_dir;
 
+// Stores the name of directory hosted by the server
+char* hosted_folder_name;
+
+/*
+ * Creates a directory stream using the folder name
+ * passed in on server launch.
+ */
+extern void setHostFolder(char* folder_name) {
+    hosted_folder_name = folder_name;
+    hosted_dir = opendir(folder_name);
+}
 
 /*
  * Mounts a remote server folder locally.
@@ -20,36 +38,26 @@ return_type r;
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsMount(const int nparams, arg_type *a) {
+    struct dirent *ep;
 
-  // Right now this performs the "addtwo" procedure but it is wrapped
-  // in our API for testing purposes.
+    printf("Called fsMount.\n");
 
-    if(nparams != 2) {
-	/* Error! */
-	r.return_val = NULL;
-	r.return_size = 0;
-	return r;
+    if (hosted_dir != NULL) {
+        while ((ep = readdir(hosted_dir))) {
+            printf("%s ", ep->d_name);
+            printf("%d\n", ep->d_namlen);
+        }
+        (void) closedir(hosted_dir);
     }
 
-    if(a->arg_size != sizeof(int) ||
-       a->next->arg_size != sizeof(int)) {
-	/* Error! */
-	r.return_val = NULL;
-	r.return_size = 0;
-	return r;
-    }
+    // Reset directory stream for the next time this is called
+    setHostFolder(hosted_folder_name);
 
-    int i = *(int *)(a->arg_val);
-    int j = *(int *)(a->next->arg_val);
-
-    int *ret_int = (int *)malloc(sizeof(int));
-
-    *ret_int = i+j;
-    r.return_val = (void *)(ret_int);
+    // Send useless data back to client for time being
+    int *ret_int = (int *) malloc(sizeof(int));
+    *ret_int = 100;
     r.return_size = sizeof(int);
-
-    printf("Perfoming fsMount operation.\n");
-
+    r.return_val = (void*)(ret_int);
     return r;
 }
 

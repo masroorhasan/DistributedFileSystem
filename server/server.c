@@ -13,7 +13,10 @@
 extern void printRegisteredProcedures();
 
 
-int main() {
+int main(int argc, char *argv[]) {
+
+    char *hosted_folder = argv[1];
+    setHostFolder(hosted_folder);
 
     // Register file system procedures
     register_procedure("fsMount", 2, fsMount); // Should be 3 parameters
@@ -28,6 +31,7 @@ int main() {
     register_procedure("fsRemove", 1, fsRemove);
 
 #ifdef _DEBUG_1_
+    printf("The folder to be hosted is: %s \n", hosted_folder);
     printRegisteredProcedures();
 #endif
 

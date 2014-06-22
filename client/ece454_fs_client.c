@@ -11,17 +11,18 @@
  */
 extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const char *localFolderName) {
 
-    // Right now this performs the "addtwo" procedure but it is wrapped
-    // in our API for testing purposes.
-    int a = -10, b = 20;
     return_type ans;
+    int a = 10;
+    int b = 20;
     ans = make_remote_call(srvIpOrDomName,
 		       srvPort,
 		       "fsMount", 2,
 	               sizeof(int), (void *)(&a),
 	               sizeof(int), (void *)(&b));
-    int i = *(int *)(ans.return_val);
-    printf("fsMount (addtwo) (%d, %d) = %d\n", a, b, i);
+    printf("Got response.\n");
+    int size = ans.return_size;
+    int value = *(int *)(ans.return_val);
+    printf("fsMount return size: %d value: %d\n", size, value);
 
     return -1;
 }

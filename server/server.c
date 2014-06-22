@@ -18,6 +18,11 @@ int main(int argc, char *argv[]) {
     char *hosted_folder = argv[1];
     setHostFolder(hosted_folder);
 
+    if (argc < 2) {
+        printf("Error folder name to be hosted not provided.\n");
+        return 0;
+    }
+
     // Register file system procedures
     register_procedure("fsMount", 1, fsMount); // Should be 3 parameters
     register_procedure("fsUnmount", 1, fsUnmount);

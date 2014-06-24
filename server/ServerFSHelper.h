@@ -13,9 +13,14 @@
 /*
  * Allows you to create variables of type FSDIR
  * which is just a wrapper around DIR for the time being.
+ *
+ * TODO: Design and implement this type.
  */
 typedef DIR FSDIR;
 
+/*
+ * Given, do not modify on server or client.
+ */
 struct fsDirent {
     char entName[256];
     unsigned char entType; /* 0 for file, 1 for folder,

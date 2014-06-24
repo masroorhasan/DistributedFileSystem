@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "ece454_fs.h"
 #include "ece454rpc_types.h"
+
+const char* destAddr;
+const unsigned int destPort;
+const char* localFolderName;
+bool mounted = false;
 
 /*
  * Mounts a remote server folder locally.
@@ -11,6 +17,13 @@
  * Returns -1 on failure and sets errno.
  */
 extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const char *localFolderName) {
+
+    // Check to see if we've already mounted
+    if (mounted == true) {
+        // TODO: Set errno
+        printf("Error, we're already mounted.\n");
+        return -1;
+    }
 
     return_type ans;
     ans = make_remote_call(srvIpOrDomName,
@@ -24,6 +37,7 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     int value = *(int *)(ans.return_val);
 
     if (value == 0) {
+        mounted = true;
         printf("Folder was successfully mounted.\n");
     }
 
@@ -37,7 +51,16 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
  * Returns -1 on failure and sets errno.
  */
 extern int fsUnmount(const char *localFolderName) {
-    return -1;
+    /*
+     * Check to see if we're mounted.
+     * TODO: Reevaluate if we want this call to be success
+     */
+    if (mounted == false) {
+        // TODO: Set errno
+        return -1;
+    }
+
+    return 0;
 }
 
 /*

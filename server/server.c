@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Register file system procedures
-    register_procedure("fsMount", 1, fsMount); // Should be 3 parameters
+    register_procedure("fsMount", 1, fsMount);
     register_procedure("fsUnmount", 1, fsUnmount);
     register_procedure("fsOpenDir", 1, fsOpenDir);
     register_procedure("fsCloseDir", 1, fsCloseDir);

@@ -12,3 +12,5 @@ const char* localFolderName;
 
 // Keeps track if client has mounted FS
 bool mounted = false;
+
+extern bool mountError(bool expected);

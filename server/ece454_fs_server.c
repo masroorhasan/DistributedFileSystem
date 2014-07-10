@@ -1,14 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-// Directory related imports
-#include <stddef.h>
-#include <sys/types.h>
-#include <dirent.h>
-
-#include "ece454rpc_types.h"
 #include "ece454_fs_server.h"
-
 
 /* We allocate a global variable for returns. However,
  * r.return_val is allocated dynamically. We look to

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ece454rpc_types.h"
 #include "ece454_fs_server.h"
 
 #if 0

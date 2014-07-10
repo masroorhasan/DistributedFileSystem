@@ -1,14 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-
-#include "ece454_fs.h"
-#include "ece454rpc_types.h"
-
-const char* destAddr;
-const unsigned int destPort;
-const char* localFolderName;
-bool mounted = false;
+#include "ece454_fs_client.h"
 
 /*
  * Mounts a remote server folder locally.

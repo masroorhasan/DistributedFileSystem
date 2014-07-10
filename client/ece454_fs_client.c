@@ -1,6 +1,23 @@
 #include "ece454_fs_client.h"
 
 /*
+ * Checks whether there's a call is valid based on client's
+ * mounted state.
+ *
+ * Returns false if no error.
+ * Returns true if error and sets errno.
+ */
+extern bool mountError(bool expected) {
+    if (mounted != expected) {
+        printf("Error expected mounted = ");
+        printf(expected ? "true\n" : "false\n");
+        return true;
+    }
+
+    return false;
+}
+
+/*
  * Mounts a remote server folder locally.
  *
  * Returns 0 on success.
@@ -8,12 +25,8 @@
  */
 extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const char *localFolderName) {
 
-    // Check to see if we've already mounted
-    if (mounted == true) {
-        // TODO: Set errno
-        printf("Error, we're already mounted.\n");
-        return -1;
-    }
+    // Check that we aren't mounted
+    if (mountError(false)) return -1;
 
     return_type ans;
     ans = make_remote_call(srvIpOrDomName,
@@ -41,14 +54,9 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
  * Returns -1 on failure and sets errno.
  */
 extern int fsUnmount(const char *localFolderName) {
-    /*
-     * Check to see if we're mounted.
-     * TODO: Reevaluate if we want this call to be success
-     */
-    if (mounted == false) {
-        // TODO: Set errno
-        return -1;
-    }
+
+    // Check that we're mounted
+    if (mountError(true)) return -1;
 
     return 0;
 }
@@ -60,7 +68,12 @@ extern int fsUnmount(const char *localFolderName) {
  * Returns pointer to folder on success.
  * Returns NULL on failures and sets errno.  */
 extern FSDIR* fsOpenDir(const char *folderName) {
+
     FSDIR *d;
+
+    // Check that we're mounted
+    if (mountError(true)) return d;
+
     return d;
 }
 
@@ -71,6 +84,8 @@ extern FSDIR* fsOpenDir(const char *folderName) {
  * Returns -1 on failure and sets errno.
  */
 extern int fsCloseDir(FSDIR * folder) {
+    // Check that we're mounted
+    if (mountError(true)) return -1;
     return -1;
 }
 
@@ -84,6 +99,8 @@ extern int fsCloseDir(FSDIR * folder) {
  */
 extern struct fsDirent *fsReadDir(FSDIR * folder) {
     struct fsDirent *d;
+    // Check that we're mounted
+    if (mountError(true)) return d;
     return d;
 }
 
@@ -95,6 +112,8 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
  * Returns -1 on failure and sets errno.
  */
 extern int fsOpen(const char *fname, int mode) {
+    // Check that we're mounted
+    if (mountError(true)) return -1;
     return -1;
 }
 
@@ -107,6 +126,8 @@ extern int fsOpen(const char *fname, int mode) {
  * Returns -1 on failure and sets errno.
  */
 extern int fsClose(int fd) {
+    // Check that we're mounted
+    if (mountError(true)) return -1;
     return -1;
 }
 
@@ -120,6 +141,8 @@ extern int fsClose(int fd) {
  * Returns -1 on error and sets errno.
  */
 extern int fsRead(int fd, void *buf, const unsigned int count) {
+    // Check that we're mounted
+    if (mountError(true)) return -1;
     return -1;
 }
 
@@ -134,6 +157,8 @@ extern int fsRead(int fd, void *buf, const unsigned int count) {
  * Returns -1 on error and sets errno.
  */
 extern int fsWrite(int fd, const void *buf, const unsigned int count) {
+    // Check that we're mounted
+    if (mountError(true)) return -1;
     return -1;
 }
 
@@ -145,6 +170,8 @@ extern int fsWrite(int fd, const void *buf, const unsigned int count) {
  * Returns -1 on error and sets errno.
  */
 extern int fsRemove(const char *name) {
+    // Check that we're mounted
+    if (mountError(true)) return -1;
     return -1;
 }
 

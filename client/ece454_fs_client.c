@@ -10,7 +10,7 @@
 extern bool mountError(bool expected) {
     if (mounted != expected) {
         printf("Error expected mounted = ");
-        printf(expected ? "true\n" : "false\n");
+        printf(expected ? "true.\n" : "false.\n");
         return true;
     }
 

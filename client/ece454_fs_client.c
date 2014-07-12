@@ -29,9 +29,9 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     if (mountError(false)) return -1;
 
     // Persisting server name and port and local folder name
-    int localfoldername_size = (strlen(localFolderName) + 1);
-    localDirName = (char *) malloc(sizeof(char) * localfoldername_size);
-    memcpy(localDirName, localFolderName, sizeof(char) * localfoldername_size);
+    int localfolderName_size = (strlen(localFolderName) + 1);
+    localDirName = (char *) malloc(sizeof(char) * localfolderName_size);
+    memcpy(localDirName, localFolderName, sizeof(char) * localfolderName_size);
 
     int destAddr_size = strlen(srvIpOrDomName) + 1;
     destAddr = (char *) malloc(sizeof(char) * destAddr_size);

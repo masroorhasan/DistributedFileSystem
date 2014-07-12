@@ -45,8 +45,14 @@ extern return_type fsMount(const int nparams, arg_type *a) {
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsUnmount(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    int *ret_int = (int *) malloc(sizeof(int));
+    *ret_int = 0;
+
+    return_type unmount_return;
+    unmount_return.return_size = sizeof(int);
+    unmount_return.return_val = (void *)ret_int;
+
+    return unmount_return;
 }
 
 /*

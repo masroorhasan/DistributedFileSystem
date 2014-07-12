@@ -28,9 +28,20 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     // Check that we aren't mounted
     if (mountError(false)) return -1;
 
+    // Persisting server name and port and local folder name
+    int localfoldername_size = (strlen(localFolderName) + 1);
+    localDirName = (char *) malloc(sizeof(char) * localfoldername_size);
+    memcpy(localDirName, localFolderName, sizeof(char) * localfoldername_size);
+
+    int destAddr_size = strlen(srvIpOrDomName) + 1;
+    destAddr = (char *) malloc(sizeof(char) * destAddr_size);
+    memcpy(destAddr, srvIpOrDomName, sizeof(char) * destAddr_size);
+
+    destPort = srvPort;
+
     return_type ans;
-    ans = make_remote_call(srvIpOrDomName,
-		       srvPort,
+    ans = make_remote_call(destAddr,
+		       destPort,
 		       "fsMount", 0);
 
     printf("Got response from fsMount RPC.\n");
@@ -60,7 +71,24 @@ extern int fsUnmount(const char *localFolderName) {
     // Check that we're mounted
     if (mountError(true)) return -1;
 
-    return 0;
+    return_type ans;
+    ans = make_remote_call(destAddr,
+               destPort,
+               "fsUnmount", 0);
+
+    printf("Got response from fsUnmount RPC.\n");
+
+    int size = ans.return_size;
+    int value = *(int *)(ans.return_val);
+
+    if (value == 0) {
+        mounted = false;
+        printf("Folder was successfully unmounted.\n");
+    } else {
+        printf("Folder unmounted was unsuccessful.\n");
+    }
+
+    return value;
 }
 
 /*

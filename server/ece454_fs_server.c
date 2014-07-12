@@ -16,35 +16,29 @@ extern void setHostFolder(char* folder_name) {
 }
 
 /*
- *
+ * Serilaizes an FSDIR to return_type so it can be sent
+ * back to a client.
  */
 extern return_type serializeFSDIR(FSDIR* folder) {
     return_type r;
-
-    //
-
     return r;
 }
 
 /*
- *
+ * Deserializes an FSDIR from the client so a server can
+ * operate on it.
  */
 extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
     FSDIR* fd;
-
-    //
-
     return fd;
 }
 
 /*
- *
+ * Removes local folder name prefix and returns the true
+ * folder path.
  */
 extern char* parseFolderPath(const char* folderPath) {
     char* servFolderPath;
-
-    //
-
     return servFolderPath;
 }
 
@@ -59,9 +53,11 @@ extern return_type fsMount(const int nparams, arg_type *a) {
     int *ret_int = (int *) malloc(sizeof(int));
     *ret_int = stat(hosted_folder_name, &fileStat);
 
-    printf("File Size: \t\t%lld bytes\n", fileStat.st_size);
-    printf("Number of Links: \t%d\n", fileStat.st_nlink);
-    printf("File inode: \t\t%llu\n", fileStat.st_ino);
+    printf("fsMount() called.\n");
+
+    // printf("File Size: \t\t%lld bytes\n", fileStat.st_size);
+    // printf("Number of Links: \t%d\n", fileStat.st_nlink);
+    // printf("File inode: \t\t%llu\n", fileStat.st_ino);
 
     return_type mount_return;
 
@@ -81,6 +77,8 @@ extern return_type fsUnmount(const int nparams, arg_type *a) {
     int *ret_int = (int *) malloc(sizeof(int));
     *ret_int = 0;
 
+    printf("fsUnmount() called.\n");
+
     return_type unmount_return;
     unmount_return.return_size = sizeof(int);
     unmount_return.return_val = (void *)ret_int;
@@ -96,15 +94,24 @@ extern return_type fsUnmount(const int nparams, arg_type *a) {
  * Returns NULL on failures and sets errno.
  */
 extern return_type fsOpenDir(const int nparams, arg_type *a) {
-    
-    // TODO: extract local folder name: replace with hosted folder
-    // call opendir with new path which returns DIR*
-    // serialize DIR members into return_type
+    printf("fsOpenDir() called.\n");
 
-    char *folder_name = a->arg_val;
-    // helper function to extract LocalFolder: replace with hosted folder
+    /*
+     * TODO: Extract local folder name
+     * Replace with hosted folder
+     * Call opendir with new path which returns DIR*
+     * Serialize DIR members into return_type
+     */
+    char *folder_path = a->arg_val;
+    printf("Request to mount folder name: %s\n", folder_path);
 
-    return r;
+    FSDIR* hosted_dir = opendir(folder_path);
+
+    return_type fsdir_return;
+    fsdir_return.return_size = sizeof(FSDIR*);
+    fsdir_return.return_val = (void*)(fsdir_return);
+
+    return fsdir_return;
 }
 
 /*

@@ -21,11 +21,11 @@ int main(int argc, char *argv[]) {
 	      return 0;
     }
 
-    // Call fsMount from File System API
-    fsMount(argv[1], atoi(argv[2]), "LocalFolder");
-    fsUnmount("LocalFolder");
+    fsMount(argv[1], atoi(argv[2]), "root");
+    // fsUnmount("root");
 
-    // fsOpenDir("LocalFolder/one");
+    char* folder_path = "root";
+    fsOpenDir(folder_path);
 
     return 0;
 }

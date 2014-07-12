@@ -28,7 +28,7 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     // Check that we aren't mounted
     if (mountError(false)) return -1;
 
-    // Persisting server name and port and local folder name
+    // Persisting server name, port and local folder name
     int localfolderName_size = (strlen(localFolderName) + 1);
     localDirName = (char *) malloc(sizeof(char) * localfolderName_size);
     memcpy(localDirName, localFolderName, sizeof(char) * localfolderName_size);
@@ -96,32 +96,25 @@ extern int fsUnmount(const char *localFolderName) {
  * This may or may not be a subfolder within a folder perviously mounted.
  *
  * Returns pointer to folder on success.
- * Returns NULL on failures and sets errno.  */
+ * Returns NULL on failures and sets errno.
+ */
 extern FSDIR* fsOpenDir(const char *folderName) {
-    
-    FSDIR *fd;
+
     // Check that we're mounted
-    if (mountError(true)) return fd;
-    
-    
+    if (mountError(true)) return NULL;
+
     return_type ans;
     ans = make_remote_call(destAddr,
                destPort,
                "fsOpenDir", 1,
-               strlen(folderName) + 1, 
+               strlen(folderName) + 1,
                folderName);
 
     printf("Got response from fsOpenDir RPC.\n");
 
-    int size = ans.return_size;
-    
-    // TODO: Deserialize FSDIR
-    // deserialize return_type to extract members of FSDIR
-    // assign members to fd
-    // return
-    
+    FSDIR *dir;
 
-    return fd;
+    return dir;
 }
 
 /*

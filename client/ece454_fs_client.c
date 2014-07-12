@@ -31,8 +31,7 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     return_type ans;
     ans = make_remote_call(srvIpOrDomName,
 		       srvPort,
-		       "fsMount", 1,
-	         strlen(localFolderName) + 1, localFolderName);
+		       "fsMount", 0);
 
     printf("Got response from fsMount RPC.\n");
 

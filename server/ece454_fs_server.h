@@ -9,6 +9,7 @@
 
 // Directory related 
 #include <stddef.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 
@@ -31,6 +32,13 @@ struct fsDirent {
     unsigned char entType; /* 0 for file, 1 for folder,
 			      -1 otherwise. */
 };
+
+// Stores the directory hosted by the server
+FSDIR* hosted_dir;
+
+// Stores the name of directory hosted by the server
+char* hosted_folder_name;
+
 
 extern void setHostFolder(char* folder_name);
 extern return_type fsMount(const int nparams, arg_type *a);

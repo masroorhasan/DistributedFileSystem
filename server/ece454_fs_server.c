@@ -6,12 +6,6 @@
  * response to the client. */
 return_type r;
 
-// Stores the directory hosted by the server
-FSDIR* hosted_dir;
-
-// Stores the name of directory hosted by the server
-char* hosted_folder_name;
-
 /*
  * Creates a directory stream using the folder name
  * passed in on server launch.
@@ -28,30 +22,20 @@ extern void setHostFolder(char* folder_name) {
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsMount(const int nparams, arg_type *a) {
-    struct dirent *ep;
-
-    char *client_local_name = a->arg_val;
-
-    printf("Mounting folder with local name %s \n", client_local_name);
-    printf("Printing folder contents and size.\n");
-
-    if (hosted_dir != NULL) {
-        while ((ep = readdir(hosted_dir))) {
-            printf("%s ", ep->d_name);
-            printf("%d\n", ep->d_namlen);
-        }
-        (void) closedir(hosted_dir);
-    }
-
-    // Reset directory stream for the next time procedure called
-    setHostFolder(hosted_folder_name);
-
-    // Always return success for the time being
+    struct stat fileStat;
     int *ret_int = (int *) malloc(sizeof(int));
-    *ret_int = 0;
-    r.return_size = sizeof(int);
-    r.return_val = (void*)(ret_int);
-    return r;
+    *ret_int = stat(hosted_folder_name, &fileStat);
+
+    printf("File Size: \t\t%lld bytes\n", fileStat.st_size);
+    printf("Number of Links: \t%d\n", fileStat.st_nlink);
+    printf("File inode: \t\t%llu\n", fileStat.st_ino);
+
+    return_type mount_return;
+
+    mount_return.return_size = sizeof(int);
+    mount_return.return_val = (void*)(ret_int);
+
+    return mount_return;
 }
 
 /*

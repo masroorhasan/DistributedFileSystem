@@ -41,6 +41,9 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     if (value == 0) {
         mounted = true;
         printf("Folder was successfully mounted.\n");
+    } else {
+        mounted = false;
+        printf("Folder mount was unsuccessful.\n");
     }
 
     return value;

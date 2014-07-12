@@ -16,6 +16,39 @@ extern void setHostFolder(char* folder_name) {
 }
 
 /*
+ *
+ */
+extern return_type serializeFSDIR(FSDIR* folder) {
+    return_type r;
+
+    //
+
+    return r;
+}
+
+/*
+ *
+ */
+extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
+    FSDIR* fd;
+
+    //
+
+    return fd;
+}
+
+/*
+ *
+ */
+extern char* parseFolderPath(const char* folderPath) {
+    char* servFolderPath;
+
+    //
+
+    return servFolderPath;
+}
+
+/*
  * Mounts a remote server folder locally.
  *
  * Returns 0 on success.
@@ -63,7 +96,14 @@ extern return_type fsUnmount(const int nparams, arg_type *a) {
  * Returns NULL on failures and sets errno.
  */
 extern return_type fsOpenDir(const int nparams, arg_type *a) {
-    return_type r;
+    
+    // TODO: extract local folder name: replace with hosted folder
+    // call opendir with new path which returns DIR*
+    // serialize DIR members into return_type
+
+    char *folder_name = a->arg_val;
+    // helper function to extract LocalFolder: replace with hosted folder
+
     return r;
 }
 

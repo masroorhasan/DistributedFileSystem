@@ -98,13 +98,30 @@ extern int fsUnmount(const char *localFolderName) {
  * Returns pointer to folder on success.
  * Returns NULL on failures and sets errno.  */
 extern FSDIR* fsOpenDir(const char *folderName) {
-
-    FSDIR *d;
-
+    
+    FSDIR *fd;
     // Check that we're mounted
-    if (mountError(true)) return d;
+    if (mountError(true)) return fd;
+    
+    
+    return_type ans;
+    ans = make_remote_call(destAddr,
+               destPort,
+               "fsOpenDir", 1,
+               strlen(folderName) + 1, 
+               folderName);
 
-    return d;
+    printf("Got response from fsOpenDir RPC.\n");
+
+    int size = ans.return_size;
+    
+    // TODO: Deserialize FSDIR
+    // deserialize return_type to extract members of FSDIR
+    // assign members to fd
+    // return
+    
+
+    return fd;
 }
 
 /*

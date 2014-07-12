@@ -22,8 +22,10 @@ int main(int argc, char *argv[]) {
     }
 
     // Call fsMount from File System API
-    fsMount(argv[1], atoi(argv[2]), "Warren Smith");
-    fsUnmount("Warren Smith");
+    fsMount(argv[1], atoi(argv[2]), "LocalFolder");
+    fsUnmount("LocalFolder");
+
+    // fsOpenDir("LocalFolder/one");
 
     return 0;
 }

@@ -7,15 +7,6 @@
 return_type r;
 
 /*
- * Creates a directory stream using the folder name
- * passed in on server launch.
- */
-extern void setHostFolder(char* folder_name) {
-    hosted_folder_name = folder_name;
-    hosted_dir = opendir(folder_name);
-}
-
-/*
  * Mounts a remote server folder locally.
  *
  * Returns 0 on success.

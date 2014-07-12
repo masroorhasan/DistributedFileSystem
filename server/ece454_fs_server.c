@@ -1,6 +1,5 @@
 #include "ece454_fs_server.h"
 
-// Testing
 #include <stdlib.h>
 #include <string.h>
 
@@ -113,7 +112,7 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
 
     return_type fsdir_return;
     fsdir_return.return_size = sizeof(FSDIR);
-    fsdir_return.return_val = (void*)(hosted_dir);
+    fsdir_return.return_val = (void *)(hosted_dir);
 
     return fsdir_return;
 }
@@ -138,7 +137,31 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
  * Returns NULL when end of folder reacherd.
  */
 extern return_type fsReadDir(const int nparams, arg_type *a) {
-    return_type r;
+    printf("fsReadDir() called.\n");
+
+    int size = sizeof((FSDIR *)a->arg_val);
+    FSDIR *dir = (FSDIR *) malloc(size);
+    memcpy(dir, a->arg_val, size);
+
+    struct dirent *ep;
+
+    if(dir != NULL) {
+        printf("FSDIR in server\n");
+        if(readdir(dir) != NULL ) {
+            printf("return value of readdir() not NULL\n");
+        } else {
+            printf("return value of readdir() is NULL\n");
+        }
+        // while ((ep = readdir(dir))) {
+        //     printf("%s ", ep->d_name);
+        //     printf("%d\n", ep->d_namlen);
+        // }
+        // (void) closedir(dir);
+    } else {
+        printf("FSDIR is null in server\n");
+    }
+
+
     return r;
 }
 

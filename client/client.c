@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
     char* folder_path = "root";
     FSDIR* dir = fsOpenDir(folder_path);
-    // struct fsDirent* d = fsReadDir(dir);
+    struct fsDirent* d = fsReadDir(dir);
 
     return 0;
 }

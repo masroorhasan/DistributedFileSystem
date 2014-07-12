@@ -150,18 +150,19 @@ extern int fsCloseDir(FSDIR * folder) {
 extern struct fsDirent *fsReadDir(FSDIR * folder) {
     struct fsDirent *d;
     // Check that we're mounted
-    if (mountError(true)) return d;
+    if (mountError(true)) return NULL;
 
+    return_type ans;
+    ans = make_remote_call(destAddr,
+               destPort,
+               "fsReadDir", 1,
+               sizeof(folder),
+               (void *)folder);
 
+    printf("Got response from fsReadDir RPC.\n");
 
-    // return_type ans;
-    // ans = make_remote_call(destAddr,
-    //            destPort,
-    //            "fsReadDir", 1,
-    //            sizeof(folder),
-    //            (void *)folder);
+    // d = (fsDirent *) malloc(sizeof(fsDirent));
 
-    // printf("Got response from fsReadDir RPC.\n");
 
     return d;
 }

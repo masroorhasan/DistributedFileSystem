@@ -111,8 +111,18 @@ extern FSDIR* fsOpenDir(const char *folderName) {
                folderName);
 
     printf("Got response from fsOpenDir RPC.\n");
+    
+    FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
+    int size = ans.return_size;
+    memcpy(dir, (FSDIR *)ans.return_val, size);
+    
+    
+    if(dir != NULL) {
+        printf("getting back FSDIR in client\n");
+    } else {
+        printf("did NOT get back FSDIR in client\n");
+    }
 
-    FSDIR *dir;
 
     return dir;
 }
@@ -141,6 +151,18 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     struct fsDirent *d;
     // Check that we're mounted
     if (mountError(true)) return d;
+
+
+
+    // return_type ans;
+    // ans = make_remote_call(destAddr,
+    //            destPort,
+    //            "fsReadDir", 1,
+    //            sizeof(folder),
+    //            (void *)folder);
+
+    // printf("Got response from fsReadDir RPC.\n");
+
     return d;
 }
 

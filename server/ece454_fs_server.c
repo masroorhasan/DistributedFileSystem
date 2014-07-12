@@ -1,5 +1,9 @@
 #include "ece454_fs_server.h"
 
+// Testing
+#include <stdlib.h>
+#include <string.h>
+
 /* We allocate a global variable for returns. However,
  * r.return_val is allocated dynamically. We look to
  * the server_stub to deallocate after it returns the
@@ -103,13 +107,13 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
      * Serialize DIR members into return_type
      */
     char *folder_path = a->arg_val;
-    printf("Request to mount folder name: %s\n", folder_path);
+    printf("Request to open folder name: %s\n", folder_path);
 
     FSDIR* hosted_dir = opendir(folder_path);
 
     return_type fsdir_return;
-    fsdir_return.return_size = sizeof(FSDIR*);
-    fsdir_return.return_val = (void*)(fsdir_return);
+    fsdir_return.return_size = sizeof(FSDIR);
+    fsdir_return.return_val = (void*)(hosted_dir);
 
     return fsdir_return;
 }

@@ -25,7 +25,8 @@ int main(int argc, char *argv[]) {
     // fsUnmount("root");
 
     char* folder_path = "root";
-    fsOpenDir(folder_path);
+    FSDIR* dir = fsOpenDir(folder_path);
+    // struct fsDirent* d = fsReadDir(dir);
 
     return 0;
 }

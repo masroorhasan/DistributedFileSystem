@@ -17,9 +17,11 @@ extern return_type fsMount(const int nparams, arg_type *a) {
     int *ret_int = (int *) malloc(sizeof(int));
     *ret_int = stat(hosted_folder_name, &fileStat);
 
-    printf("File Size: \t\t%lld bytes\n", fileStat.st_size);
-    printf("Number of Links: \t%d\n", fileStat.st_nlink);
-    printf("File inode: \t\t%llu\n", fileStat.st_ino);
+    printf("fsMount() called.\n");
+
+    // printf("File Size: \t\t%lld bytes\n", fileStat.st_size);
+    // printf("Number of Links: \t%d\n", fileStat.st_nlink);
+    // printf("File inode: \t\t%llu\n", fileStat.st_ino);
 
     return_type mount_return;
 
@@ -39,6 +41,8 @@ extern return_type fsUnmount(const int nparams, arg_type *a) {
     int *ret_int = (int *) malloc(sizeof(int));
     *ret_int = 0;
 
+    printf("fsUnmount() called.\n");
+
     return_type unmount_return;
     unmount_return.return_size = sizeof(int);
     unmount_return.return_val = (void *)ret_int;
@@ -54,8 +58,18 @@ extern return_type fsUnmount(const int nparams, arg_type *a) {
  * Returns NULL on failures and sets errno.
  */
 extern return_type fsOpenDir(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsOpenDir() called.\n");
+
+    char *folder_path = a->arg_val;
+    printf("Request to open folder name: %s\n", folder_path);
+
+    FSDIR* hosted_dir = opendir(folder_path);
+
+    return_type fsdir_return;
+    fsdir_return.return_size = sizeof(FSDIR);
+    fsdir_return.return_val = (void *)(hosted_dir);
+
+    return fsdir_return;
 }
 
 /*
@@ -78,7 +92,31 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
  * Returns NULL when end of folder reacherd.
  */
 extern return_type fsReadDir(const int nparams, arg_type *a) {
-    return_type r;
+    printf("fsReadDir() called.\n");
+
+    int size = sizeof(FSDIR);
+    FSDIR *dir = (FSDIR *) malloc(size);
+    memcpy(dir, (FSDIR *)a->arg_val, size);
+
+    struct dirent *ep;
+
+    if(dir != NULL) {
+        printf("Printing directory contents.\n");
+        
+        if(readdir((DIR *)dir) != NULL ) {
+            while( (ep = readdir(dir))) {
+                printf("%s ", ep->d_name);
+                printf("%d\n", ep->d_namlen);
+            }
+        } else {
+            printf("Couldn't open the directory.\n");
+        }
+        
+    } else {
+        printf("Error reading directory stream.\n");
+    }
+
+
     return r;
 }
 

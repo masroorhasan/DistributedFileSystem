@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Directory related 
+// Directory related
 #include <stddef.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -39,11 +39,6 @@ FSDIR* hosted_dir;
 // Stores the name of directory hosted by the server
 char* hosted_folder_name;
 
-extern void setHostFolder(char* folder_name);
-extern return_type serializeFSDIR(FSDIR* folder);
-extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a);
-extern char* parseFolderPath(const char* folderPath);
-
 extern return_type fsMount(const int nparams, arg_type *a);
 extern return_type fsUnmount(const int nparams, arg_type *a);
 extern return_type fsOpenDir(const int nparams, arg_type *a);
@@ -55,3 +50,8 @@ extern return_type fsRead(const int nparams, arg_type *a);
 extern return_type fsWrite(const int nparams, arg_type *a);
 extern return_type fsRemove(const int nparams, arg_type *a);
 
+// Utility methods
+extern void setHostFolder(char* folder_name);
+extern return_type serializeFSDIR(FSDIR* folder);
+extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a);
+extern char* parseFolderPath(const char* folderPath);

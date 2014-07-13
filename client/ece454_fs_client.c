@@ -115,13 +115,6 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     int size = ans.return_size;
     FSDIR *dir = (FSDIR *) malloc(size);
     memcpy(dir, (FSDIR *)ans.return_val, size);
-    
-    if(dir != NULL) {
-        printf("getting back FSDIR in client\n");
-    } else {
-        printf("did NOT get back FSDIR in client\n");
-    }
-
 
     return dir;
 }
@@ -159,7 +152,6 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
                (void *)folder);
 
     printf("Got response from fsReadDir RPC.\n");
-
 
     return d;
 }

@@ -1,8 +1,5 @@
 #include "ece454_fs_server.h"
 
-#include <stdlib.h>
-#include <string.h>
-
 /* We allocate a global variable for returns. However,
  * r.return_val is allocated dynamically. We look to
  * the server_stub to deallocate after it returns the
@@ -63,12 +60,6 @@ extern return_type fsUnmount(const int nparams, arg_type *a) {
 extern return_type fsOpenDir(const int nparams, arg_type *a) {
     printf("fsOpenDir() called.\n");
 
-    /*
-     * TODO: Extract local folder name
-     * Replace with hosted folder
-     * Call opendir with new path which returns DIR*
-     * Serialize DIR members into return_type
-     */
     char *folder_path = a->arg_val;
     printf("Request to open folder name: %s\n", folder_path);
 
@@ -89,7 +80,6 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
  */
 extern return_type fsCloseDir(const int nparams, arg_type *a) {
     return_type r;
-    // (void) closedir(dir);
     return r;
 }
 
@@ -111,22 +101,19 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
     struct dirent *ep;
 
     if(dir != NULL) {
-        printf("FSDIR in server\n");
+        printf("Printing directory contents.\n");
         
         if(readdir((DIR *)dir) != NULL ) {
-
             while( (ep = readdir(dir))) {
                 printf("%s ", ep->d_name);
                 printf("%d\n", ep->d_namlen);
             }
-            (void) closedir(dir);
-
         } else {
             printf("Couldn't open the directory.\n");
         }
         
     } else {
-        printf("Error in File Directory Stream.\n");
+        printf("Error reading directory stream.\n");
     }
 
 

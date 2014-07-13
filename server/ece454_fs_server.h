@@ -13,6 +13,8 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#include <string.h>
+
 // Network types
 #include "ece454rpc_types.h"
 

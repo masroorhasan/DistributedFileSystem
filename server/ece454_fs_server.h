@@ -6,14 +6,13 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Directory related
 #include <stddef.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
-
-#include <string.h>
 
 // Network types
 #include "ece454rpc_types.h"

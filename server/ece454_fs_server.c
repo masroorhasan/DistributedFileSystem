@@ -78,23 +78,6 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     fsdir_return.return_size = sizeof(FSDIR);
     fsdir_return.return_val = (void *)(hosted_dir);
 
-
-    // Test
-    // FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
-    // memcpy(dir, (FSDIR *)fsdir_return.return_val, sizeof(FSDIR));
-
-    // struct dirent *ep;
-
-    // if(dir != NULL) {
-    //     while( (ep = readdir(dir))) {
-    //         printf("%s ", ep->d_name);
-    //         printf("%d\n", ep->d_namlen);
-    //     }
-    //     (void) closedir(dir);
-    // } else {
-    //     printf("Couldn't open the directory.\n");
-    // }
-
     return fsdir_return;
 }
 
@@ -131,7 +114,6 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
         printf("FSDIR in server\n");
         
         if(readdir((DIR *)dir) != NULL ) {
-            printf("return value of readdir() not NULL\n");
 
             while( (ep = readdir(dir))) {
                 printf("%s ", ep->d_name);
@@ -140,11 +122,11 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
             (void) closedir(dir);
 
         } else {
-            printf("return value of readdir() is NULL\n");
+            printf("Couldn't open the directory.\n");
         }
         
     } else {
-        printf("FSDIR is null in server\n");
+        printf("Error in File Directory Stream.\n");
     }
 
 

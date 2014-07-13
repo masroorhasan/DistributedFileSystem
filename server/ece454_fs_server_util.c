@@ -9,7 +9,6 @@ extern void setHostFolder(char* folder_name) {
     hosted_dir = opendir(folder_name);
 }
 
-
 /*
  * Removes local folder name prefix and returns the true
  * folder path.

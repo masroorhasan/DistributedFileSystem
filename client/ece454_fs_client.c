@@ -160,8 +160,6 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
 
     printf("Got response from fsReadDir RPC.\n");
 
-    // d = (fsDirent *) malloc(sizeof(fsDirent));
-
 
     return d;
 }

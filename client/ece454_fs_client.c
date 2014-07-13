@@ -112,10 +112,9 @@ extern FSDIR* fsOpenDir(const char *folderName) {
 
     printf("Got response from fsOpenDir RPC.\n");
     
-    FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
     int size = ans.return_size;
+    FSDIR *dir = (FSDIR *) malloc(size);
     memcpy(dir, (FSDIR *)ans.return_val, size);
-    
     
     if(dir != NULL) {
         printf("getting back FSDIR in client\n");
@@ -156,7 +155,7 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     ans = make_remote_call(destAddr,
                destPort,
                "fsReadDir", 1,
-               sizeof(folder),
+               sizeof(FSDIR),
                (void *)folder);
 
     printf("Got response from fsReadDir RPC.\n");

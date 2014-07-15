@@ -142,7 +142,6 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
 
             return fsreaddir_ret;
         }
-
     } else {
         printf("Error reading directory stream.\n");
     }

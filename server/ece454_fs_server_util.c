@@ -35,7 +35,7 @@ extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
  * operate on it.
  */
 extern char* serializeFsDirent(int entType, char entName[]) {
-	int idx = 0;
+    int idx = 0;
     int sz = sizeof(int) + 256;
     char *buffer = (char *) malloc(sz);
 

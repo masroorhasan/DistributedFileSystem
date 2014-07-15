@@ -5,7 +5,7 @@
  * operate on it.
  */
 extern FSDIR* deserializeFSDIR(return_type ans) {
- 	int size = ans.return_size;
+    int size = ans.return_size;
     FSDIR *dir = (FSDIR *) malloc(size);
     memcpy(dir, (FSDIR *)ans.return_val, size);
 
@@ -29,5 +29,5 @@ extern struct fsDirent* deserializeFsDirent(return_type ans) {
     fdent->entType = entType;
     strncpy(fdent->entName, entName, 256);
 
-	return fdent;
+    return fdent;
 }

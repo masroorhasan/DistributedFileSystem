@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     printf("name: %s, type: %d\n", fdent->entName, (int)(fdent->entType));
     
     // Calling and printing second fsReadDir call
-    fdent = fsReadDir(fd);
+    // fdent = fsReadDir(fd);
     // printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));    
 
     // Calling and printing fsCloseDir call

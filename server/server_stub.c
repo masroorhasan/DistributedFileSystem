@@ -24,8 +24,8 @@
 
 extern uint32_t getPublicIPAddr();
 extern void recvbytes(int, void *, ssize_t);
-extern int mybind(int sockfd, struct sockaddr_in *addr);
 extern void sendbytes(int, void *, ssize_t);
+extern int mybind(int sockfd, struct sockaddr_in *addr);
 
 /* Linked list of registered functions */
 struct fn {
@@ -44,7 +44,8 @@ void printRegisteredProcedures() {
     printf("Registered procedures:\n"); fflush(stdout);
     struct fn *tmp;
     for(tmp = fnp; tmp != NULL; tmp = tmp->next) {
-	printf("\t%s, %d\n", tmp->fname, tmp->nparams);
+	printf("\t0x%08x, %s, %d\n", (unsigned int)tmp,
+		tmp->fname, tmp->nparams);
 	fflush(stdout);
     }
 
@@ -128,6 +129,10 @@ void recvCall(int s, char **pfname, int *pnparams, arg_type **pa) {
 	    for(tmp = *pa; tmp->next != NULL; tmp = tmp->next) ;
 	    tmp->next = newarg;
 	}
+    }
+
+    if(*pnparams <= 0) {
+	*pa = NULL;
     }
 }
 
@@ -253,7 +258,7 @@ void launch_server() {
 
 	char *fname;
 	int nparams;
-	arg_type *a;
+	arg_type *a = NULL;
 	return_type ret;
 
 	recvCall(asock, &fname, &nparams, &a);

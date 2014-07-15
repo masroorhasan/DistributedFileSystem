@@ -20,7 +20,7 @@
 struct fsDirent {
     char entName[256];
     unsigned char entType; /* 0 for file, 1 for folder,
-			      -1 otherwise. */
+			      255 otherwise. */
 };
 
 extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const char *localFolderName);

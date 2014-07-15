@@ -123,23 +123,7 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
         if(d == NULL) {
             printf("error: %s \n", strerror(errno));
         } else {
-            if(d->d_type == DT_DIR) {
-                entType = 1;
-            } else if(d->d_type == DT_REG) {
-                entType = 0;
-            } else {
-                entType = -1;
-            }
-
-            memcpy(&(entName), &(d->d_name), 256);
-            printf("entityType: %i, entityName: %s\n", entType, entName);
-            
-            // Serialize entType and entName
-            char *buffer = serializeFsDirent(entType, entName);
-            
-            fsreaddir_ret.return_size = sizeof(buffer);
-            fsreaddir_ret.return_val = (void *)buffer;
-
+            return_type fsreaddir_ret = serializeFsDirent(d);
             return fsreaddir_ret;
         }
     } else {

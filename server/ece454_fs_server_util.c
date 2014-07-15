@@ -34,18 +34,26 @@ extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
  * Serializes FsDirent struct members from server so a client can
  * operate on it.
  */
-extern char* serializeFsDirent(int entType, char entName[]) {
-    int idx = 0;
+extern return_type serializeFsDirent(struct dirent *d) {
+    int entType = -1;
+    if(d->d_type == DT_DIR) {
+        entType = 1;
+    } else if(d->d_type == DT_REG) {
+        entType = 0;
+    } else {
+        entType = 255;
+    }
+
     int sz = sizeof(int) + 256;
     char *buffer = (char *) malloc(sz);
 
-    // Serializing 4 bytes for entType
     memcpy(buffer, &(entType), sizeof(int));
-    idx += sizeof(int);
+    memcpy(buffer + sizeof(int), &(d->d_name), 256);
 
-    // Serializing 256 bytes for entType
-    memcpy(buffer+idx, &(entName), sizeof(entName));
+    return_type ret;
+    ret.return_size = sz;
+    ret.return_val = (void *)buffer;
 
-    return buffer;
+    return ret;
 }
 

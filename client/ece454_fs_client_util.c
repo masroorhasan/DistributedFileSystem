@@ -12,7 +12,6 @@ extern FSDIR* deserializeFSDIR(return_type ans) {
     return dir;
 }
 
-
 /*
  * Deserializes return_type from server to package the 
  * individual members into fsDirent struct

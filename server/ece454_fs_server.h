@@ -54,5 +54,5 @@ extern return_type fsRemove(const int nparams, arg_type *a);
 // Utility methods
 extern void setHostFolder(char* folder_name);
 extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a);
-extern char* serializeFsDirent(int entType, char entName[]);
+extern return_type serializeFsDirent(struct dirent *d);
 extern char* parseFolderPath(const char* folderPath);

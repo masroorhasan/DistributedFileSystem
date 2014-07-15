@@ -36,7 +36,6 @@ struct fsDirent {
 
 // Stores the directory hosted by the server
 FSDIR *hosted_dir;
-// FSDIR *read_dir;
 
 // Stores the name of directory hosted by the server
 char* hosted_folder_name;
@@ -54,6 +53,6 @@ extern return_type fsRemove(const int nparams, arg_type *a);
 
 // Utility methods
 extern void setHostFolder(char* folder_name);
-extern return_type serializeFSDIR(FSDIR* folder);
 extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a);
+extern char* serializeFsDirent(int entType, char entName[]);
 extern char* parseFolderPath(const char* folderPath);

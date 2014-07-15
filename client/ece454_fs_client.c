@@ -112,10 +112,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
 
     printf("Got response from fsOpenDir RPC.\n");
     
-    int size = ans.return_size;
-    FSDIR *dir = (FSDIR *) malloc(size);
-    memcpy(dir, (FSDIR *)ans.return_val, size);
-
+    FSDIR *dir = deserializeFSDIR(ans);
     return dir;
 }
 
@@ -134,7 +131,7 @@ extern int fsCloseDir(FSDIR * folder) {
                destPort,
                "fsCloseDir", 1,
                sizeof(FSDIR),
-               (void *)folder);
+               folder);
 
     printf("Got response from fsCloseDir RPC.\n");
     int size = ans.return_size;
@@ -152,7 +149,6 @@ extern int fsCloseDir(FSDIR * folder) {
  * Returns NULL when end of folder reacherd.
  */
 extern struct fsDirent *fsReadDir(FSDIR * folder) {
-    
     // Check that we're mounted
     if (mountError(true)) return NULL;
 
@@ -161,23 +157,12 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
                destPort,
                "fsReadDir", 1,
                sizeof(FSDIR),
-               (void *)folder);
+               folder);
 
     printf("Got response from fsReadDir RPC.\n");
-    int size = ans.return_size;
 
-    int entType;
-    memcpy(&entType, (int *)ans.return_val, sizeof(int));
-
-    char *entName = (char *) malloc(256);
-    memcpy(entName, (char *)ans.return_val+4, 256);
-
-    dent.entType = entType;
-    strncpy(dent.entName, entName, 256);
-
-    printf("entityType: %i, entityName: %s\n", dent.entType, dent.entName);
-
-    return &dent;
+    struct fsDirent *dent = deserializeFsDirent(ans);
+    return dent;
 }
 
 /*

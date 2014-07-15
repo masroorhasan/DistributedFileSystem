@@ -28,23 +28,18 @@ int main(int argc, char *argv[]) {
     FSDIR* fd = fsOpenDir(folder_path);
     
     struct fsDirent *fdent = NULL;
-  //   for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
-		// printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
-  //   }
-    
-    fdent = fsReadDir(fd);
-    // printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
-    
-    // int ret = fsCloseDir(fd);
-    // printf("fsCloseDir ret: %i\n", ret);
 
-    // FSDIR* fd2 = fsOpenDir(folder_path);
+    // Calling and printing first fsReadDir call
+    fdent = fsReadDir(fd);
+    printf("name: %s, type: %d\n", fdent->entName, (int)(fdent->entType));
+    
+    // Calling and printing second fsReadDir call
 	// fdent = fsReadDir(fd);
     // printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));    
     
-    // int ret = fsCloseDir(fd);
-    // printf("fsCloseDir ret: %i\n", ret);
-
+    // Calling and printing fsOpenDir call
+    int ret = fsCloseDir(fd);
+    printf("fsCloseDir ret: %i\n", ret);
 
     return 0;
 }

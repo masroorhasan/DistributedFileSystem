@@ -81,15 +81,14 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsCloseDir(const int nparams, arg_type *a) {
-    return_type closedir_ret;
+    printf("fsCloseDir() called.\n");
 
-    int size = sizeof(FSDIR);
-    FSDIR *dir = (FSDIR *) malloc(size);
-    memcpy(dir, (FSDIR *)a->arg_val, size);
+    FSDIR *dir = deserializeFSDIR(nparams, a);
 
     int *ret_int = (int *) malloc(sizeof(int));
-    *(ret_int) = closedir(dir);
+    *ret_int = closedir(dir);
 
+    return_type closedir_ret;
     closedir_ret.return_size = sizeof(int);
     closedir_ret.return_val = (void *)ret_int;
 
@@ -107,12 +106,10 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
 extern return_type fsReadDir(const int nparams, arg_type *a) {
     printf("fsReadDir() called.\n");
 
-    int size = sizeof(FSDIR);
-    // read_dir = (FSDIR *) malloc(size);
-    // memcpy(read_dir, (FSDIR *)a->arg_val, size);
+    // Note: Double check if explicit malloc and memcpy required,
+    // use deserializeFSDIR() if thats the case
     FSDIR *read_dir = (FSDIR *) a->arg_val;
 
-    // struct fsDirent dent;
     int entType = -1;
     char entName[256];
     const int initErrno = errno;
@@ -120,20 +117,17 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
     return_type fsreaddir_ret;
 
     if(read_dir != NULL) {
-        printf("Printing directory contents.\n");
+        printf("Printing directory entry.\n");
         struct dirent *d = readdir(read_dir);
 
         if(d == NULL) {
-            // if(errno == initErrno) errno = 0;
             printf("error: %s \n", strerror(errno));
         } else {
             if(d->d_type == DT_DIR) {
                 entType = 1;
-            }
-            else if(d->d_type == DT_REG) {
+            } else if(d->d_type == DT_REG) {
                 entType = 0;
-            }
-            else {
+            } else {
                 entType = -1;
             }
 
@@ -141,16 +135,9 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
             printf("entityType: %i, entityName: %s\n", entType, entName);
             
             // Serialize entType and entName
-            int idx = 0;
-            int sz = sizeof(int) + 256;
-            char *buffer = (char *) malloc(sz);
-
-            memcpy(buffer, &(entType), sizeof(int));
-            idx += sizeof(int);
-
-            memcpy(buffer+idx, &(entName), sizeof(entName));
-
-            fsreaddir_ret.return_size = sz;
+            char *buffer = serializeFsDirent(entType, entName);
+            
+            fsreaddir_ret.return_size = sizeof(buffer);
             fsreaddir_ret.return_val = (void *)buffer;
 
             return fsreaddir_ret;

@@ -108,8 +108,9 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
     printf("fsReadDir() called.\n");
 
     int size = sizeof(FSDIR);
-    FSDIR *read_dir = (FSDIR *) malloc(size);
-    memcpy(read_dir, (FSDIR *)a->arg_val, size);
+    // read_dir = (FSDIR *) malloc(size);
+    // memcpy(read_dir, (FSDIR *)a->arg_val, size);
+    FSDIR *read_dir = (FSDIR *) a->arg_val;
 
     // struct fsDirent dent;
     int entType = -1;
@@ -148,7 +149,6 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
             idx += sizeof(int);
 
             memcpy(buffer+idx, &(entName), sizeof(entName));
-            // idx += sizeof(entName);
 
             fsreaddir_ret.return_size = sz;
             fsreaddir_ret.return_val = (void *)buffer;

@@ -166,14 +166,12 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     printf("Got response from fsReadDir RPC.\n");
     int size = ans.return_size;
 
-    printf("response buffer size: %i\n", size);
     int entType;
     memcpy(&entType, (int *)ans.return_val, sizeof(int));
 
     char *entName = (char *) malloc(256);
     memcpy(entName, (char *)ans.return_val+4, 256);
 
-    
     dent.entType = entType;
     strncpy(dent.entName, entName, 256);
 

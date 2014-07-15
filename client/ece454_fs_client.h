@@ -14,6 +14,9 @@ char* localDirName;
 // Keeps track if client has mounted FS
 bool mounted;
 
+// Directory stream structure
+struct fsDirent dent;
+
 extern bool mountError(bool expected);
 
 // Utility methods

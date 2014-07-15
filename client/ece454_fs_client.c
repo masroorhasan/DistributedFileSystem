@@ -128,7 +128,19 @@ extern FSDIR* fsOpenDir(const char *folderName) {
 extern int fsCloseDir(FSDIR * folder) {
     // Check that we're mounted
     if (mountError(true)) return -1;
-    return -1;
+
+    return_type ans;
+    ans = make_remote_call(destAddr,
+               destPort,
+               "fsCloseDir", 1,
+               sizeof(FSDIR),
+               (void *)folder);
+
+    printf("Got response from fsCloseDir RPC.\n");
+    int size = ans.return_size;
+    int ret_val = *(int *)ans.return_val;
+
+    return ret_val;
 }
 
 /*
@@ -140,7 +152,7 @@ extern int fsCloseDir(FSDIR * folder) {
  * Returns NULL when end of folder reacherd.
  */
 extern struct fsDirent *fsReadDir(FSDIR * folder) {
-    struct fsDirent *d;
+    
     // Check that we're mounted
     if (mountError(true)) return NULL;
 
@@ -152,8 +164,22 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
                (void *)folder);
 
     printf("Got response from fsReadDir RPC.\n");
+    int size = ans.return_size;
 
-    return d;
+    printf("response buffer size: %i\n", size);
+    int entType;
+    memcpy(&entType, (int *)ans.return_val, sizeof(int));
+
+    char *entName = (char *) malloc(256);
+    memcpy(entName, (char *)ans.return_val+4, 256);
+
+    
+    dent.entType = entType;
+    strncpy(dent.entName, entName, 256);
+
+    printf("entityType: %i, entityName: %s\n", dent.entType, dent.entName);
+
+    return &dent;
 }
 
 /*

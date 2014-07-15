@@ -25,8 +25,23 @@ int main(int argc, char *argv[]) {
     // fsUnmount("root");
 
     char* folder_path = "root";
-    FSDIR* dir = fsOpenDir(folder_path);
-    struct fsDirent* d = fsReadDir(dir);
+    FSDIR* fd = fsOpenDir(folder_path);
+    
+    struct fsDirent *fdent = NULL;
+    // for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
+		// printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
+    // }
+    
+    fdent = fsReadDir(fd);
+    // fdent = fsReadDir(fd);
+    // int ret = fsCloseDir(fd);
+
+    // printf("fsCloseDir ret: %i\n", ret);
+
+    // printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
+
+	// fdent = fsReadDir(fd);
+    // printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));    
 
     return 0;
 }

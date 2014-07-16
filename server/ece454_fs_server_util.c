@@ -23,6 +23,9 @@ extern char* parseFolderPath(const char* folderPath) {
  * operate on it.
  */
 extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
+    printf("deserializeFSDIR() helper method not implemented.");
+    exit(0);
+
     int size = sizeof(FSDIR);
     FSDIR *dir = (FSDIR *) malloc(size);
     memcpy(dir, (FSDIR *)a->arg_val, size);

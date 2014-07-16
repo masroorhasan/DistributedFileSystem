@@ -25,21 +25,15 @@ int main(int argc, char *argv[]) {
 
     char* folder_path = "root";
     FSDIR* fd = fsOpenDir(folder_path);
-    
+
     struct fsDirent *fdent = NULL;
 
-    // Calling and printing first fsReadDir call
+    // Calling and printing fsReadDir call
     fdent = fsReadDir(fd);
-    printf("name: %s, type: %d\n", fdent->entName, (int)(fdent->entType));
-    
-    // Calling and printing second fsReadDir call
-    // Segfaulting on second fsReadDir
-    // fdent = fsReadDir(fd);
-    // printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));    
+    fdent = fsReadDir(fd);
 
     // Calling and printing fsCloseDir call
     int ret = fsCloseDir(fd);
-    printf("fsCloseDir ret: %i\n", ret);
 
     // fsUnmount("root");
 

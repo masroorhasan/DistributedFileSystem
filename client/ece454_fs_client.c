@@ -111,7 +111,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
                folderName);
 
     printf("Got response from fsOpenDir RPC.\n");
-    
+
     FSDIR *dir = deserializeFSDIR(ans);
     return dir;
 }
@@ -161,8 +161,12 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
 
     printf("Got response from fsReadDir RPC.\n");
 
-    struct fsDirent *dent = deserializeFsDirent(ans);
-    return dent;
+	  struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
+    fdent = deserializeFsDirent(ans);
+    printf("Response contained ent_type: %i\n", fdent->entType);
+    printf("Response contained ent_name: %s\n", fdent->entName);
+
+    return fdent;
 }
 
 /*

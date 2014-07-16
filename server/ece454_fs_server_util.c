@@ -52,7 +52,8 @@ extern return_type serializeFsDirent(struct dirent *d) {
 
     return_type ret;
     ret.return_size = sz;
-    ret.return_val = (void *)buffer;
+    ret.return_val = (void *)malloc(sz);
+    ret.return_val = buffer;
 
     return ret;
 }

@@ -65,7 +65,8 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     memcpy(folder_path, (char *)a->arg_val, arg_sz);
     printf("Request to open folder name: %s\n", folder_path);
 
-    FSDIR* hosted_dir = opendir(folder_path);
+    FSDIR* hosted_dir = (FSDIR*) malloc(sizeof(FSDIR));
+    hosted_dir = opendir(folder_path);
 
     return_type fsdir_return;
     fsdir_return.return_size = sizeof(FSDIR);
@@ -83,9 +84,11 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
 extern return_type fsCloseDir(const int nparams, arg_type *a) {
     printf("fsCloseDir() called.\n");
 
-    FSDIR *dir = deserializeFSDIR(nparams, a);
+    // FSDIR *dir = deserializeFSDIR(nparams, a);
+    FSDIR *dir = (FSDIR *)a->arg_val;
 
     int *ret_int = (int *) malloc(sizeof(int));
+    printf("Here is the memory address of the dir being close: %x\n", dir);
     *ret_int = closedir(dir);
 
     return_type closedir_ret;
@@ -117,14 +120,40 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
     return_type fsreaddir_ret;
 
     if(read_dir != NULL) {
-        printf("Printing directory entry.\n");
+        printf("Reading directory entry.\n");
+        printf("Dir memory address before read: %x\n", read_dir);
         struct dirent *d = readdir(read_dir);
+        d = readdir(read_dir);
+        d = readdir(read_dir);
+        printf("Dir memory address after 3 reads: %x\n", read_dir);
+        printf("Response contained d_int: %llu\n", d->d_ino);
+        printf("Response contained d_name: %s\n", d->d_name);
 
         if(d == NULL) {
-            printf("error: %s \n", strerror(errno));
+            printf("Error reading directory entry: %s \n", strerror(errno));
         } else {
-            return_type fsreaddir_ret = serializeFsDirent(d);
-            return fsreaddir_ret;
+            // return_type fsreaddir_ret = serializeFsDirent(d);
+            int entType = -1;
+            if(d->d_type == DT_DIR) {
+                entType = 1;
+            } else if(d->d_type == DT_REG) {
+                entType = 0;
+            } else {
+                entType = 255;
+            }
+
+            int sz = sizeof(int) + 256;
+            char *buffer = (char *) malloc(sz);
+
+            memcpy(buffer, &(entType), sizeof(int));
+            memcpy(buffer + sizeof(int), &(d->d_name), 256);
+
+            return_type ret;
+            ret.return_size = sz;
+            ret.return_val = (void *)malloc(sz);
+            ret.return_val = buffer;
+
+            return ret;
         }
     } else {
         printf("Error reading directory stream.\n");

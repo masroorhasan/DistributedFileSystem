@@ -23,7 +23,6 @@ extern char* parseFolderPath(const char* folderPath) {
  * operate on it.
  */
 extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
-
     int size = sizeof(FSDIR);
     FSDIR *dir = (FSDIR *) malloc(size);
     memcpy(dir, (FSDIR *)a->arg_val, size);

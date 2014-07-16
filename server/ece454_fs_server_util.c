@@ -9,6 +9,10 @@ extern void setHostFolder(char* folder_name) {
     hosted_dir = opendir(folder_name);
 }
 
+extern void initDirEntries() {
+    dir_entries = (DIR *) malloc(256 * 200);
+}
+
 /*
  * Removes local folder name prefix and returns the true
  * folder path.

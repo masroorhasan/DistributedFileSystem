@@ -48,14 +48,17 @@ int main(int argc, char *argv[]) {
         
         int ret = fsCloseDir(fd);
         printf("fsCloseDir ret %i\n", ret);
+
+        ret = fsCloseDir(fd);
+        printf("fsCloseDir ret %i\n", ret);
     }
 
-    char *folder2 = "root2";
-    FSDIR *fd2 = fsOpenDir(folder2);
-    if(fd2 != NULL) {
-        int ret2 = fsCloseDir(fd2);
-        printf("fsCloseDir ret %i\n", ret2);        
-    }
+    // char *folder2 = "root2";
+    // FSDIR *fd2 = fsOpenDir(folder2);
+    // if(fd2 != NULL) {
+    //     int ret2 = fsCloseDir(fd2);
+    //     printf("fsCloseDir ret %i\n", ret2);        
+    // }
 
     // fsUnmount("root");
 

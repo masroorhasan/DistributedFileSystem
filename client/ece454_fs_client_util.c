@@ -5,6 +5,9 @@
  * operate on it.
  */
 extern FSDIR* deserializeFSDIR(return_type ans) {
+    printf("deserializeFSDIR() helper method not implemented.");
+    exit(0);
+
     int size = ans.return_size;
     FSDIR *dir = (FSDIR *) malloc(size);
     memcpy(dir, (FSDIR *)ans.return_val, size);

@@ -68,11 +68,26 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     FSDIR* hosted_dir = (FSDIR*) malloc(sizeof(FSDIR));
     hosted_dir = opendir(folder_path);
 
-    return_type fsdir_return;
-    fsdir_return.return_size = sizeof(FSDIR);
-    fsdir_return.return_val = (void *)malloc(sizeof(FSDIR));
-    memcpy(fsdir_return.return_val, hosted_dir, sizeof(FSDIR));
+    int openDirErrno = 0;
+    if(hosted_dir == NULL) openDirErrno = errno;
 
+    return_type fsdir_return;
+
+    printf("Server fsOpenDir() Error: %i\n", openDirErrno);
+
+    if(openDirErrno == 0) {
+        fsdir_return.return_size =  sizeof(int) + sizeof(FSDIR);
+        fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);
+
+        memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
+        memcpy(fsdir_return.return_val + sizeof(int), hosted_dir, sizeof(FSDIR));    
+    } else {
+        fsdir_return.return_size = sizeof(int);
+        fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);
+
+        memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
+    }
+    
     return fsdir_return;
 }
 
@@ -87,14 +102,22 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
 
     int size = a->arg_size;
     FSDIR *dir = (FSDIR *) malloc(size);
-    memcpy(dir, (FSDIR *)a->arg_val, size);
+    memcpy(dir, (FSDIR *) a->arg_val, size);
    
     int ret_int = closedir(dir);
 
+    int closeDirErrno = 0;
+    if(ret_int != 0) closeDirErrno = errno;
+
     return_type closedir_ret;
-    closedir_ret.return_size = sizeof(int);
-    closedir_ret.return_val = (void *) malloc(sizeof(int));
-    memcpy(closedir_ret.return_val, &ret_int, sizeof(int));
+
+    closedir_ret.return_size = sizeof(int) + sizeof(int) + sizeof(FSDIR);
+    closedir_ret.return_val = (void *) malloc(closedir_ret.return_size);
+
+    memcpy(closedir_ret.return_val, &closeDirErrno, sizeof(int));
+    memcpy(closedir_ret.return_val + sizeof(int), &ret_int, sizeof(int));
+    memcpy(closedir_ret.return_val + sizeof(int) + sizeof(int), dir, sizeof(FSDIR));
+
     return closedir_ret;
 }
 
@@ -110,27 +133,21 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
     printf("fsReadDir() called.\n");
 
     FSDIR *read_dir = (FSDIR *) a->arg_val;
-
-    int entType = -1;
-    char entName[256];
-    const int initErrno = errno;
-
+    int entType = 255;
+    
     return_type fsreaddir_ret;
 
     if(read_dir != NULL) {
         printf("Reading directory entry.\n");
         struct dirent *d = readdir(read_dir);
-        
+        const int initErrno = errno;            
         if(d == NULL) {
             printf("Error reading directory entry: %s \n", strerror(errno));
         } else {
-            int entType = -1;
             if(d->d_type == DT_DIR) {
                 entType = 1;
             } else if(d->d_type == DT_REG) {
                 entType = 0;
-            } else {
-                entType = 255;
             }
 
             int sz = sizeof(int) + 256 + sizeof(FSDIR);

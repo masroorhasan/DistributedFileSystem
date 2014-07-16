@@ -71,7 +71,8 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
 
     return_type fsdir_return;
     fsdir_return.return_size = sizeof(FSDIR);
-    fsdir_return.return_val = (void *)(hosted_dir);
+    fsdir_return.return_val = (void *)malloc(sizeof(FSDIR));
+    memcpy(fsdir_return.return_val, hosted_dir, sizeof(FSDIR));
 
     return fsdir_return;
 }
@@ -124,8 +125,6 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
         printf("Reading directory entry.\n");
         printf("Dir memory address before read: %x\n", read_dir);
         struct dirent *d = readdir(read_dir);
-        d = readdir(read_dir);
-        printf("Dir memory address after read: %x\n", read_dir);
         printf("Response contained d_int: %llu\n", d->d_ino);
         printf("Response contained d_name: %s\n", d->d_name);
 

@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 
     char* folder_path = "root";
     FSDIR* fd = fsOpenDir(folder_path);
-    printf("Here is fd received by client on fsOpenDir: %x\n", fd);
+    printf("Here is FSDIR* received by client on fsOpenDir: %x\n", fd);
 
     struct fsDirent *fdent = NULL;
 

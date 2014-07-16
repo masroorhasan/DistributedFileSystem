@@ -17,7 +17,10 @@ extern FSDIR* deserializeFSDIR(return_type ans) {
  * individual members into fsDirent struct
  */
 extern struct fsDirent* deserializeFsDirent(return_type ans) {
-	struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
+    printf("deserializeFsDirent() helper method not implemented.");
+    exit(0);
+
+    struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
 
     int entType;
     memcpy(&entType, (int *)ans.return_val, sizeof(int));

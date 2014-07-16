@@ -17,7 +17,7 @@
 
 int main(int argc, char *argv[]) {
     if(argc < 3) {
-	      printf("usage: %s <server ip/name> <server port>\n", argv[0]);
+	      printf("Usage: %s <Server IP> <Server Port>\n", argv[0]);
 	      return 0;
     }
 
@@ -25,21 +25,27 @@ int main(int argc, char *argv[]) {
 
     char* folder_path = "root";
     FSDIR* fd = fsOpenDir(folder_path);
-    
+
     struct fsDirent *fdent = NULL;
 
-    // Calling and printing first fsReadDir call
     fdent = fsReadDir(fd);
-    printf("name: %s, type: %d\n", fdent->entName, (int)(fdent->entType));
-    
-    // Calling and printing second fsReadDir call
-    // Segfaulting on second fsReadDir
-    // fdent = fsReadDir(fd);
-    // printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));    
+    printf("fsReadDir return: %s, %d\n", fdent->entName, (int)(fdent->entType));
 
-    // Calling and printing fsCloseDir call
+    fdent = fsReadDir(fd);
+    printf("fsReadDir return: %s, %d\n", fdent->entName, (int)(fdent->entType));
+
+    fdent = fsReadDir(fd);
+    printf("fsReadDir return: %s, %d\n", fdent->entName, (int)(fdent->entType));
+
+    /*
+     * Commented for the time being until NULL return implemented.
+     */
+    // struct fsDirent *fdent = NULL;
+    // for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
+    //    printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
+    // }
+
     int ret = fsCloseDir(fd);
-    printf("fsCloseDir ret: %i\n", ret);
 
     // fsUnmount("root");
 

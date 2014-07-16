@@ -23,6 +23,9 @@ extern char* parseFolderPath(const char* folderPath) {
  * operate on it.
  */
 extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
+    printf("deserializeFSDIR() helper method not implemented.");
+    exit(0);
+
     int size = sizeof(FSDIR);
     FSDIR *dir = (FSDIR *) malloc(size);
     memcpy(dir, (FSDIR *)a->arg_val, size);
@@ -35,6 +38,9 @@ extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
  * operate on it.
  */
 extern return_type serializeFsDirent(struct dirent *d) {
+    printf("serializeFsDirent() helper method not implemented.");
+    exit(0);
+
     int entType = -1;
     if(d->d_type == DT_DIR) {
         entType = 1;
@@ -52,7 +58,8 @@ extern return_type serializeFsDirent(struct dirent *d) {
 
     return_type ret;
     ret.return_size = sz;
-    ret.return_val = (void *)buffer;
+    ret.return_val = (void *)malloc(sz);
+    ret.return_val = buffer;
 
     return ret;
 }

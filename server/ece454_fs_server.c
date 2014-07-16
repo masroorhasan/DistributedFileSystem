@@ -26,7 +26,7 @@ extern return_type fsMount(const int nparams, arg_type *a) {
     return_type mount_return;
 
     mount_return.return_size = sizeof(int);
-    mount_return.return_val = (void*)(ret_int);
+    mount_return.return_val = (void *)(ret_int);
 
     return mount_return;
 }
@@ -60,7 +60,9 @@ extern return_type fsUnmount(const int nparams, arg_type *a) {
 extern return_type fsOpenDir(const int nparams, arg_type *a) {
     printf("fsOpenDir() called.\n");
 
-    char *folder_path = a->arg_val;
+    int arg_sz = a->arg_size;
+    char *folder_path = (char *) malloc(arg_sz);
+    memcpy(folder_path, (char *)a->arg_val, arg_sz);
     printf("Request to open folder name: %s\n", folder_path);
 
     FSDIR* hosted_dir = opendir(folder_path);
@@ -79,8 +81,18 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsCloseDir(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsCloseDir() called.\n");
+
+    FSDIR *dir = deserializeFSDIR(nparams, a);
+
+    int *ret_int = (int *) malloc(sizeof(int));
+    *ret_int = closedir(dir);
+
+    return_type closedir_ret;
+    closedir_ret.return_size = sizeof(int);
+    closedir_ret.return_val = (void *)ret_int;
+
+    return closedir_ret;
 }
 
 /*
@@ -94,30 +106,31 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
 extern return_type fsReadDir(const int nparams, arg_type *a) {
     printf("fsReadDir() called.\n");
 
-    int size = sizeof(FSDIR);
-    FSDIR *dir = (FSDIR *) malloc(size);
-    memcpy(dir, (FSDIR *)a->arg_val, size);
+    // Note: Double check if explicit malloc and memcpy required,
+    // use deserializeFSDIR() if thats the case
+    FSDIR *read_dir = (FSDIR *) a->arg_val;
 
-    struct dirent *ep;
+    int entType = -1;
+    char entName[256];
+    const int initErrno = errno;
 
-    if(dir != NULL) {
-        printf("Printing directory contents.\n");
-        
-        if(readdir((DIR *)dir) != NULL ) {
-            while( (ep = readdir(dir))) {
-                printf("%s ", ep->d_name);
-                printf("%d\n", ep->d_namlen);
-            }
+    return_type fsreaddir_ret;
+
+    if(read_dir != NULL) {
+        printf("Printing directory entry.\n");
+        struct dirent *d = readdir(read_dir);
+
+        if(d == NULL) {
+            printf("error: %s \n", strerror(errno));
         } else {
-            printf("Couldn't open the directory.\n");
+            return_type fsreaddir_ret = serializeFsDirent(d);
+            return fsreaddir_ret;
         }
-        
     } else {
         printf("Error reading directory stream.\n");
     }
 
-
-    return r;
+    return fsreaddir_ret;
 }
 
 /*

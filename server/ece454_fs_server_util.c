@@ -19,20 +19,41 @@ extern char* parseFolderPath(const char* folderPath) {
 }
 
 /*
- * Serilaizes an FSDIR to return_type so it can be sent
- * back to a client.
- */
-extern return_type serializeFSDIR(FSDIR* folder) {
-    return_type r;
-    return r;
-}
-
-/*
  * Deserializes an FSDIR from the client so a server can
  * operate on it.
  */
 extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
-    FSDIR* fd;
-    return fd;
+    int size = sizeof(FSDIR);
+    FSDIR *dir = (FSDIR *) malloc(size);
+    memcpy(dir, (FSDIR *)a->arg_val, size);
+
+    return dir;
+}
+
+/*
+ * Serializes FsDirent struct members from server so a client can
+ * operate on it.
+ */
+extern return_type serializeFsDirent(struct dirent *d) {
+    int entType = -1;
+    if(d->d_type == DT_DIR) {
+        entType = 1;
+    } else if(d->d_type == DT_REG) {
+        entType = 0;
+    } else {
+        entType = 255;
+    }
+
+    int sz = sizeof(int) + 256;
+    char *buffer = (char *) malloc(sz);
+
+    memcpy(buffer, &(entType), sizeof(int));
+    memcpy(buffer + sizeof(int), &(d->d_name), 256);
+
+    return_type ret;
+    ret.return_size = sz;
+    ret.return_val = (void *)buffer;
+
+    return ret;
 }
 

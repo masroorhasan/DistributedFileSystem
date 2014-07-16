@@ -111,7 +111,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
                folderName);
 
     printf("Got response from fsOpenDir RPC.\n");
-    
+
     int size = ans.return_size;
     FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
 
@@ -125,7 +125,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
         errno = openDirErrno;
         printf("fsDirOpen() Error: %s \n", strerror(errno));
     }
-    
+
     return dir;
 }
 
@@ -148,7 +148,7 @@ extern int fsCloseDir(FSDIR * folder) {
 
     printf("Got response from fsCloseDir RPC.\n");
     int size = ans.return_size;
-    
+
     int closeDirErrno;
     memcpy(&closeDirErrno, (int *)ans.return_val, sizeof(int));
 
@@ -159,7 +159,7 @@ extern int fsCloseDir(FSDIR * folder) {
 
     if(closeDirErrno != 0) {
         errno = closeDirErrno;
-        printf("fsCloseDir() Error: %s \n", strerror(errno));   
+        printf("fsCloseDir() Error: %s \n", strerror(errno));
     }
 
     return ret_val;
@@ -187,9 +187,9 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     printf("Got response from fsReadDir RPC.\n");
 
     struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
-    
+
     int index = 0;
-    
+
     int entType;
     memcpy(&entType, (int *)ans.return_val, sizeof(int));
     index += sizeof(int);

@@ -18,7 +18,7 @@ extern FSDIR* deserializeFSDIR(return_type ans) {
  */
 extern struct fsDirent* deserializeFsDirent(return_type ans) {
     printf("deserializeFSDirent called.\n");
-	  struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
+    struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
     printf("Memory allocated for fsDirent.\n");
 
     int entType;

@@ -86,17 +86,16 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
 extern return_type fsCloseDir(const int nparams, arg_type *a) {
     printf("fsCloseDir() called.\n");
 
-    // FSDIR *dir = deserializeFSDIR(nparams, a);
-    FSDIR *dir = (FSDIR *)a->arg_val;
-
-    int *ret_int = (int *) malloc(sizeof(int));
-    printf("Here is the memory address of the dir being close: %x\n", dir);
-    *ret_int = closedir(dir);
+    int size = a->arg_size;
+    FSDIR *dir = (FSDIR *) malloc(size);
+    memcpy(dir, (FSDIR *)a->arg_val, size);
+   
+    int ret_int = closedir(dir);
 
     return_type closedir_ret;
     closedir_ret.return_size = sizeof(int);
-    closedir_ret.return_val = (void *)ret_int;
-
+    closedir_ret.return_val = (void *) malloc(sizeof(int));
+    memcpy(closedir_ret.return_val, &ret_int, sizeof(int));
     return closedir_ret;
 }
 
@@ -111,9 +110,10 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
 extern return_type fsReadDir(const int nparams, arg_type *a) {
     printf("fsReadDir() called.\n");
 
-    // Note: Double check if explicit malloc and memcpy required,
-    // use deserializeFSDIR() if thats the case
     FSDIR *read_dir = (FSDIR *) a->arg_val;
+    // int size = a->arg_size;
+    // FSDIR *read_dir = (FSDIR *) malloc(size);
+    // memcpy(read_dir, (FSDIR *)a->arg_val, size);
 
     int entType = -1;
     char entName[256];
@@ -123,11 +123,8 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
 
     if(read_dir != NULL) {
         printf("Reading directory entry.\n");
-        printf("Dir memory address before read: %x\n", read_dir);
         struct dirent *d = readdir(read_dir);
-        printf("Response contained d_int: %llu\n", d->d_ino);
-        printf("Response contained d_name: %s\n", d->d_name);
-
+        
         if(d == NULL) {
             printf("Error reading directory entry: %s \n", strerror(errno));
         } else {
@@ -141,11 +138,12 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
                 entType = 255;
             }
 
-            int sz = sizeof(int) + 256;
+            int sz = sizeof(int) + 256 + sizeof(FSDIR);
             char *buffer = (char *) malloc(sz);
 
             memcpy(buffer, &(entType), sizeof(int));
             memcpy(buffer + sizeof(int), &(d->d_name), 256);
+            memcpy(buffer + 256 + sizeof(int), read_dir, sizeof(FSDIR));
 
             return_type ret;
             ret.return_size = sz;

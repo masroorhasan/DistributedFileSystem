@@ -25,17 +25,16 @@ int main(int argc, char *argv[]) {
 
     char* folder_path = "root";
     FSDIR* fd = fsOpenDir(folder_path);
-    printf("Here is FSDIR* received by client on fsOpenDir: %x\n", fd);
-
-    struct fsDirent *fdent = NULL;
 
     // Calling and printing fsReadDir call
-    fdent = fsReadDir(fd);
-    fdent = fsReadDir(fd);
+    struct fsDirent *fdent = NULL;
+    for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
+        printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
+    }
 
     // Calling and printing fsCloseDir call
     int ret = fsCloseDir(fd);
-
+    printf("return value of closedir %i\n", ret);
     // fsUnmount("root");
 
     return 0;

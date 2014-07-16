@@ -161,10 +161,22 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
 
     printf("Got response from fsReadDir RPC.\n");
 
-	  struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
-    fdent = deserializeFsDirent(ans);
-    printf("Response contained ent_type: %i\n", fdent->entType);
-    printf("Response contained ent_name: %s\n", fdent->entName);
+    struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
+    
+    int index = 0;
+    
+    int entType;
+    memcpy(&entType, (int *)ans.return_val, sizeof(int));
+    index += sizeof(int);
+
+    char *entName = (char *) malloc(256);
+    memcpy(entName, (char *)ans.return_val + index, 256);
+    index += 256;
+
+    fdent->entType = entType;
+    strncpy(fdent->entName, entName, 256);
+
+    memcpy(folder, (FSDIR *)(ans.return_val + index), sizeof(FSDIR));
 
     return fdent;
 }

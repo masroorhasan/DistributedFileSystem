@@ -67,6 +67,7 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
 
     FSDIR* hosted_dir = (FSDIR*) malloc(sizeof(FSDIR));
     hosted_dir = opendir(folder_path);
+    printf("Returning FSDIR* to client: %x\n", hosted_dir);
 
     return_type fsdir_return;
     fsdir_return.return_size = sizeof(FSDIR);
@@ -124,8 +125,7 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
         printf("Dir memory address before read: %x\n", read_dir);
         struct dirent *d = readdir(read_dir);
         d = readdir(read_dir);
-        d = readdir(read_dir);
-        printf("Dir memory address after 3 reads: %x\n", read_dir);
+        printf("Dir memory address after read: %x\n", read_dir);
         printf("Response contained d_int: %llu\n", d->d_ino);
         printf("Response contained d_name: %s\n", d->d_name);
 

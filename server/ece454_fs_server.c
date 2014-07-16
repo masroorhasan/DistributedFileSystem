@@ -67,7 +67,6 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
 
     FSDIR* hosted_dir = (FSDIR*) malloc(sizeof(FSDIR));
     hosted_dir = opendir(folder_path);
-    printf("Returning FSDIR* to client: %x\n", hosted_dir);
 
     return_type fsdir_return;
     fsdir_return.return_size = sizeof(FSDIR);
@@ -111,9 +110,6 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
     printf("fsReadDir() called.\n");
 
     FSDIR *read_dir = (FSDIR *) a->arg_val;
-    // int size = a->arg_size;
-    // FSDIR *read_dir = (FSDIR *) malloc(size);
-    // memcpy(read_dir, (FSDIR *)a->arg_val, size);
 
     int entType = -1;
     char entName[256];
@@ -128,7 +124,6 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
         if(d == NULL) {
             printf("Error reading directory entry: %s \n", strerror(errno));
         } else {
-            // return_type fsreaddir_ret = serializeFsDirent(d);
             int entType = -1;
             if(d->d_type == DT_DIR) {
                 entType = 1;

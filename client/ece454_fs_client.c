@@ -111,7 +111,6 @@ extern FSDIR* fsOpenDir(const char *folderName) {
                folderName);
 
     printf("Got response from fsOpenDir RPC.\n");
-
     FSDIR *dir = deserializeFSDIR(ans);
     return dir;
 }

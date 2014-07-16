@@ -17,19 +17,17 @@ extern FSDIR* deserializeFSDIR(return_type ans) {
  * individual members into fsDirent struct
  */
 extern struct fsDirent* deserializeFsDirent(return_type ans) {
-    printf("deserializeFSDirent called.\n");
+    printf("deserializeFsDirent() helper method not implemented.");
+    exit(0);
+
     struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
-    printf("Memory allocated for fsDirent.\n");
 
     int entType;
     memcpy(&entType, (int *)ans.return_val, sizeof(int));
 
-    printf("Deserializing: %d\n", entType);
-
     char *entName = (char *) malloc(256);
     memcpy(entName, (char *)ans.return_val + sizeof(int), 256);
 
-    printf("Deserializing: %s\n", entName);
     fdent->entType = entType;
     strncpy(fdent->entName, entName, 256);
 

@@ -44,8 +44,8 @@ void printRegisteredProcedures() {
     printf("Registered procedures:\n"); fflush(stdout);
     struct fn *tmp;
     for(tmp = fnp; tmp != NULL; tmp = tmp->next) {
-	printf("\t0x%08x, %s, %d\n", (unsigned int)tmp,
-		tmp->fname, tmp->nparams);
+	// printf("\t0x%08x, %s, %d\n", (unsigned int)tmp,
+	// tmp->fname, tmp->nparams);
 	fflush(stdout);
     }
 

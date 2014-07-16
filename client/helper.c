@@ -99,7 +99,7 @@ void sendbytes(int s, void *buf, ssize_t count) {
     int stilltosend;
     for(stilltosend = count; stilltosend > 0; ) {
 	ssize_t sentsize =
-	    send(s, (void *)(((unsigned char *)buf) + count - stilltosend), stilltosend, SO_NOSIGPIPE);
+	    send(s, (void *)(((unsigned char *)buf) + count - stilltosend), stilltosend, MSG_NOSIGNAL);
 	if(sentsize < 0) {
 	    perror("send"); exit(1);
 	}

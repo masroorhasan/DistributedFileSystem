@@ -113,13 +113,14 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     printf("Got response from fsOpenDir RPC.\n");
 
     int size = ans.return_size;
-    FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
+    // FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
+		FSDIR *dir = NULL;
 
     int openDirErrno;
     memcpy(&openDirErrno, (int *)ans.return_val, sizeof(int));
 
     if(openDirErrno == 0) {
-        memcpy(dir, (FSDIR *)(ans.return_val + sizeof(int)), sizeof(FSDIR));
+        // memcpy(dir, (FSDIR *)(ans.return_val + sizeof(int)), sizeof(FSDIR));
     } else {
         dir = NULL;
         errno = openDirErrno;
@@ -140,11 +141,11 @@ extern int fsCloseDir(FSDIR * folder) {
     if (mountError(true)) return -1;
 
     return_type ans;
-    ans = make_remote_call(destAddr,
-               destPort,
-               "fsCloseDir", 1,
-               sizeof(FSDIR),
-               folder);
+    // ans = make_remote_call(destAddr,
+    //           destPort,
+    //           "fsCloseDir", 1,
+    //           sizeof(FSDIR),
+    //           folder);
 
     printf("Got response from fsCloseDir RPC.\n");
     int size = ans.return_size;
@@ -155,7 +156,7 @@ extern int fsCloseDir(FSDIR * folder) {
     int ret_val;
     memcpy(&ret_val, (int *)(ans.return_val + sizeof(int)), sizeof(int));
 
-    memcpy(folder, (FSDIR *)(ans.return_val + sizeof(int) + sizeof(int)), sizeof(FSDIR));
+    // memcpy(folder, (FSDIR *)(ans.return_val + sizeof(int) + sizeof(int)), sizeof(FSDIR));
 
     if(closeDirErrno != 0) {
         errno = closeDirErrno;
@@ -178,11 +179,11 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     if (mountError(true)) return NULL;
 
     return_type ans;
-    ans = make_remote_call(destAddr,
-               destPort,
-               "fsReadDir", 1,
-               sizeof(FSDIR),
-               folder);
+    // ans = make_remote_call(destAddr,
+    //           destPort,
+    //           "fsReadDir", 1,
+    //           sizeof(FSDIR),
+    //           folder);
 
     printf("Got response from fsReadDir RPC.\n");
 
@@ -201,7 +202,7 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     fdent->entType = entType;
     strncpy(fdent->entName, entName, 256);
 
-    memcpy(folder, (FSDIR *)(ans.return_val + index), sizeof(FSDIR));
+    // memcpy(folder, (FSDIR *)(ans.return_val + index), sizeof(FSDIR));
 
     return fdent;
 }

@@ -26,7 +26,8 @@ extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
     printf("deserializeFSDIR() helper method not implemented.");
     exit(0);
 
-    int size = sizeof(FSDIR);
+    // int size = sizeof(FSDIR);
+		int size = 0;
     FSDIR *dir = (FSDIR *) malloc(size);
     memcpy(dir, (FSDIR *)a->arg_val, size);
 

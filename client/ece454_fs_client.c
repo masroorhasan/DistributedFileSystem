@@ -191,19 +191,22 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     memcpy(&readDirErrno, (int *)ans.return_val, sizeof(int));
     index += sizeof(int);
 
-		// Error occured
-    if(readDirErrno != 0) {
+    unsigned char entType;
+    memcpy(&entType, (unsigned char *)(ans.return_val + index), sizeof(unsigned char));
+    index += sizeof(unsigned char);
+
+    if(readDirErrno == 0 && entType == 255) {
+        return NULL;
+    }
+
+    if(readDirErrno != 0 && entType == 255) {
         errno = readDirErrno;
         printf("fsReadDir() Error: %s \n", strerror(errno));
         return NULL;
     }
 
-    unsigned char entType;
-    memcpy(&entType, (int *)ans.return_val, sizeof(unsigned char));
-    index += sizeof(unsigned char);
-
     char *entName = (char *) malloc(256);
-    memcpy(entName, (char *)ans.return_val + index, 256);
+    memcpy(entName, (char *)(ans.return_val + index), 256);
     index += 256;
 
     struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));

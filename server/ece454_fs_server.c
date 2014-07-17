@@ -183,56 +183,60 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
 
     int *read_dir = (int *) a->arg_val;
     unsigned char entType = 255;
+
+    int readDirErrno = errno;
     
-    return_type fsreaddir_ret;
+    return_type fsreaddir_ret;        
+    struct dirent *d = NULL;
 
-    if(read_dir != NULL) {
-        printf("Reading directory entry.\n");
+    fsreaddir_ret.return_size = sizeof(int) + sizeof(unsigned char) + 256;
+    fsreaddir_ret.return_val = (void *) malloc(fsreaddir_ret.return_size);
         
-        struct dirent *d = NULL;
-        int readDirErrno = ENOENT;
-        
-        if (dir_entries[*read_dir] != NULL) {
-            d = readdir(dir_entries[*read_dir]);
-            if(d != NULL) {
-					readDirErrno = 0;
-				} else {
-					readDirErrno = errno;
-				}
-        }
+    if (dir_entries[*read_dir] == NULL) {
+        readDirErrno = ENOENT;
 
-        int sz =  sizeof(int) + sizeof(unsigned char) + 256;
-        char *buffer = (char *) malloc(sz);
+        memcpy(fsreaddir_ret.return_val, &readDirErrno, sizeof(int));
+        memcpy(fsreaddir_ret.return_val + sizeof(int), &(entType), sizeof(unsigned char));
 
-        fsreaddir_ret.return_size = sz;
-        fsreaddir_ret.return_val = (void *)malloc(sz);
-        
-        if(readDirErrno != 0) {
-            printf("Error reading directory entry: %s \n", strerror(readDirErrno));
-
-            memcpy(buffer, &readDirErrno, sizeof(int));
-            memcpy(buffer + sizeof(int), &(entType), sizeof(unsigned char));
-        } else {
-            if(d->d_type == DT_DIR) {
-                entType = 1;
-            } else if(d->d_type == DT_REG) {
-                entType = 0;
-            }
-
-            printf("name: %s, type %i\n", d->d_name, entType);
-
-            memcpy(buffer, &readDirErrno, sizeof(int));
-            memcpy(buffer + sizeof(int), &(entType), sizeof(unsigned char));
-            memcpy(buffer + sizeof(int) + sizeof(unsigned char), &(d->d_name), 256);
-        }
-
-
-        fsreaddir_ret.return_val = buffer;
         return fsreaddir_ret;
-
-    } else {
-        printf("Error reading directory stream.\n");
     }
+       
+    d = readdir(dir_entries[*read_dir]);
+
+    if(d == NULL) {
+
+        if(readDirErrno != errno) {
+            readDirErrno = errno;
+        } else {
+            readDirErrno = 0;
+        }
+
+        memcpy(fsreaddir_ret.return_val, &readDirErrno, sizeof(int));
+        memcpy(fsreaddir_ret.return_val + sizeof(int), &(entType), sizeof(unsigned char));
+
+        return fsreaddir_ret;
+    } 
+
+    // Successful readdir operation
+    readDirErrno = 0;
+
+    if(d->d_type == DT_DIR) {
+        entType = 1;
+    } else if(d->d_type == DT_REG) {
+        entType = 0;
+    }
+
+    printf("name: %s, type %i\n", d->d_name, entType);
+
+    int index = 0;
+    memcpy(fsreaddir_ret.return_val, &readDirErrno, sizeof(int));
+    index += sizeof(int);
+
+    memcpy(fsreaddir_ret.return_val + index, &entType, sizeof(unsigned char));
+    index += sizeof(unsigned char);
+
+    memcpy(fsreaddir_ret.return_val + index, &(d->d_name), 256);
+    index += 256;
 
     return fsreaddir_ret;
 }

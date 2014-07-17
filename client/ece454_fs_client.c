@@ -174,12 +174,13 @@ extern int fsCloseDir(FSDIR * folder) {
     int closeDirErrno;
     memcpy(&closeDirErrno, (int *)ans.return_val, sizeof(int));
 
-		int ret_val = -1;
-		if (closeDirErrno == 0) {
+	int ret_val = -1;
+	if (closeDirErrno == 0) {
         memcpy(&ret_val, (int *)(ans.return_val + sizeof(int)), sizeof(int));
-		} else {
+	} else {
         errno = closeDirErrno;
-		}
+        printf("fsCloseDir() Error: %s\n", strerror(errno));
+	}
 
     return ret_val;
 }

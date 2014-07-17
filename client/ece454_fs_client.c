@@ -111,7 +111,22 @@ extern FSDIR* fsOpenDir(const char *folderName) {
                folderName);
 
     printf("Got response from fsOpenDir RPC.\n");
-    FSDIR *dir = deserializeFSDIR(ans);
+
+    int size = ans.return_size;
+
+    int openDirErrno;
+    memcpy(&openDirErrno, (int *)ans.return_val, sizeof(int));
+
+		FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
+
+    if(openDirErrno == 0) {
+        memcpy(dir, (FSDIR *)(ans.return_val + sizeof(int)), sizeof(FSDIR));
+    } else {
+        dir = NULL;
+        errno = openDirErrno;
+        printf("fsDirOpen() Error: %s \n", strerror(errno));
+    }
+
     return dir;
 }
 
@@ -127,14 +142,24 @@ extern int fsCloseDir(FSDIR * folder) {
 
     return_type ans;
     ans = make_remote_call(destAddr,
-               destPort,
-               "fsCloseDir", 1,
-               sizeof(FSDIR),
-               folder);
+                destPort,
+                "fsCloseDir", 1,
+                sizeof(FSDIR),
+                folder);
 
     printf("Got response from fsCloseDir RPC.\n");
     int size = ans.return_size;
-    int ret_val = *(int *)ans.return_val;
+
+    int closeDirErrno;
+    memcpy(&closeDirErrno, (int *)ans.return_val, sizeof(int));
+
+		int ret_val = -1;
+		if (closeDirErrno == 0) {
+				memcpy(&ret_val, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+		} else {
+				errno = closeDirErrno;
+				printf("fsCloseDir() Error: %s \n", strerror(errno));
+		}
 
     return ret_val;
 }
@@ -153,29 +178,40 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
 
     return_type ans;
     ans = make_remote_call(destAddr,
-               destPort,
-               "fsReadDir", 1,
-               sizeof(FSDIR),
-               folder);
+              destPort,
+              "fsReadDir", 1,
+              sizeof(FSDIR),
+              folder);
 
     printf("Got response from fsReadDir RPC.\n");
 
-    struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
-    
     int index = 0;
-    
-    int entType;
-    memcpy(&entType, (int *)ans.return_val, sizeof(int));
+
+    int readDirErrno;
+    memcpy(&readDirErrno, (int *)ans.return_val, sizeof(int));
     index += sizeof(int);
 
+    unsigned char entType;
+    memcpy(&entType, (unsigned char *)(ans.return_val + index), sizeof(unsigned char));
+    index += sizeof(unsigned char);
+
+    if(readDirErrno == 0 && entType == 255) {
+        return NULL;
+    }
+
+    if(readDirErrno != 0 && entType == 255) {
+        errno = readDirErrno;
+        printf("fsReadDir() Error: %s \n", strerror(errno));
+        return NULL;
+    }
+
     char *entName = (char *) malloc(256);
-    memcpy(entName, (char *)ans.return_val + index, 256);
+    memcpy(entName, (char *)(ans.return_val + index), 256);
     index += 256;
 
+    struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
     fdent->entType = entType;
     strncpy(fdent->entName, entName, 256);
-
-    memcpy(folder, (FSDIR *)(ans.return_val + index), sizeof(FSDIR));
 
     return fdent;
 }

@@ -26,28 +26,16 @@ int main(int argc, char *argv[]) {
     char* folder_path = "root";
     FSDIR* fd = fsOpenDir(folder_path);
 
-    struct fsDirent *fdent = NULL;
+    if(fd != NULL) {
+        struct fsDirent *fdent = NULL;
 
-    fdent = fsReadDir(fd);
-    printf("fsReadDir return: %s, %d\n", fdent->entName, (int)(fdent->entType));
+        for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
+            printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
+        }
 
-    fdent = fsReadDir(fd);
-    printf("fsReadDir return: %s, %d\n", fdent->entName, (int)(fdent->entType));
-
-    fdent = fsReadDir(fd);
-    printf("fsReadDir return: %s, %d\n", fdent->entName, (int)(fdent->entType));
-
-    /*
-     * Commented for the time being until NULL return implemented.
-     */
-    // struct fsDirent *fdent = NULL;
-    // for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
-    //    printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
-    // }
-
-    int ret = fsCloseDir(fd);
-
-    // fsUnmount("root");
+        int ret = fsCloseDir(fd);
+        fdent = fsReadDir(fd);
+    }
 
     return 0;
 }

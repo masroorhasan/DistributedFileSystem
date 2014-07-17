@@ -11,6 +11,6 @@
 #include <dirent.h>
 
 // This typedef must match that of server
-typedef DIR FSDIR;
+typedef int FSDIR;
 
 #endif

@@ -6,7 +6,16 @@
  */
 extern void setHostFolder(char* folder_name) {
     hosted_folder_name = folder_name;
-    hosted_dir = opendir(folder_name);
+}
+
+extern void initDirEntries() {
+		printf("Initializing directory entries.\n");
+		next_dir_entry = 0;
+
+		int i = 0;
+		for (; i < 256; i++) {
+				dir_entries[i] = (DIR *)malloc(SIZE_DIR);
+		}
 }
 
 /*
@@ -20,18 +29,20 @@ extern char* parseFolderPath(const char* folderPath) {
 
 /*
  * Deserializes an FSDIR from the client so a server can
- * operate on it.
- */
+ * operate on it.*/
+/*
 extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
     printf("deserializeFSDIR() helper method not implemented.");
     exit(0);
 
-    int size = sizeof(FSDIR);
+    // int size = sizeof(FSDIR);
+		int size = 0;
     FSDIR *dir = (FSDIR *) malloc(size);
     memcpy(dir, (FSDIR *)a->arg_val, size);
 
     return dir;
 }
+*/
 
 /*
  * Serializes FsDirent struct members from server so a client can

@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
 
     char *hosted_folder = argv[1];
     setHostFolder(hosted_folder);
+		initDirEntries(); 
 
     if (argc < 2) {
         printf("Error folder name to be hosted not provided.\n");

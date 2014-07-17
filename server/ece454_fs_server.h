@@ -17,28 +17,17 @@
 // Network types
 #include "ece454rpc_types.h"
 
-/*
- * Allows you to create variables of type FSDIR
- * which is just a wrapper around DIR for the time being.
- *
- * TODO: Design and implement this type.
- */
-typedef DIR FSDIR;
-
-/*
- * Given, do not modify on server or client.
- */
-struct fsDirent {
-    char entName[256];
-    unsigned char entType; /* 0 for file, 1 for folder,
-			      -1 otherwise. */
-};
-
-// Stores the directory hosted by the server
-FSDIR *hosted_dir;
+// Maintains size of dir
+#define SIZE_DIR 200
 
 // Stores the name of directory hosted by the server
-char* hosted_folder_name;
+char *hosted_folder_name;
+
+// Used to store open DIRs
+DIR *dir_entries[256];
+
+// Used to keep track of next free index in dir_entries array
+int next_dir_entry;
 
 extern return_type fsMount(const int nparams, arg_type *a);
 extern return_type fsUnmount(const int nparams, arg_type *a);
@@ -53,6 +42,7 @@ extern return_type fsRemove(const int nparams, arg_type *a);
 
 // Utility methods
 extern void setHostFolder(char* folder_name);
-extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a);
+extern void initDirEntries();
+// extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a);
 extern return_type serializeFsDirent(struct dirent *d);
 extern char* parseFolderPath(const char* folderPath);

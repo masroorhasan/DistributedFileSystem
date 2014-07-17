@@ -21,9 +21,9 @@ int main(int argc, char *argv[]) {
 	      return 0;
     }
 
-    fsMount(argv[1], atoi(argv[2]), "root");
+    fsMount(argv[1], atoi(argv[2]), "leaf");
 
-    char* folder_path = "root";
+    char* folder_path = "leaf";
     FSDIR* fd = fsOpenDir(folder_path);
 
     if(fd != NULL) {

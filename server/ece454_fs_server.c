@@ -63,7 +63,7 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     int arg_sz = a->arg_size;
     char *folder_path = (char *) malloc(arg_sz);
     memcpy(folder_path, (char *)a->arg_val, arg_sz);
-    printf("Request to open folder name: %s\n", folder_path);
+    printf("Request to open folder: %s\n", folder_path);
 
     int i = 0;
     bool found_slash = false;
@@ -78,12 +78,11 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     char *parsed_folder;
     if(found_slash == true) {
         parsed_folder = (char *) malloc(strlen(hosted_folder_name) + strlen(folder_path) - i + 1);
-        memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name));
-        strcat(parsed_folder, folder_path+i);
+        memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
+        strcat(parsed_folder, folder_path + i);
     } else {
         parsed_folder = (char *) malloc(strlen(hosted_folder_name) + 1);
-        memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name));
-        parsed_folder = hosted_folder_name;
+        memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
     }
 
     printf("Opening folder path %s\n", parsed_folder);
@@ -97,7 +96,7 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     return_type fsdir_return;
 
     if(openDirErrno == 0) {
-		dir_entries[next_dir_entry] = hosted_dir;
+				dir_entries[next_dir_entry] = hosted_dir;
         
         fsdir_return.return_size =  sizeof(int) + sizeof(int);
         fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);

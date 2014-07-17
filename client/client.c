@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
     fsMount(argv[1], atoi(argv[2]), "leaf");
 
-    char* folder_path = "xyz/one";
+    char* folder_path = "leaf";
     FSDIR* fd = fsOpenDir(folder_path);
 
     if(fd != NULL) {

@@ -194,7 +194,11 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
         
         if (dir_entries[*read_dir] != NULL) {
             d = readdir(dir_entries[*read_dir]);
-            if(d != NULL) readDirErrno = 0;
+            if(d != NULL) {
+								readDirErrno = 0;
+						} else {
+								readDirErrno = errno;
+						}
         }
 
         int sz =  sizeof(int) + sizeof(unsigned char) + 256;

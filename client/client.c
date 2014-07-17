@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
         fdent = fsReadDir(fd);
         printf("fsReadDir return: %s, %d\n", fdent->entName, (int)(fdent->entType));
         fdent = fsReadDir(fd);
-        printf("fsReadDir return: %s, %d\n", fdent->entName, (int)(fdent->entType));
 
         int ret = fsCloseDir(fd);
         ret = fsCloseDir(fd);

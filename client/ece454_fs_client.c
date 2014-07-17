@@ -162,13 +162,12 @@ extern int fsCloseDir(FSDIR * folder) {
     int closeDirErrno;
     memcpy(&closeDirErrno, (int *)ans.return_val, sizeof(int));
 
-	int ret_val = -1;
-	if (closeDirErrno == 0) {
-		memcpy(&ret_val, (int *)(ans.return_val + sizeof(int)), sizeof(int));
-	} else {
-		errno = closeDirErrno;
-		printf("fsCloseDir() Error: %s \n", strerror(errno));
-	}
+		int ret_val = -1;
+		if (closeDirErrno == 0) {
+				memcpy(&ret_val, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+		} else {
+				errno = closeDirErrno;
+		}
 
     return ret_val;
 }
@@ -205,7 +204,6 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     index += sizeof(unsigned char);
 
     if(readDirErrno == 0 && entType == 255) {
-        printf("End of directory stream\n");
         return NULL;
     }
 

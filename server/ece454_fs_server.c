@@ -65,23 +65,26 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     memcpy(folder_path, (char *)a->arg_val, arg_sz);
     printf("Request to open folder name: %s\n", folder_path);
 
-    // FSDIR* hosted_dir = (FSDIR*) malloc(sizeof(FSDIR));
-    hosted_dir = opendir(folder_path);
+    DIR* hosted_dir = opendir(folder_path);
 
     int openDirErrno = 0;
     if(hosted_dir == NULL) openDirErrno = errno;
 
     return_type fsdir_return;
 
-    printf("Server fsOpenDir() Error: %i\n", openDirErrno);
-
     if(openDirErrno == 0) {
-        // fsdir_return.return_size =  sizeof(int) + sizeof(FSDIR);
+				dir_entries[next_dir_entry] = hosted_dir;
+        
+        fsdir_return.return_size =  sizeof(int) + sizeof(int);
         fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);
 
         memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
-        // memcpy(fsdir_return.return_val + sizeof(int), hosted_dir, sizeof(FSDIR));    
+        memcpy(fsdir_return.return_val + sizeof(int), &next_dir_entry, sizeof(int));    
+
+				// Directory entry has been taken, advance index
+				next_dir_entry++;
     } else {
+    		printf("Server fsOpenDir() Error: %i\n", openDirErrno);
         fsdir_return.return_size = sizeof(int);
         fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);
 
@@ -101,22 +104,25 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
     printf("fsCloseDir() called.\n");
 
     int size = a->arg_size;
-    FSDIR *dir = (FSDIR *) malloc(size);
-    memcpy(dir, (FSDIR *) a->arg_val, size);
-   
-    int ret_int = closedir(dir);
+    int *dir = (int*) malloc(sizeof(int));
 
+    memcpy(dir, (int*) a->arg_val, size); 
+		int ret_int = -1;
     int closeDirErrno = 0;
-    if(ret_int != 0) closeDirErrno = errno;
 
+		if (dir_entries[*dir] != NULL) {
+    		ret_int = closedir(dir_entries[*dir]);
+    		if(ret_int != 0) closeDirErrno = errno;
+				dir_entries[*dir] = NULL;
+		}
+	
     return_type closedir_ret;
 
-    // closedir_ret.return_size = sizeof(int) + sizeof(int) + sizeof(FSDIR);
+    closedir_ret.return_size = sizeof(int) + sizeof(int);
     closedir_ret.return_val = (void *) malloc(closedir_ret.return_size);
 
     memcpy(closedir_ret.return_val, &closeDirErrno, sizeof(int));
     memcpy(closedir_ret.return_val + sizeof(int), &ret_int, sizeof(int));
-    // memcpy(closedir_ret.return_val + sizeof(int) + sizeof(int), dir, sizeof(FSDIR));
 
     return closedir_ret;
 }

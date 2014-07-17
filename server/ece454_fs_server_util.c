@@ -6,11 +6,16 @@
  */
 extern void setHostFolder(char* folder_name) {
     hosted_folder_name = folder_name;
-    hosted_dir = opendir(folder_name);
 }
 
 extern void initDirEntries() {
-    dir_entries = (DIR *) malloc(256 * 200);
+		printf("Initializing directory entries.\n");
+		next_dir_entry = 0;
+
+		int i = 0;
+		for (; i < 256; i++) {
+				dir_entries[i] = (DIR *)malloc(SIZE_DIR);
+		}
 }
 
 /*

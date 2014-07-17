@@ -23,19 +23,21 @@ int main(int argc, char *argv[]) {
 
     fsMount(argv[1], atoi(argv[2]), "leaf");
 
-    char* folder_path = "leaf";
-    FSDIR* fd = fsOpenDir(folder_path);
+    // char* folder_path = "leaf";
+    // FSDIR* fd = fsOpenDir(folder_path);
 
-    if(fd != NULL) {
-        struct fsDirent *fdent = NULL;
+    fsMount(argv[1], atoi(argv[2]), "leaf");
 
-        for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
-            printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
-        }
+    // if(fd != NULL) {
+    //     struct fsDirent *fdent = NULL;
 
-        int ret = fsCloseDir(fd);
-        fdent = fsReadDir(fd);
-    }
+    //     for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
+    //         printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
+    //     }
+
+    //     int ret = fsCloseDir(fd);
+    //     fdent = fsReadDir(fd);
+    // }
 
     return 0;
 }

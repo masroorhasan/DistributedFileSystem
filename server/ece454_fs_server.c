@@ -13,20 +13,24 @@ return_type r;
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsMount(const int nparams, arg_type *a) {
+    printf("fsMount() called.\n");
+
     struct stat fileStat;
+    int *mountErrno = (int *) malloc(sizeof(int));
     int *ret_int = (int *) malloc(sizeof(int));
     *ret_int = stat(hosted_folder_name, &fileStat);
 
-    printf("fsMount() called.\n");
-
-    // printf("File Size: \t\t%lld bytes\n", fileStat.st_size);
-    // printf("Number of Links: \t%d\n", fileStat.st_nlink);
-    // printf("File inode: \t\t%llu\n", fileStat.st_ino);
+    if(*ret_int < 0) {
+        *mountErrno = errno;
+    }
 
     return_type mount_return;
-
-    mount_return.return_size = sizeof(int);
-    mount_return.return_val = (void *)(ret_int);
+    mount_return.return_size = sizeof(int) + sizeof(int);
+    
+    mount_return.return_val = (void *) malloc(mount_return.return_size);
+    memcpy(mount_return.return_val, ret_int, sizeof(int));
+    memcpy(mount_return.return_val + sizeof(int), mountErrno, sizeof(int));
+    
 
     return mount_return;
 }

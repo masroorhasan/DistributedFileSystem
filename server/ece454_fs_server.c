@@ -74,7 +74,7 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     for(; i < strlen(folder_path); i++) {
         if(folder_path[i] == '/') {
             found_slash = true;
-            break;  
+            break;
         }
     }
 
@@ -103,12 +103,12 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
 
     if(openDirErrno == 0) {
         dir_entries[next_dir_entry] = hosted_dir;
-        
+
         fsdir_return.return_size =  sizeof(int) + sizeof(int);
         fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);
 
         memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
-        memcpy(fsdir_return.return_val + sizeof(int), &next_dir_entry, sizeof(int));    
+        memcpy(fsdir_return.return_val + sizeof(int), &next_dir_entry, sizeof(int));
 
 		// Directory entry has been taken, advance index
 		next_dir_entry++;
@@ -119,7 +119,7 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
 
         memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
     }
-    
+
     return fsdir_return;
 }
 
@@ -135,7 +135,7 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
     int size = a->arg_size;
     int *dir = (int*) malloc(sizeof(int));
 
-    memcpy(dir, (int*) a->arg_val, size); 
+    memcpy(dir, (int*) a->arg_val, size);
 		int ret_int = -1;
     int closeDirErrno = EPERM;
 
@@ -144,7 +144,7 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
         if(ret_int == 0) closeDirErrno = 0;
         dir_entries[*dir] = NULL;
 		}
-	
+
     return_type closedir_ret;
 
     closedir_ret.return_size = sizeof(int) + sizeof(int);
@@ -171,13 +171,13 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
     unsigned char entType = 255;
 
     int readDirErrno = errno;
-    
-    return_type fsreaddir_ret;        
+
+    return_type fsreaddir_ret;
     struct dirent *d = NULL;
 
     fsreaddir_ret.return_size = sizeof(int) + sizeof(unsigned char) + 256;
     fsreaddir_ret.return_val = (void *) malloc(fsreaddir_ret.return_size);
-        
+
     if (dir_entries[*read_dir] == NULL) {
         readDirErrno = ENOENT;
 
@@ -186,7 +186,7 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
 
         return fsreaddir_ret;
     }
-       
+
     d = readdir(dir_entries[*read_dir]);
 
     if(d == NULL) {
@@ -200,7 +200,7 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
         memcpy(fsreaddir_ret.return_val + sizeof(int), &(entType), sizeof(unsigned char));
 
         return fsreaddir_ret;
-    } 
+    }
 
     // Successful readdir operation
     readDirErrno = 0;

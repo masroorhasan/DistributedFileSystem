@@ -110,7 +110,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
         printf("root_path and localDirName not the same.\n");
         errno = ENOENT;
         return NULL;
-    } 
+    }
 
     return_type ans;
     ans = make_remote_call(destAddr,

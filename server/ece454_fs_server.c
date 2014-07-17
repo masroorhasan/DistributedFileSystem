@@ -208,7 +208,7 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
         fsreaddir_ret.return_val = (void *)malloc(sz);
         
         if(readDirErrno != 0) {
-            printf("Error reading directory entry: %s \n", strerror(errno));
+            printf("Error reading directory entry: %s \n", strerror(readDirErrno));
 
             memcpy(buffer, &readDirErrno, sizeof(int));
             memcpy(buffer + sizeof(int), &(entType), sizeof(unsigned char));

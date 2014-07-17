@@ -65,7 +65,7 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     memcpy(folder_path, (char *)a->arg_val, arg_sz);
     printf("Request to open folder name: %s\n", folder_path);
 
-		char* parsed_folder = folder_path;		
+	char* parsed_folder = folder_path;		
 
 		/*
  		 * Parse folder name.
@@ -126,7 +126,7 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
 		// Directory entry has been taken, advance index
 		next_dir_entry++;
     } else {
-    		printf("Server fsOpenDir() Error: %i\n", openDirErrno);
+		printf("Server fsOpenDir() Error: %i\n", openDirErrno);
         fsdir_return.return_size = sizeof(int);
         fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);
 

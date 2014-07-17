@@ -117,7 +117,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     int openDirErrno;
     memcpy(&openDirErrno, (int *)ans.return_val, sizeof(int));
 
-		FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
+	FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
 
     if(openDirErrno == 0) {
         memcpy(dir, (FSDIR *)(ans.return_val + sizeof(int)), sizeof(FSDIR));
@@ -185,8 +185,6 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
 
     printf("Got response from fsReadDir RPC.\n");
 
-    struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
-
     int index = 0;
 
     // unpack errno
@@ -211,6 +209,7 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     memcpy(entName, (char *)ans.return_val + index, 256);
     index += 256;
 
+    struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
     fdent->entType = entType;
     strncpy(fdent->entName, entName, 256);
 

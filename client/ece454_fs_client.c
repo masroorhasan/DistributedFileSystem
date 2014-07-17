@@ -103,6 +103,15 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     // Check that we're mounted
     if (mountError(true)) return NULL;
 
+    char *root_path;
+    memcpy(root_path, folderName, strlen(localDirName));
+
+    if(strcmp(root_path, localDirName) != 0) {
+        printf("root_path and localDirName not the same.\n");
+        errno = ENOENT;
+        return NULL;
+    } 
+
     return_type ans;
     ans = make_remote_call(destAddr,
                destPort,
@@ -117,7 +126,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     int openDirErrno;
     memcpy(&openDirErrno, (int *)ans.return_val, sizeof(int));
 
-		FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
+    FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
 
     if(openDirErrno == 0) {
         memcpy(dir, (FSDIR *)(ans.return_val + sizeof(int)), sizeof(FSDIR));
@@ -153,13 +162,13 @@ extern int fsCloseDir(FSDIR * folder) {
     int closeDirErrno;
     memcpy(&closeDirErrno, (int *)ans.return_val, sizeof(int));
 
-		int ret_val = -1;
-		if (closeDirErrno == 0) {
-				memcpy(&ret_val, (int *)(ans.return_val + sizeof(int)), sizeof(int));
-		} else {
-				errno = closeDirErrno;
-				printf("fsCloseDir() Error: %s \n", strerror(errno));
-		}
+	int ret_val = -1;
+	if (closeDirErrno == 0) {
+		memcpy(&ret_val, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+	} else {
+		errno = closeDirErrno;
+		printf("fsCloseDir() Error: %s \n", strerror(errno));
+	}
 
     return ret_val;
 }
@@ -196,6 +205,7 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     index += sizeof(unsigned char);
 
     if(readDirErrno == 0 && entType == 255) {
+        printf("End of directory stream\n");
         return NULL;
     }
 

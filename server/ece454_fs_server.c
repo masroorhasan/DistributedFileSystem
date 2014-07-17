@@ -87,10 +87,10 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
         parsed_folder = (char *) malloc(strlen(hosted_folder_name) + 1);
         memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
     }
-		/*
-		 * End of folder pasrsing logic.
-     */
 
+    /*
+     * End of folder pasrsing logic.
+     */
     printf("Opening folder path %s\n", parsed_folder);
 
     DIR* hosted_dir = opendir(parsed_folder);

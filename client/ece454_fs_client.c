@@ -116,13 +116,11 @@ extern FSDIR* fsOpenDir(const char *folderName) {
 
     int openDirErrno;
     memcpy(&openDirErrno, (int *)ans.return_val, sizeof(int));
-		printf("fsOpenDir copied errorno: %i ", openDirErrno);
 
 		FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
 
     if(openDirErrno == 0) {
         memcpy(dir, (FSDIR *)(ans.return_val + sizeof(int)), sizeof(FSDIR));
-				printf("dir: %i\n", *dir);
     } else {
         dir = NULL;
         errno = openDirErrno;

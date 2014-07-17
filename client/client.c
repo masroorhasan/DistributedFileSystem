@@ -29,14 +29,9 @@ int main(int argc, char *argv[]) {
 		int ret_closedir = fsCloseDir(fd);
 		printf("Closing directory returned: %i\n", ret_closedir);
 
-		ret_closedir = fsCloseDir(fd);
-		printf("Closing directory returned: %i\n", ret_closedir);
-
     folder_path = "root/one";
     fd = fsOpenDir(folder_path);
 
-    folder_path = "root/two";
-    fd = fsOpenDir(folder_path);
 
 		/* Read test case.
     if(fd != NULL) {

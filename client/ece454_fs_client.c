@@ -76,6 +76,15 @@ extern int fsUnmount(const char *localFolderName) {
     // Check that we're mounted
     if (mountError(true)) return -1;
 
+    char *root_path = (char *) malloc(strlen(localDirName) + 1);
+    memcpy(root_path, localFolderName, strlen(localDirName));
+
+    if(strcmp(root_path, localDirName) != 0) {
+        errno = EPERM;
+        printf("fsUnmount() Error: %s \n", strerror(errno));
+        return -1;
+    }
+
     return_type ans;
     ans = make_remote_call(destAddr,
                destPort,
@@ -89,8 +98,6 @@ extern int fsUnmount(const char *localFolderName) {
     if (value == 0) {
         mounted = false;
         printf("Folder was successfully unmounted.\n");
-    } else {
-        printf("Folder unmounted was unsuccessful.\n");
     }
 
     return value;

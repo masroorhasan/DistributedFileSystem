@@ -26,6 +26,10 @@ int main(int argc, char *argv[]) {
     char* folder_path = "leaf";
     FSDIR* fd = fsOpenDir(folder_path);
 
+    fsMount(argv[1], atoi(argv[2]), "leaf");
+
+    fsUnmount("xyz");
+
     if(fd != NULL) {
         struct fsDirent *fdent = NULL;
 

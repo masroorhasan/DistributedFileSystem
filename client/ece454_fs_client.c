@@ -9,8 +9,8 @@
  */
 extern bool mountError(bool expected) {
     if (mounted != expected) {
-        printf("Error expected mounted = ");
-        printf(expected ? "true.\n" : "false.\n");
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
         return true;
     }
 
@@ -47,14 +47,19 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     printf("Got response from fsMount RPC.\n");
 
     int size = ans.return_size;
-    int value = *(int *)(ans.return_val);
+    int value;
+    memcpy(&value, (int *)ans.return_val, sizeof(int));
 
     if (value == 0) {
         mounted = true;
         printf("Folder was successfully mounted.\n");
     } else {
         mounted = false;
-        printf("Folder mount was unsuccessful.\n");
+        int mountErrno;
+        memcpy(&mountErrno, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+        
+        errno = mountErrno;
+        printf("fsMount() Error: %s \n", strerror(errno));
     }
 
     return value;
@@ -71,6 +76,15 @@ extern int fsUnmount(const char *localFolderName) {
     // Check that we're mounted
     if (mountError(true)) return -1;
 
+    char *root_path = (char *) malloc(strlen(localDirName) + 1);
+    memcpy(root_path, localFolderName, strlen(localDirName));
+
+    if(strcmp(root_path, localDirName) != 0) {
+        errno = EPERM;
+        printf("fsUnmount() Error: %s \n", strerror(errno));
+        return -1;
+    }
+
     return_type ans;
     ans = make_remote_call(destAddr,
                destPort,
@@ -84,8 +98,6 @@ extern int fsUnmount(const char *localFolderName) {
     if (value == 0) {
         mounted = false;
         printf("Folder was successfully unmounted.\n");
-    } else {
-        printf("Folder unmounted was unsuccessful.\n");
     }
 
     return value;

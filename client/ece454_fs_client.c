@@ -103,7 +103,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     // Check that we're mounted
     if (mountError(true)) return NULL;
 
-    char *root_path;
+    char *root_path = (char *) malloc(strlen(localDirName) + 1);
     memcpy(root_path, folderName, strlen(localDirName));
 
     if(strcmp(root_path, localDirName) != 0) {

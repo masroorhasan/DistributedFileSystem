@@ -70,24 +70,26 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     char *fwdslash = "/";
     for(; i < strlen(folder_path); i++) {
         if(folder_path[i] == '/') {
-            printf("Found fwd slash at %i\n", i);
             found_slash = true;
             break;  
         }
     }
 
-    char *parsed_folder = (char *) malloc(strlen(hosted_folder_name) + strlen(folder_path) - i + 1);
+    char *parsed_folder;
     if(found_slash == true) {
-        parsed_folder = hosted_folder_name;
+        parsed_folder = (char *) malloc(strlen(hosted_folder_name) + strlen(folder_path) - i + 1);
+        memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name));
         strcat(parsed_folder, folder_path+i);
     } else {
+        parsed_folder = (char *) malloc(strlen(hosted_folder_name) + 1);
+        memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name));
         parsed_folder = hosted_folder_name;
     }
 
     printf("Opening folder path %s\n", parsed_folder);
 
     DIR* hosted_dir = opendir(parsed_folder);
-    
+    parsed_folder = NULL;
 
     int openDirErrno = 0;
     if(hosted_dir == NULL) openDirErrno = errno;

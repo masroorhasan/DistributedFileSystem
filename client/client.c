@@ -33,7 +33,6 @@ int main(int argc, char *argv[]) {
             printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
         }
 
-
         int ret = fsCloseDir(fd);
         fdent = fsReadDir(fd);
     }

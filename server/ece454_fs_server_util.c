@@ -29,8 +29,8 @@ extern char* parseFolderPath(const char* folderPath) {
 
 /*
  * Deserializes an FSDIR from the client so a server can
- * operate on it.
- */
+ * operate on it.*/
+/*
 extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
     printf("deserializeFSDIR() helper method not implemented.");
     exit(0);
@@ -42,6 +42,7 @@ extern FSDIR* deserializeFSDIR(const int nparams, arg_type *a) {
 
     return dir;
 }
+*/
 
 /*
  * Serializes FsDirent struct members from server so a client can

@@ -117,7 +117,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     int openDirErrno;
     memcpy(&openDirErrno, (int *)ans.return_val, sizeof(int));
 
-	FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
+		FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
 
     if(openDirErrno == 0) {
         memcpy(dir, (FSDIR *)(ans.return_val + sizeof(int)), sizeof(FSDIR));

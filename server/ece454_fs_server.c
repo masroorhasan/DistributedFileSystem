@@ -65,47 +65,7 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     memcpy(folder_path, (char *)a->arg_val, arg_sz);
     printf("Request to open folder name: %s\n", folder_path);
 
-	char* parsed_folder = folder_path;		
-
-		/*
- 		 * Parse folder name.
- 		 */
-        
-		/*
-		bool found_slash = false;
-		int i = 0;
-		for(; i < strlen(folder_path); i++) {
-				char folder_name = *(folder_path+i);
-				char *backslash = "/";
-				if (strcmp(&folder_name, backslash) == 0) {
-						printf("Found slash in folderName, at index:%i\n", i);
-						found_slash = true;
-						break;
-				} 
-		}	
-		if (found_slash == true) {
-				printf("Here is the size of folderName: %i\n", strlen(folder_path));
-				printf("Here is the value of i: %i\n", i);
-				int size = (strlen(folder_path) - i + 1) + strlen(hosted_folder_name);
-				printf("Here is the size of the new folder: %i\n", size);
-				parsed_folder = (char*) malloc(size);
-				printf("Attempting to memcpy.\n");
-
-				memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name));
-				printf("Attempting to strcpy.\n");
-				strncpy(parsed_folder + strlen(hosted_folder_name), folder_path + i, size - strlen(hosted_folder_name));
-				printf("Here is the final STRING!: %s\n", parsed_folder);
-		} else {
-				printf("A slash was not found. Setting parsed_folder to . \n");
-				parsed_folder = (char *) malloc(sizeof(hosted_folder_name));
-				memcpy(parsed_folder, hosted_folder_name, sizeof(hosted_folder_name)); 
-				printf("parsed_folder: %s\n", parsed_folder);
-		} */
-		
-        /*
- 		 * End of parse foler name.
- 		 */
-
+		char* parsed_folder = folder_path;		
 
     DIR* hosted_dir = opendir(parsed_folder);
 
@@ -149,15 +109,15 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
     int *dir = (int*) malloc(sizeof(int));
 
     memcpy(dir, (int*) a->arg_val, size); 
-	int ret_int = -1;
+		int ret_int = -1;
     int closeDirErrno = EPERM;
 
-	if (dir_entries[*dir] != NULL) {
-		ret_int = closedir(dir_entries[*dir]);
+		if (dir_entries[*dir] != NULL) {
+				ret_int = closedir(dir_entries[*dir]);
 		
         if(ret_int == 0) closeDirErrno = 0;
 		    dir_entries[*dir] = NULL;
-	}
+		}
 	
     return_type closedir_ret;
 
@@ -204,7 +164,6 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
     d = readdir(dir_entries[*read_dir]);
 
     if(d == NULL) {
-
         if(readDirErrno != errno) {
             readDirErrno = errno;
         } else {
@@ -225,8 +184,6 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
     } else if(d->d_type == DT_REG) {
         entType = 0;
     }
-
-    printf("name: %s, type %i\n", d->d_name, entType);
 
     int index = 0;
     memcpy(fsreaddir_ret.return_val, &readDirErrno, sizeof(int));

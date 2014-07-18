@@ -25,7 +25,7 @@
  *
  * returns int -- negative return means an error occurred, else the call succeeded.
  */
-extern int mybind(int sockfd, struct sockaddr_in *addr) {
+int mybind(int sockfd, struct sockaddr_in *addr) {
     if(sockfd < 1) {
 	fprintf(stderr, "mybind(): sockfd has invalid value %d\n", sockfd);
 	return -1;

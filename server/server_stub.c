@@ -25,7 +25,6 @@
 extern uint32_t getPublicIPAddr();
 extern void recvbytes(int, void *, ssize_t);
 extern void sendbytes(int, void *, ssize_t);
-extern int mybind(int sockfd, struct sockaddr_in *addr);
 
 /* Linked list of registered functions */
 struct fn {
@@ -44,8 +43,8 @@ void printRegisteredProcedures() {
     printf("Registered procedures:\n"); fflush(stdout);
     struct fn *tmp;
     for(tmp = fnp; tmp != NULL; tmp = tmp->next) {
-	// printf("\t0x%08x, %s, %d\n", (unsigned int)tmp,
-	// tmp->fname, tmp->nparams);
+	printf("\t0x%08x, %s, %d\n", (unsigned int)tmp,
+		tmp->fname, tmp->nparams);
 	fflush(stdout);
     }
 

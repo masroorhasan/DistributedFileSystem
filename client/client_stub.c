@@ -13,7 +13,6 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include "ece454rpc_types.h"
 
 #if 0
@@ -107,8 +106,7 @@ return_type make_remote_call(const char *servernameorip,
 	recvbytes(s, r.return_val, r.return_size);
     }
 
-    shutdown(s, SHUT_RDWR);
-    close(s);
+    shutdown(s, SHUT_RDWR); close(s);
 
     /* Warning! Potential memory leak -- r.return_val */
     return(r);

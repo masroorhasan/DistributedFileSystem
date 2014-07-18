@@ -14,16 +14,15 @@
 
 #include "ece454_fs.h"
 
-
 int main(int argc, char *argv[]) {
     if(argc < 3) {
 	      printf("Usage: %s <Server IP> <Server Port>\n", argv[0]);
 	      return 0;
     }
 
-    fsMount(argv[1], atoi(argv[2]), "leaf");
+    fsMount(argv[1], atoi(argv[2]), "root");
 
-    char* folder_path = "leaf";
+    char* folder_path = "root";
     FSDIR* fd = fsOpenDir(folder_path);
 
     if(fd != NULL) {

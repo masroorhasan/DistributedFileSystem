@@ -74,4 +74,3 @@ extern return_type serializeFsDirent(struct dirent *d) {
 
     return ret;
 }
-

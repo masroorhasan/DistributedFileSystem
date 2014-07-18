@@ -26,11 +26,11 @@ extern return_type fsMount(const int nparams, arg_type *a) {
 
     return_type mount_return;
     mount_return.return_size = sizeof(int) + sizeof(int);
-    
+
     mount_return.return_val = (void *) malloc(mount_return.return_size);
     memcpy(mount_return.return_val, ret_int, sizeof(int));
     memcpy(mount_return.return_val + sizeof(int), mountErrno, sizeof(int));
-    
+
 
     return mount_return;
 }
@@ -114,10 +114,10 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
         memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
         memcpy(fsdir_return.return_val + sizeof(int), &next_dir_entry, sizeof(int));
 
-		// Directory entry has been taken, advance index
-		next_dir_entry++;
+		    // Directory entry has been taken, advance index
+		    next_dir_entry++;
     } else {
-		printf("Server fsOpenDir() Error: %i\n", openDirErrno);
+		    printf("Server fsOpenDir() Error: %i\n", openDirErrno);
         fsdir_return.return_size = sizeof(int);
         fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);
 
@@ -243,8 +243,58 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsOpen(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsOpen() called.\n");
+
+    int fname_sz = a->arg_size;
+
+    // Get filename to open
+    char *fname = (char *) malloc(fname_sz);
+    memcpy(fname, (char *)a->arg_val, fname_sz);
+
+    // Parse file name with server path
+    int i = 0;
+    char *parsed_folder;
+
+    char *fwdslash = "/";
+    for(; i < strlen(fname); i++) {
+        if(fname[i] == '/') {
+            parsed_folder = (char *) malloc(strlen(hosted_folder_name) + strlen(fname) - i + 1);
+            memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
+            strcat(parsed_folder, fname + i);
+            break;
+        }
+    }
+
+    // Get file mode
+    arg_type *nextarg = a->next;
+    int mode_sz = nextarg->arg_size;
+
+    int *mode = (int *) malloc(mode_sz);
+    memcpy(mode, (int *)nextarg->arg_val, mode_sz);
+
+    int flags = -1;
+    int openErrno = 0;
+
+    if(*mode == 0) {
+        flags = O_RDONLY;
+    } else if(*mode == 1) {
+        flags = O_WRONLY | O_CREAT;
+    }
+
+    int open_fd = open(parsed_folder, flags, S_IRWXU);
+    if(open_fd == -1) {
+        openErrno = errno;
+        printf("openErrno on server %s\n", strerror(openErrno));
+    }
+
+    return_type fsopen_ret;
+    fsopen_ret.return_size = sizeof(int) + sizeof(int);
+    fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+
+    memcpy(fsopen_ret.return_val, &openErrno, sizeof(int));
+    memcpy(fsopen_ret.return_val + sizeof(int), &open_fd, sizeof(int));
+
+    return fsopen_ret;
 }
 
 
@@ -256,8 +306,29 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsClose(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsClose() called.\n");
+
+    int fd_sz = a->arg_size;
+
+    int closeErrno = 0;
+
+    int fd;
+    memcpy(&fd, (int *)a->arg_val, fd_sz);
+
+    int close_fd = close(fd);
+    if(close_fd == -1) {
+        closeErrno = errno;
+        printf("fsClose() %s\n", strerror(errno));
+    }
+
+    return_type fsclose_ret;
+    fsclose_ret.return_size = sizeof(int) + sizeof(int);
+    fsclose_ret.return_val = (void *) malloc(fsclose_ret.return_size);
+
+    memcpy(fsclose_ret.return_val, &closeErrno, sizeof(int));
+    memcpy(fsclose_ret.return_val + sizeof(int), &close_fd, sizeof(int));
+
+    return fsclose_ret;
 }
 
 /*

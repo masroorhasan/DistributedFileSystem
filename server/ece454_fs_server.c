@@ -236,8 +236,65 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsOpen(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsOpen() called.\n");
+
+    int fname_sz = a->arg_size;
+
+    // Get filename to open
+    char *fname = (char *) malloc(fname_sz);
+    memcpy(fname, (char *)a->arg_val, fname_sz);
+
+    // Parse file name with server path
+    int i = 0;
+    bool found_slash = false;
+    char *parsed_folder;
+
+    char *fwdslash = "/";
+    for(; i < strlen(fname); i++) {
+        if(fname[i] == '/') {
+            found_slash = true;
+            
+            parsed_folder = (char *) malloc(strlen(hosted_folder_name) + strlen(fname) - i + 1);
+            memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
+            strcat(parsed_folder, fname + i);
+
+            break;
+        }
+    }
+
+    // Get file mode
+    arg_type *nextarg = a->next;
+    int mode_sz = nextarg->arg_size;
+
+    int *mode = (int *) malloc(mode_sz);
+    memcpy(mode, (int *)nextarg->arg_val, mode_sz);
+
+    printf("Opening folder path %s in mode %i\n", parsed_folder, *mode);
+
+    int flags = -1;
+    int openErrno = 0;
+
+    if(*mode == 0) {
+        flags = O_RDONLY;
+    } else if(*mode == 1) {
+        flags = O_WRONLY | O_CREAT;
+    }
+
+    int open_fd = open(parsed_folder, flags, S_IRWXU);
+    printf("open fd: %i\n", open_fd);
+    if(open_fd == -1) {
+        openErrno = errno;    
+        printf("openErrno on server %s\n", strerror(openErrno));
+    }
+    
+    return_type fsopen_ret;
+    fsopen_ret.return_size = sizeof(int) + sizeof(int);
+    fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+
+    memcpy(fsopen_ret.return_val, &openErrno, sizeof(int));
+    memcpy(fsopen_ret.return_val + sizeof(int), &open_fd, sizeof(int));
+
+    return fsopen_ret;
 }
 
 

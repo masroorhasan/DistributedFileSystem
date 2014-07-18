@@ -75,3 +75,9 @@ extern return_type serializeFsDirent(struct dirent *d) {
     return ret;
 }
 
+/*
+ * Maps local mounted path to server root path
+ */
+
+
+

@@ -247,7 +247,35 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
 extern int fsOpen(const char *fname, int mode) {
     // Check that we're mounted
     if (mountError(true)) return -1;
-    return -1;
+    printf("fname: %s, mode %i\n", fname, mode);
+
+    int fname_sz = strlen(fname) + 1;
+    int mode_sz = sizeof(int);
+
+    return_type ans;
+    ans = make_remote_call(destAddr,
+              destPort,
+              "fsOpen", 2,
+              fname_sz,
+              fname,
+              mode_sz,
+              &mode);
+
+    printf("Got response from fsOpen RPC.\n");
+    int sz = ans.return_size;
+
+    int openErrno;
+    memcpy(&openErrno, (int *)(ans.return_val), sizeof(int));
+
+    if(openErrno != 0) {
+        errno = openErrno;
+        printf("fsOpen() Error: %s\n", strerror(errno));
+    }
+
+    int open_fd;
+    memcpy(&open_fd, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+
+    return open_fd;
 }
 
 

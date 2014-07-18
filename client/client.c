@@ -14,32 +14,25 @@
 
 #include "ece454_fs.h"
 
-
 int main(int argc, char *argv[]) {
     if(argc < 3) {
 	      printf("Usage: %s <Server IP> <Server Port>\n", argv[0]);
 	      return 0;
     }
 
-    fsMount(argv[1], atoi(argv[2]), "leaf");
+    fsMount(argv[1], atoi(argv[2]), "root");
 
-    char* folder_path = "leaf";
+    char* folder_path = "root";
     FSDIR* fd = fsOpenDir(folder_path);
-
-    fsMount(argv[1], atoi(argv[2]), "leaf");
-
-    fsUnmount("xyz");
 
     if(fd != NULL) {
         struct fsDirent *fdent = NULL;
-
-        for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
-            printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
-        }
-
-        int ret = fsCloseDir(fd);
-        fdent = fsReadDir(fd);
+         for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
+	           printf("Name: %s, Type: %d\n", fdent->entName, (int)(fdent->entType));
+         }
     }
+    int ret = fsCloseDir(fd);
+    int unmount = fsUnmount("root");
 
     return 0;
 }

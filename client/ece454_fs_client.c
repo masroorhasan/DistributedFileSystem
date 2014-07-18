@@ -217,6 +217,7 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     index += sizeof(unsigned char);
 
     if(readDirErrno == 0 && entType == 255) {
+        printf("End of stream\n");
         return NULL;
     }
 

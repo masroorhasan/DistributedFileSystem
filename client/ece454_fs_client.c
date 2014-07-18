@@ -247,7 +247,6 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
 extern int fsOpen(const char *fname, int mode) {
     // Check that we're mounted
     if (mountError(true)) return -1;
-    printf("fname: %s, mode %i\n", fname, mode);
 
     int fname_sz = strlen(fname) + 1;
     int mode_sz = sizeof(int);

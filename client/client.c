@@ -22,28 +22,17 @@ int main(int argc, char *argv[]) {
     }
 
     fsMount(argv[1], atoi(argv[2]), "leaf");
-    // fsMount(argv[1], atoi(argv[2]), "leaf");
-
 
     char* folder_path = "leaf/one";
     FSDIR* fdir = fsOpenDir(folder_path);
 
     struct fsDirent *fdent = NULL;
 
-    // for(fdent = fsReadDir(fdir); fdent != NULL; fdent = fsReadDir(fdir)) {
-    //     printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
-    // }
-    
-    fdent = fsReadDir(fdir);
-    printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
+    for(fdent = fsReadDir(fdir); fdent != NULL; fdent = fsReadDir(fdir)) {
+        printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
+    }
 
-    fdent = fsReadDir(fdir);
-    printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
-
-    fdent = fsReadDir(fdir);
-    printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
-
-    // open bunch of files
+    // Open bunch of files
     int fd = fsOpen("leaf/test.txt", 1);
     printf("open fd: %i\n", fd);
 
@@ -56,7 +45,7 @@ int main(int argc, char *argv[]) {
     int fd4 = fsOpen("leaf/two/two.txt", 0);
     printf("open fd: %i\n", fd4);
 
-    // close those files
+    // Close those files
     int cls_fd = fsClose(fd);
     printf("closing fd %i with ret %i\n", fd, cls_fd);
 
@@ -69,7 +58,7 @@ int main(int argc, char *argv[]) {
     int cls_fd4 = fsClose(fd4);
     printf("closing fd %i with ret %i\n", fd4, cls_fd4);
 
-    // closing directory
+    // Closing directory
     int ret = fsCloseDir(fdir);
     printf("closedir returned: %i\n", ret);
     

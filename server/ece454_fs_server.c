@@ -114,10 +114,10 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
         memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
         memcpy(fsdir_return.return_val + sizeof(int), &next_dir_entry, sizeof(int));
 
-		// Directory entry has been taken, advance index
-		next_dir_entry++;
+		    // Directory entry has been taken, advance index
+		    next_dir_entry++;
     } else {
-		printf("Server fsOpenDir() Error: %i\n", openDirErrno);
+		    printf("Server fsOpenDir() Error: %i\n", openDirErrno);
         fsdir_return.return_size = sizeof(int);
         fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);
 
@@ -253,18 +253,14 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
 
     // Parse file name with server path
     int i = 0;
-    bool found_slash = false;
     char *parsed_folder;
 
     char *fwdslash = "/";
     for(; i < strlen(fname); i++) {
         if(fname[i] == '/') {
-            found_slash = true;
-
             parsed_folder = (char *) malloc(strlen(hosted_folder_name) + strlen(fname) - i + 1);
             memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
             strcat(parsed_folder, fname + i);
-
             break;
         }
     }
@@ -276,8 +272,6 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     int *mode = (int *) malloc(mode_sz);
     memcpy(mode, (int *)nextarg->arg_val, mode_sz);
 
-    printf("Opening folder path %s in mode %i\n", parsed_folder, *mode);
-
     int flags = -1;
     int openErrno = 0;
 
@@ -288,7 +282,6 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     }
 
     int open_fd = open(parsed_folder, flags, S_IRWXU);
-    printf("open fd: %i\n", open_fd);
     if(open_fd == -1) {
         openErrno = errno;
         printf("openErrno on server %s\n", strerror(openErrno));
@@ -325,7 +318,7 @@ extern return_type fsClose(const int nparams, arg_type *a) {
     int close_fd = close(fd);
     if(close_fd == -1) {
         closeErrno = errno;
-        printf("fsClose() on server %s\n", strerror(errno));
+        printf("fsClose() %s\n", strerror(errno));
     }
 
     return_type fsclose_ret;

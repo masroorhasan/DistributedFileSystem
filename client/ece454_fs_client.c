@@ -289,7 +289,29 @@ extern int fsOpen(const char *fname, int mode) {
 extern int fsClose(int fd) {
     // Check that we're mounted
     if (mountError(true)) return -1;
-    return -1;
+
+    return_type ans;
+    ans = make_remote_call(destAddr,
+              destPort,
+              "fsClose", 1,
+              sizeof(int),
+              &fd);
+
+    printf("Got response from fsClose RPC.\n");
+    int sz = ans.return_size;
+
+    int closeErrno;
+    memcpy(&closeErrno, (int *)(ans.return_val), sizeof(int));
+
+    if(closeErrno != 0) {
+        errno = closeErrno;
+        printf("fsClose() Error: %s\n", strerror(errno));
+    }
+
+    int close_fd;
+    memcpy(&close_fd, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+
+    return close_fd;
 }
 
 /*

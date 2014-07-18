@@ -306,8 +306,29 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
  * Returns -1 on failure and sets errno.
  */
 extern return_type fsClose(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsClose() called.\n");
+
+    int fd_sz = a->arg_size;
+    
+    int closeErrno = 0;
+
+    int fd;
+    memcpy(&fd, (int *)a->arg_val, fd_sz);
+    
+    int close_fd = close(fd);
+    if(close_fd == -1) {
+        closeErrno = errno;
+        printf("fsClose() on server %s\n", strerror(errno));
+    }
+
+    return_type fsclose_ret;
+    fsclose_ret.return_size = sizeof(int) + sizeof(int);
+    fsclose_ret.return_val = (void *) malloc(fsclose_ret.return_size);
+
+    memcpy(fsclose_ret.return_val, &closeErrno, sizeof(int));
+    memcpy(fsclose_ret.return_val + sizeof(int), &close_fd, sizeof(int));
+
+    return fsclose_ret;
 }
 
 /*

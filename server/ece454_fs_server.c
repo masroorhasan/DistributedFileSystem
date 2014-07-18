@@ -26,11 +26,11 @@ extern return_type fsMount(const int nparams, arg_type *a) {
 
     return_type mount_return;
     mount_return.return_size = sizeof(int) + sizeof(int);
-    
+
     mount_return.return_val = (void *) malloc(mount_return.return_size);
     memcpy(mount_return.return_val, ret_int, sizeof(int));
     memcpy(mount_return.return_val + sizeof(int), mountErrno, sizeof(int));
-    
+
 
     return mount_return;
 }
@@ -260,7 +260,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     for(; i < strlen(fname); i++) {
         if(fname[i] == '/') {
             found_slash = true;
-            
+
             parsed_folder = (char *) malloc(strlen(hosted_folder_name) + strlen(fname) - i + 1);
             memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
             strcat(parsed_folder, fname + i);
@@ -290,10 +290,10 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     int open_fd = open(parsed_folder, flags, S_IRWXU);
     printf("open fd: %i\n", open_fd);
     if(open_fd == -1) {
-        openErrno = errno;    
+        openErrno = errno;
         printf("openErrno on server %s\n", strerror(openErrno));
     }
-    
+
     return_type fsopen_ret;
     fsopen_ret.return_size = sizeof(int) + sizeof(int);
     fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
@@ -316,12 +316,12 @@ extern return_type fsClose(const int nparams, arg_type *a) {
     printf("fsClose() called.\n");
 
     int fd_sz = a->arg_size;
-    
+
     int closeErrno = 0;
 
     int fd;
     memcpy(&fd, (int *)a->arg_val, fd_sz);
-    
+
     int close_fd = close(fd);
     if(close_fd == -1) {
         closeErrno = errno;

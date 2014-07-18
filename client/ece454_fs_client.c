@@ -57,7 +57,7 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
         mounted = false;
         int mountErrno;
         memcpy(&mountErrno, (int *)(ans.return_val + sizeof(int)), sizeof(int));
-        
+
         errno = mountErrno;
         printf("fsMount() Error: %s \n", strerror(errno));
     }

@@ -28,11 +28,11 @@ int main(int argc, char *argv[]) {
     if(fd != NULL) {
         struct fsDirent *fdent = NULL;
          for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
-	           printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
+	           printf("Name: %s, Type: %d\n", fdent->entName, (int)(fdent->entType));
          }
     }
     int ret = fsCloseDir(fd);
-    int unmount = fsUnmount("leaf");
+    int unmount = fsUnmount("root");
 
     return 0;
 }

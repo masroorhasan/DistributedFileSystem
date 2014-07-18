@@ -231,7 +231,6 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
 
     memcpy(fsreaddir_ret.return_val + index, &(d->d_name), 256);
     index += 256;
-    printf("Server is returning name: %s, type: %i, errno: %i\n", d->d_name, entType, readDirErrno);
 
     return fsreaddir_ret;
 }

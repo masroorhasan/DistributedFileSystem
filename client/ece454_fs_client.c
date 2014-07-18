@@ -234,7 +234,6 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     struct fsDirent *fdent = (struct fsDirent *) malloc(sizeof(struct fsDirent));
     fdent->entType = entType;
     strncpy(fdent->entName, entName, 256);
-    printf("Deserialized name: %s, type: %i, errno %i", fdent->entName, fdent->entType, readDirErrno);
 
     return fdent;
 }

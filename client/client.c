@@ -14,14 +14,13 @@
 
 #include "ece454_fs.h"
 
-
 int main(int argc, char *argv[]) {
     if(argc < 3) {
 	      printf("Usage: %s <Server IP> <Server Port>\n", argv[0]);
 	      return 0;
     }
 
-    fsMount(argv[1], atoi(argv[2]), "leaf");
+    fsMount(argv[1], atoi(argv[2]), "root");
 
     char* folder_path = "leaf/one";
     FSDIR* fdir = fsOpenDir(folder_path);
@@ -61,8 +60,6 @@ int main(int argc, char *argv[]) {
     // Closing directory
     int ret = fsCloseDir(fdir);
     printf("closedir returned: %i\n", ret);
-    
-    fsUnmount("leaf");    
-      
+    fsUnmount("leaf");
     return 0;
 }

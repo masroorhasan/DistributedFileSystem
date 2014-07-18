@@ -215,6 +215,13 @@ extern return_type fsReadDir(const int nparams, arg_type *a) {
         entType = 0;
     }
 
+    // Hack '.' and '..' case to be entType 1
+    const char* dot = ".";
+    const char* dotdot = "..";
+    if ((strcmp(dot, ((char*)&(d->d_name))) == 0) || (strcmp(dotdot, ((char*)&d->d_name)) == 0)) {
+        entType = 1;
+    }
+
     int index = 0;
     memcpy(fsreaddir_ret.return_val, &readDirErrno, sizeof(int));
     index += sizeof(int);

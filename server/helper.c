@@ -48,6 +48,7 @@ uint32_t getPublicIPAddr() {
     return 0;
 }
 
+#if 0
 void printBuf(char *buf, int size) {
     /* Should match the output from od -x */
     int i;
@@ -73,6 +74,7 @@ void printBuf(char *buf, int size) {
 	i += j;
     }
 }
+#endif
 
 void recvbytes(int s, void *buf, ssize_t count) {
     /* Recv until we hit count bytes */

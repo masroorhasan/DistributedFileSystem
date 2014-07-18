@@ -26,20 +26,14 @@ int main(int argc, char *argv[]) {
     char* folder_path = "leaf";
     FSDIR* fd = fsOpenDir(folder_path);
 
-    fsMount(argv[1], atoi(argv[2]), "leaf");
-
-    fsUnmount("xyz");
-
     if(fd != NULL) {
         struct fsDirent *fdent = NULL;
-
-        for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
-            printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
-        }
-
-        int ret = fsCloseDir(fd);
-        fdent = fsReadDir(fd);
+         for(fdent = fsReadDir(fd); fdent != NULL; fdent = fsReadDir(fd)) {
+	           printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
+         }
     }
+    int ret = fsCloseDir(fd);
+    int unmount = fsUnmount("leaf");
 
     return 0;
 }

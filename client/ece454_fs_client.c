@@ -234,6 +234,7 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     fdent->entType = entType;
     strncpy(fdent->entName, entName, 256);
 
+    printf("fsReadDir, Name: %s, Type: %i, Errno: %i\n", fdent->entName, fdent->entType, readDirErrno);
     return fdent;
 }
 

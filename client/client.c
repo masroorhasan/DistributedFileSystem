@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 	      return 0;
     }
 
-    fsMount(argv[1], atoi(argv[2]), "root");
+    fsMount(argv[1], atoi(argv[2]), "leaf");
 
     char* folder_path = "leaf/one";
     FSDIR* fdir = fsOpenDir(folder_path);
@@ -48,14 +48,17 @@ int main(int argc, char *argv[]) {
     int cls_fd = fsClose(fd);
     printf("closing fd %i with ret %i\n", fd, cls_fd);
 
-    int cls_fd2 = fsClose(fd2);
-    printf("closing fd %i with ret %i\n", fd2, cls_fd2);
+    // int cls_fd2 = fsClose(fd2);
+    // printf("closing fd %i with ret %i\n", fd2, cls_fd2);
 
     int cls_fd3 = fsClose(fd3);
     printf("closing fd %i with ret %i\n", fd3, cls_fd3);
 
     int cls_fd4 = fsClose(fd4);
     printf("closing fd %i with ret %i\n", fd4, cls_fd4);
+
+    char *buf = "writing test";
+    int write = fsWrite(fd2, buf, 256);
 
     // Closing directory
     int ret = fsCloseDir(fdir);

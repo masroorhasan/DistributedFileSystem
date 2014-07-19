@@ -356,8 +356,32 @@ extern return_type fsRead(const int nparams, arg_type *a) {
  * Returns -1 on error and sets errno.
  */
 extern return_type fsWrite(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsWrite() called.\n");
+
+    int fd_sz = a->arg_size;
+    int fd;
+    memcpy(&fd, (int *)a->arg_val, fd_sz);
+    printf("file descriptor: %i\n", fd);
+    
+    arg_type *buffarg = a->next;
+    int buf_sz = buffarg->arg_size;
+    void *buff;
+    memcpy(buff, (void *)buffarg->arg_val, buf_sz);
+    printf("buff to write: %s\n", (char *)buff);
+
+    arg_type *countarg = buffarg->next;
+    int count_sz = countarg->arg_size;
+    unsigned int count;
+    memcpy(&count, (unsigned int *)countarg->arg_val, count_sz);
+    printf("count: %i\n", count);
+
+    int bytes = write(fd, buff, (size_t)count);
+    
+    return_type fswrite_ret;
+    fswrite_ret.return_size = sizeof(int);
+    fswrite_ret.return_val = (void *) malloc(fswrite_ret.return_size);
+    memcpy(fswrite_ret.return_val, &bytes, fswrite_ret.return_size);
+    return fswrite_ret;
 }
 
 /*

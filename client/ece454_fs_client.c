@@ -342,7 +342,28 @@ extern int fsRead(int fd, void *buf, const unsigned int count) {
 extern int fsWrite(int fd, const void *buf, const unsigned int count) {
     // Check that we're mounted
     if (mountError(true)) return -1;
-    return -1;
+
+    printf("sending fd: %i, buf: %s, count: %i\n", fd, (char *)buf, count);
+
+    return_type ans;
+    ans = make_remote_call(destAddr,
+              destPort,
+              "fsWrite", 3,
+              sizeof(int),
+              &fd,
+              strlen((char *)buf) + 1,
+              buf,
+              sizeof(unsigned int),
+              &count);
+
+    printf("Got response from fsWrite RPC.\n");
+    int sz = ans.return_size;
+    int bytes;
+    memcpy(&bytes, (int *)ans.return_val, sz);
+
+    printf("write ret val: %i\n", bytes);
+
+    return bytes;
 }
 
 /*

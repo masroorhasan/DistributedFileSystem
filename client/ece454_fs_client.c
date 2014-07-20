@@ -350,11 +350,11 @@ extern int fsWrite(int fd, const void *buf, const unsigned int count) {
               destPort,
               "fsWrite", 3,
               sizeof(int),
-              &fd,
+              (void *)&fd,
               strlen((char *)buf) + 1,
               buf,
               sizeof(unsigned int),
-              &count);
+              (void *)&count);
 
     printf("Got response from fsWrite RPC.\n");
     int sz = ans.return_size;

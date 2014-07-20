@@ -358,19 +358,24 @@ extern return_type fsRead(const int nparams, arg_type *a) {
 extern return_type fsWrite(const int nparams, arg_type *a) {
     printf("fsWrite() called.\n");
 
+    printf("nparams %i\n", nparams);
+
     int fd_sz = a->arg_size;
+    printf("fd size: %i\n", fd_sz);
     int fd;
     memcpy(&fd, (int *)a->arg_val, fd_sz);
     printf("file descriptor: %i\n", fd);
     
     arg_type *buffarg = a->next;
     int buf_sz = buffarg->arg_size;
+    printf("size of buff: %i\n", buf_sz);
     void *buff;
     memcpy(buff, (void *)buffarg->arg_val, buf_sz);
     printf("buff to write: %s\n", (char *)buff);
 
     arg_type *countarg = buffarg->next;
     int count_sz = countarg->arg_size;
+    printf("count size: %i\n", count_sz);
     unsigned int count;
     memcpy(&count, (unsigned int *)countarg->arg_val, count_sz);
     printf("count: %i\n", count);

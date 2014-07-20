@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
     // int fd3 = fsOpen("leaf/three/two.txt", 0);
     // printf("open fd: %i\n", fd3);
 
-    // int fd4 = fsOpen("leaf/two/two.txt", 0);
-    // printf("open fd: %i\n", fd4);
+    int fd4 = fsOpen("leaf/two/two.txt", 0);
+    printf("open fd: %i\n", fd4);
 
     // Close those files
     // int cls_fd = fsClose(fd);
@@ -56,16 +56,19 @@ int main(int argc, char *argv[]) {
 
     // int cls_fd4 = fsClose(fd4);
     // printf("closing fd %i with ret %i\n", fd4, cls_fd4);
+    
 
-    char *buf = "writing test";
-    // char buff2[256];
-    // int i = 0;
-    // for(; i < 256; i++) {
-    //     buff2[i] = (char)(buff2[i]) % 26 + 'a';
-    // }
-    // printf("buff2: %s\n", buff2);
 
-    int write = fsWrite(fd2, buf, 256);
+    char *buf = "writing test ";
+    int write;
+    
+    // Should Pass
+    write = fsWrite(fd2, buf, strlen(buf) + 1);
+    write = fsWrite(fd2, buf, strlen(buf) + 1);
+    write = fsWrite(fd2, buf, strlen(buf) + 1);
+    
+    // Should Fail
+    write = fsWrite(fd4, buf, strlen(buf) + 1);
 
     // Closing directory
     // int ret = fsCloseDir(fdir);

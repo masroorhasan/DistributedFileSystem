@@ -358,10 +358,17 @@ extern int fsWrite(int fd, const void *buf, const unsigned int count) {
 
     printf("Got response from fsWrite RPC.\n");
     int sz = ans.return_size;
-    int bytes;
-    memcpy(&bytes, (int *)ans.return_val, sz);
+    
+    int writeErrno;
+    memcpy(&writeErrno, (int *)ans.return_val, sizeof(int));
 
-    printf("write ret val: %i\n", bytes);
+    if(writeErrno != 0) {
+        errno = writeErrno;
+        printf("fsWrite() Error: %s\n", strerror(errno));    
+    }
+
+    int bytes;
+    memcpy(&bytes, (int *)(ans.return_val + sizeof(int)), sizeof(int));
 
     return bytes;
 }

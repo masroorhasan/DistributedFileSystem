@@ -361,32 +361,36 @@ extern return_type fsWrite(const int nparams, arg_type *a) {
     printf("nparams %i\n", nparams);
 
     int fd_sz = a->arg_size;
-    printf("fd size: %i\n", fd_sz);
     int fd;
     memcpy(&fd, (int *)a->arg_val, fd_sz);
     printf("file descriptor: %i\n", fd);
 
     arg_type *buffarg = a->next;
     int buf_sz = buffarg->arg_size;
-    printf("size of buff: %i\n", buf_sz);
-
     char *buff = (char *) malloc(buf_sz);
     memcpy(buff, (char *)buffarg->arg_val, buf_sz);
     printf("buff to write: %s\n", buff);
 
     arg_type *countarg = buffarg->next;
     int count_sz = countarg->arg_size;
-    printf("count size: %i\n", count_sz);
     unsigned int count;
     memcpy(&count, (unsigned int *)countarg->arg_val, count_sz);
     printf("count: %i\n", count);
 
-    int bytes = write(fd, (void*)buff, (size_t)count);
-
+    int writeErrno = 0;
+    int bytes = write(fd, (void *)buff, (size_t)count);
+    if(bytes == -1) {
+        writeErrno = errno;
+        printf("fsWrite on server: %s\n", strerror(writeErrno));    
+    }
+    
     return_type fswrite_ret;
-    fswrite_ret.return_size = sizeof(int);
+    fswrite_ret.return_size = sizeof(int) + sizeof(int);
     fswrite_ret.return_val = (void *) malloc(fswrite_ret.return_size);
-    memcpy(fswrite_ret.return_val, &bytes, fswrite_ret.return_size);
+
+    memcpy(fswrite_ret.return_val, &writeErrno, sizeof(int));
+    memcpy(fswrite_ret.return_val + sizeof(int), &bytes, sizeof(int));
+
     return fswrite_ret;
 }
 

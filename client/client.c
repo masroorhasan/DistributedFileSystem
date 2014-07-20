@@ -20,46 +20,38 @@ int main(int argc, char *argv[]) {
 	      return 0;
     }
 
-    fsMount(argv[1], atoi(argv[2]), "root");
+    fsMount(argv[1], atoi(argv[2]), "leaf");
 
-    char* folder_path = "leaf/one";
-    FSDIR* fdir = fsOpenDir(folder_path);
-
-    struct fsDirent *fdent = NULL;
-
-    for(fdent = fsReadDir(fdir); fdent != NULL; fdent = fsReadDir(fdir)) {
-        printf("%s, %d\n", fdent->entName, (int)(fdent->entType));
-    }
-
-    // Open bunch of files
-    int fd = fsOpen("leaf/test.txt", 1);
-    printf("open fd: %i\n", fd);
+    int fd = fsOpen("leaf/one/test1.txt", 1);
+    printf("Opened leaf/one/test1.txt FD: %i\n", fd);
 
     int fd2 = fsOpen("leaf/one/test1.txt", 1);
-    printf("open fd: %i\n", fd2);
+    printf("Opened leaf/one/test1.txt FD: %i\n", fd2);
 
-    int fd3 = fsOpen("leaf/three/two.txt", 0);
-    printf("open fd: %i\n", fd3);
+    int w_return;
 
-    int fd4 = fsOpen("leaf/two/two.txt", 0);
-    printf("open fd: %i\n", fd4);
 
-    // Close those files
-    int cls_fd = fsClose(fd);
-    printf("closing fd %i with ret %i\n", fd, cls_fd);
+    char *buffer = "W1";
+    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
 
-    int cls_fd2 = fsClose(fd2);
-    printf("closing fd %i with ret %i\n", fd2, cls_fd2);
+    buffer = "W2";
+    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
 
-    int cls_fd3 = fsClose(fd3);
-    printf("closing fd %i with ret %i\n", fd3, cls_fd3);
+    buffer = "W3";
+    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
 
-    int cls_fd4 = fsClose(fd4);
-    printf("closing fd %i with ret %i\n", fd4, cls_fd4);
+    buffer = "W4";
+    w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
 
-    // Closing directory
-    int ret = fsCloseDir(fdir);
-    printf("closedir returned: %i\n", ret);
+    // buffer = "W5";
+    // w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
+
+    // buffer = "W6";
+    // w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
+
+
+    int c_return = fsClose(fd);
+
     fsUnmount("leaf");
     return 0;
 }

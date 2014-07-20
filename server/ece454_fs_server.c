@@ -356,8 +356,38 @@ extern return_type fsRead(const int nparams, arg_type *a) {
  * Returns -1 on error and sets errno.
  */
 extern return_type fsWrite(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsWrite() called.\n");
+
+    int fd_sz = a->arg_size;
+    int fd;
+    memcpy(&fd, (int *)a->arg_val, fd_sz);
+
+    arg_type *buffarg = a->next;
+    int buf_sz = buffarg->arg_size;
+    char *buff = (char *) malloc(buf_sz);
+    memcpy(buff, (char *)buffarg->arg_val, buf_sz);
+
+    arg_type *countarg = buffarg->next;
+    int count_sz = countarg->arg_size;
+    unsigned int count;
+    memcpy(&count, (unsigned int *)countarg->arg_val, count_sz);
+
+    int writeErrno = 0;
+    int bytes = write(fd, (void *)buff, (size_t)count);
+
+    if(bytes == -1) {
+        writeErrno = errno;
+        printf("fsWrite on server: %s\n", strerror(writeErrno));
+    }
+
+    return_type fswrite_ret;
+    fswrite_ret.return_size = sizeof(int) + sizeof(int);
+    fswrite_ret.return_val = (void *) malloc(fswrite_ret.return_size);
+
+    memcpy(fswrite_ret.return_val, &writeErrno, sizeof(int));
+    memcpy(fswrite_ret.return_val + sizeof(int), &bytes, sizeof(int));
+
+    return fswrite_ret;
 }
 
 /*

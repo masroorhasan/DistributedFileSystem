@@ -14,32 +14,6 @@
 
 #include "ece454_fs.h"
 
-void printBuf(char *buf, int size) {
-    /* Should match the output from od -x */
-    int i;
-    for(i = 0; i < size; ) {
-        if(i%16 == 0) {
-            printf("%08o ", i);
-        }
-
-        int j;
-        for(j = 0; j < 16;) {
-            int k;
-            for(k = 0; k < 2; k++) {
-                if(i+j+(1-k) < size) {
-                    printf("%02x", (unsigned char)(buf[i+j+(1-k)]));
-                }
-            }
-
-            printf(" ");
-            j += k;
-        }
-
-        printf("\n");
-        i += j;
-    }
-}
-
 int main(int argc, char *argv[]) {
     if(argc < 4) {
         fprintf(stderr, "usage: %s <srv-ip/name> <srv-port> <local dir name>\n", argv[0]);
@@ -127,7 +101,7 @@ int main(int argc, char *argv[]) {
         perror("fsClose"); exit(1);
     }
 
-    printf("fsRemove(%s): %d\n", fname, fsRemove(fname));
+    // printf("fsRemove(%s): %d\n", fname, fsRemove(fname));
 
     if(fsUnmount(dirname) < 0) {
         perror("fsUnmount"); exit(1);

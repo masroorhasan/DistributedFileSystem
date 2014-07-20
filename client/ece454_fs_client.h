@@ -19,3 +19,4 @@ extern bool mountError(bool expected);
 // Utility methods
 extern FSDIR* deserializeFSDIR(return_type ans);
 extern struct fsDirent* deserializeFsDirent(return_type ans);
+extern void printBuf(char *buf, int size);

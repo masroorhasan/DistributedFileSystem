@@ -6,6 +6,32 @@
  * response to the client. */
 return_type r;
 
+void printBuf(char *buf, int size) {
+    /* Should match the output from od -x */
+    int i;
+    for(i = 0; i < size; ) {
+        if(i%16 == 0) {
+            printf("%08o ", i);
+        }
+
+        int j;
+        for(j = 0; j < 16;) {
+            int k;
+            for(k = 0; k < 2; k++) {
+                if(i+j+(1-k) < size) {
+                    printf("%02x", (unsigned char)(buf[i+j+(1-k)]));
+                }
+            }
+
+            printf(" ");
+            j += k;
+        }
+
+        printf("\n");
+        i += j;
+    }
+}
+
 /*
  * Mounts a remote server folder locally.
  *
@@ -357,17 +383,19 @@ extern return_type fsRead(const int nparams, arg_type *a) {
 
     int readErrno = 0;
     int bytes = read(fd, (void *)buff, count);
+
+    return_type fsread_ret;
+    fsread_ret.return_size = sizeof(int) + sizeof(int) + count;
+    fsread_ret.return_val = (void *) malloc(fsread_ret.return_size);
+    
     if (bytes == -1) {
         readErrno = errno;
         printf("fsRead() Error: %s\n", strerror(readErrno));
     }
 
-    return_type fsread_ret;
-    fsread_ret.return_size = sizeof(int) + sizeof(int);
-    fsread_ret.return_val = malloc(fsread_ret.return_size);
-
     memcpy(fsread_ret.return_val, &readErrno, sizeof(int));
     memcpy(fsread_ret.return_val + sizeof(int), &bytes, sizeof(int));
+    memcpy(fsread_ret.return_val + sizeof(int) + sizeof(int), buff, count);
 
     return fsread_ret;
 }
@@ -398,6 +426,9 @@ extern return_type fsWrite(const int nparams, arg_type *a) {
     int count_sz = countarg->arg_size;
     unsigned int count;
     memcpy(&count, (unsigned int *)countarg->arg_val, count_sz);
+
+    // printf("printing buff on fsWrite()\n");
+    // printBuf(buff, count);
 
     int writeErrno = 0;
     int bytes = write(fd, (void *)buff, (size_t)count);

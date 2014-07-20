@@ -17,6 +17,32 @@ extern bool mountError(bool expected) {
     return false;
 }
 
+extern void printBuf(char *buf, int size) {
+    /* Should match the output from od -x */
+    int i;
+    for(i = 0; i < size; ) {
+        if(i%16 == 0) {
+            printf("%08o ", i);
+        }
+
+        int j;
+        for(j = 0; j < 16;) {
+            int k;
+            for(k = 0; k < 2; k++) {
+                if(i+j+(1-k) < size) {
+                    printf("%02x", (unsigned char)(buf[i+j+(1-k)]));
+                }
+            }
+
+            printf(" ");
+            j += k;
+        }
+
+        printf("\n");
+        i += j;
+    }
+}
+
 /*
  * Mounts a remote server folder locally.
  *
@@ -340,7 +366,7 @@ extern int fsRead(int fd, void *buf, const unsigned int count) {
               "fsRead", 3,
               sizeof(int),
               (void *)&fd,
-              strlen((char *)buf) + 1,
+              count,
               buf,
               sizeof(unsigned int),
               (void *)&count);
@@ -351,13 +377,18 @@ extern int fsRead(int fd, void *buf, const unsigned int count) {
     int readErrno;
     memcpy(&readErrno, (int *)ans.return_val, sizeof(int));
 
+    int bytes;
+    memcpy(&bytes, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+
     if(readErrno != 0) {
         errno = readErrno;
         printf("fsRead() Error: %s\n", strerror(readErrno));
+        
+        return bytes;
     }
 
-    int bytes;
-    memcpy(&bytes, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+    memcpy(buf, (ans.return_val + sizeof(int) + sizeof(int)), count);
+    // printBuf(buf, count);
 
     return bytes;
 }
@@ -382,7 +413,7 @@ extern int fsWrite(int fd, const void *buf, const unsigned int count) {
               "fsWrite", 3,
               sizeof(int),
               (void *)&fd,
-              strlen((char *)buf) + 1,
+              count,
               buf,
               sizeof(unsigned int),
               (void *)&count);

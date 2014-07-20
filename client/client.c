@@ -25,18 +25,30 @@ int main(int argc, char *argv[]) {
     int fd = fsOpen("leaf/one/test1.txt", 1);
     printf("Opened leaf/one/test1.txt FD: %i\n", fd);
 
+    int fd2 = fsOpen("leaf/one/test1.txt", 1);
+    printf("Opened leaf/one/test1.txt FD: %i\n", fd2);
 
-    char *buffer = "Write client.c";
     int w_return;
 
-    // Should Pass
+
+    char *buffer = "W1";
     w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
+
+    buffer = "W2";
     w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
+
+    buffer = "W3";
     w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
-    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
-    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
-    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
-    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
+
+    buffer = "W4";
+    w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
+
+    // buffer = "W5";
+    // w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
+
+    // buffer = "W6";
+    // w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
+
 
     int c_return = fsClose(fd);
 

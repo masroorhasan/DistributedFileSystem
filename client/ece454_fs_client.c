@@ -326,7 +326,33 @@ extern int fsClose(int fd) {
 extern int fsRead(int fd, void *buf, const unsigned int count) {
     // Check that we're mounted
     if (mountError(true)) return -1;
-    return -1;
+
+    return_type ans;
+    ans = make_remote_call(destAddr,
+              destPort,
+              "fsRead", 3,
+              sizeof(int),
+              (void *)&fd,
+              strlen((char *)buf) + 1,
+              buf,
+              sizeof(unsigned int),
+              (void *)&count);
+
+    printf("Got response from fsRead RPC.\n");
+    int sz = ans.return_size;
+
+    int readErrno;
+    memcpy(&readErrno, (int *)ans.return_val, sizeof(int));
+
+    if(readErrno != 0) {
+        errno = readErrno;
+        printf("fsRead() Error: %s\n", strerror(readErrno));
+    }
+
+    int bytes;
+    memcpy(&bytes, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+
+    return bytes;
 }
 
 /*

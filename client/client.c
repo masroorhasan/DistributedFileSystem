@@ -22,35 +22,25 @@ int main(int argc, char *argv[]) {
 
     fsMount(argv[1], atoi(argv[2]), "leaf");
 
-    int fd = fsOpen("leaf/one/test1.txt", 1);
-    printf("Opened leaf/one/test1.txt FD: %i\n", fd);
+    int fdr = fsOpen("leaf/two/two.txt", 0);
+    printf("Opened leaf/one/test1.txt FD: %i\n", fdr);    
 
-    int fd2 = fsOpen("leaf/one/test1.txt", 1);
-    printf("Opened leaf/one/test1.txt FD: %i\n", fd2);
+    char buff[16];
+    int r_return;
+    r_return = fsRead(fdr, (void *)buff, 10);
+    printf("bytes read %i\n", r_return);
 
-    int w_return;
+    int fdw = fsOpen("leaf/one/test1.txt", 1);
+    printf("Opened leaf/one/test1.txt FD: %i\n", fdw);
 
-
+    
     char *buffer = "W1";
-    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
+    int w_return;
+    w_return = fsWrite(fdw, buffer, strlen(buffer) + 1);
 
-    buffer = "W2";
-    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
+    // Perform fsread again
 
-    buffer = "W3";
-    w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
-
-    buffer = "W4";
-    w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
-
-    // buffer = "W5";
-    // w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
-
-    // buffer = "W6";
-    // w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
-
-
-    int c_return = fsClose(fd);
+    int c_return = fsClose(fdw);
 
     fsUnmount("leaf");
     return 0;

@@ -119,7 +119,6 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     memcpy(root_path, folderName, strlen(localDirName));
 
     if(strcmp(root_path, localDirName) != 0) {
-        printf("root_path and localDirName not the same.\n");
         errno = ENOENT;
         return NULL;
     }
@@ -253,7 +252,6 @@ extern int fsOpen(const char *fname, int mode) {
     memcpy(root_path, fname, strlen(localDirName));
 
     if(strcmp(root_path, localDirName) != 0) {
-        printf("root_path and localDirName not the same in fsOpen().\n");
         errno = ENOENT;
         return -1;
     }
@@ -421,7 +419,6 @@ extern int fsRemove(const char *name) {
     memcpy(root_path, name, strlen(localDirName));
 
     if(strcmp(root_path, localDirName) != 0) {
-        printf("root_path and localDirName not the same in fsOpen().\n");
         errno = ENOENT;
         return -1;
     }

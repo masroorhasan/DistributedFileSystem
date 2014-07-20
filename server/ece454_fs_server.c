@@ -67,7 +67,6 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     int arg_sz = a->arg_size;
     char *folder_path = (char *) malloc(arg_sz);
     memcpy(folder_path, (char *)a->arg_val, arg_sz);
-    printf("Request to open folder: %s\n", folder_path);
 
     /*
      * Folder parsing logic.
@@ -95,7 +94,6 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     /*
      * End of folder pasrsing logic.
      */
-    printf("Opening folder path %s\n", parsed_folder);
 
     DIR* hosted_dir = opendir(parsed_folder);
     parsed_folder = NULL;
@@ -284,7 +282,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     int open_fd = open(parsed_folder, flags, S_IRWXU);
     if(open_fd == -1) {
         openErrno = errno;
-        printf("openErrno on server %s\n", strerror(openErrno));
+        printf("fsOpen Error: %s\n", strerror(openErrno));
     }
 
     return_type fsopen_ret;
@@ -346,19 +344,16 @@ extern return_type fsRead(const int nparams, arg_type *a) {
     int fd_sz = a->arg_size;
     int fd;
     memcpy(&fd, (int *)a->arg_val, fd_sz);
-    printf("fd on server %i\n", fd);
 
     arg_type *buffarg = a->next;
     int buf_sz = buffarg->arg_size;
     char *buff = (char *) malloc(buf_sz);
     memcpy(buff, (char *)buffarg->arg_val, buf_sz);
-    printf("buff on server %s\n", buff);
 
     arg_type *countarg = buffarg->next;
     int count_sz = countarg->arg_size;
     unsigned int count;
     memcpy(&count, (unsigned int *)countarg->arg_val, count_sz);
-    printf("count on server %i\n", count);
 
     int readErrno = 0;
     int bytes = read(fd, (void *)buff, count);
@@ -366,8 +361,6 @@ extern return_type fsRead(const int nparams, arg_type *a) {
         readErrno = errno;
         printf("fsRead() Error: %s\n", strerror(readErrno));
     }
-
-    printf("bytes read %i\n", bytes);
 
     return_type fsread_ret;
     fsread_ret.return_size = sizeof(int) + sizeof(int);
@@ -437,7 +430,6 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
     int name_sz = a->arg_size;
     char *name = (char *) malloc(name_sz);
     memcpy(name, (char *)a->arg_val, name_sz);
-    printf("file/foldler to delete path: %s\n", name);
 
     /*
      * Folder parsing logic.
@@ -457,11 +449,9 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
         parsed_folder = (char *) malloc(strlen(hosted_folder_name) + strlen(name) - i + 1);
         memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
         strcat(parsed_folder, name + i);
-        printf("parsed folder: %s\n", parsed_folder);
     } else {
         parsed_folder = (char *) malloc(strlen(hosted_folder_name) + 1);
         memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
-        printf("parsed folder: %s\n", parsed_folder);
     }
     /*
      * End of folder pasrsing logic.
@@ -474,8 +464,6 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
         removeErrno = errno;
         printf("fsRemove() Error: %s\n", strerror(removeErrno));
     }
-
-    printf("remove ret on server %i\n", remove_ret);
 
     return_type fsremove_ret;
     fsremove_ret.return_size = sizeof(int) + sizeof(int);

@@ -174,13 +174,13 @@ extern int fsCloseDir(FSDIR * folder) {
     int closeDirErrno;
     memcpy(&closeDirErrno, (int *)ans.return_val, sizeof(int));
 
-	int ret_val = -1;
-	if (closeDirErrno == 0) {
+	  int ret_val = -1;
+	  if (closeDirErrno == 0) {
         memcpy(&ret_val, (int *)(ans.return_val + sizeof(int)), sizeof(int));
-	} else {
+	  } else {
         errno = closeDirErrno;
         printf("fsCloseDir() Error: %s\n", strerror(errno));
-	}
+	  }
 
     return ret_val;
 }
@@ -342,8 +342,6 @@ extern int fsRead(int fd, void *buf, const unsigned int count) {
 extern int fsWrite(int fd, const void *buf, const unsigned int count) {
     // Check that we're mounted
     if (mountError(true)) return -1;
-
-    printf("sending fd: %i, buf: %s, count: %i\n", fd, (char *)buf, count);
 
     return_type ans;
     ans = make_remote_call(destAddr,

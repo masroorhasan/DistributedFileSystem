@@ -6,32 +6,6 @@
  * response to the client. */
 return_type r;
 
-void printBuf(char *buf, int size) {
-    /* Should match the output from od -x */
-    int i;
-    for(i = 0; i < size; ) {
-        if(i%16 == 0) {
-            printf("%08o ", i);
-        }
-
-        int j;
-        for(j = 0; j < 16;) {
-            int k;
-            for(k = 0; k < 2; k++) {
-                if(i+j+(1-k) < size) {
-                    printf("%02x", (unsigned char)(buf[i+j+(1-k)]));
-                }
-            }
-
-            printf(" ");
-            j += k;
-        }
-
-        printf("\n");
-        i += j;
-    }
-}
-
 /*
  * Mounts a remote server folder locally.
  *
@@ -116,7 +90,6 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
         parsed_folder = (char *) malloc(strlen(hosted_folder_name) + 1);
         memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
     }
-
     /*
      * End of folder pasrsing logic.
      */
@@ -138,8 +111,8 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
         memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
         memcpy(fsdir_return.return_val + sizeof(int), &next_dir_entry, sizeof(int));
 
-	    // Directory entry has been taken, advance index
-	    next_dir_entry++;
+	      // Directory entry has been taken, advance index
+	      next_dir_entry++;
     } else {
 	    printf("Server fsOpenDir() Error: %i\n", openDirErrno);
         fsdir_return.return_size = sizeof(int);
@@ -365,7 +338,7 @@ extern return_type fsClose(const int nparams, arg_type *a) {
  * Returns -1 on error and sets errno.
  */
 extern return_type fsRead(const int nparams, arg_type *a) {
-    printf("fsRead() called.\n");    
+    printf("fsRead() called.\n");
 
     int fd_sz = a->arg_size;
     int fd;
@@ -387,7 +360,7 @@ extern return_type fsRead(const int nparams, arg_type *a) {
     return_type fsread_ret;
     fsread_ret.return_size = sizeof(int) + sizeof(int) + count;
     fsread_ret.return_val = (void *) malloc(fsread_ret.return_size);
-    
+
     if (bytes == -1) {
         readErrno = errno;
         printf("fsRead() Error: %s\n", strerror(readErrno));
@@ -426,9 +399,6 @@ extern return_type fsWrite(const int nparams, arg_type *a) {
     int count_sz = countarg->arg_size;
     unsigned int count;
     memcpy(&count, (unsigned int *)countarg->arg_val, count_sz);
-
-    // printf("printing buff on fsWrite()\n");
-    // printBuf(buff, count);
 
     int writeErrno = 0;
     int bytes = write(fd, (void *)buff, (size_t)count);
@@ -487,7 +457,6 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
     /*
      * End of folder pasrsing logic.
      */
-
 
     int removeErrno = 0;
     int remove_ret = remove(parsed_folder);

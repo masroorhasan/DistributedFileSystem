@@ -67,7 +67,6 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
     int arg_sz = a->arg_size;
     char *folder_path = (char *) malloc(arg_sz);
     memcpy(folder_path, (char *)a->arg_val, arg_sz);
-    printf("Request to open folder: %s\n", folder_path);
 
     /*
      * Folder parsing logic.
@@ -91,11 +90,9 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
         parsed_folder = (char *) malloc(strlen(hosted_folder_name) + 1);
         memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
     }
-
     /*
      * End of folder pasrsing logic.
      */
-    printf("Opening folder path %s\n", parsed_folder);
 
     DIR* hosted_dir = opendir(parsed_folder);
     parsed_folder = NULL;
@@ -114,10 +111,10 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
         memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
         memcpy(fsdir_return.return_val + sizeof(int), &next_dir_entry, sizeof(int));
 
-		    // Directory entry has been taken, advance index
-		    next_dir_entry++;
+	      // Directory entry has been taken, advance index
+	      next_dir_entry++;
     } else {
-		    printf("Server fsOpenDir() Error: %i\n", openDirErrno);
+	    printf("Server fsOpenDir() Error: %i\n", openDirErrno);
         fsdir_return.return_size = sizeof(int);
         fsdir_return.return_val = (void *) malloc(fsdir_return.return_size);
 
@@ -284,7 +281,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     int open_fd = open(parsed_folder, flags, S_IRWXU);
     if(open_fd == -1) {
         openErrno = errno;
-        printf("openErrno on server %s\n", strerror(openErrno));
+        printf("fsOpen Error: %s\n", strerror(openErrno));
     }
 
     return_type fsopen_ret;
@@ -341,8 +338,39 @@ extern return_type fsClose(const int nparams, arg_type *a) {
  * Returns -1 on error and sets errno.
  */
 extern return_type fsRead(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsRead() called.\n");
+
+    int fd_sz = a->arg_size;
+    int fd;
+    memcpy(&fd, (int *)a->arg_val, fd_sz);
+
+    arg_type *buffarg = a->next;
+    int buf_sz = buffarg->arg_size;
+    char *buff = (char *) malloc(buf_sz);
+    memcpy(buff, (char *)buffarg->arg_val, buf_sz);
+
+    arg_type *countarg = buffarg->next;
+    int count_sz = countarg->arg_size;
+    unsigned int count;
+    memcpy(&count, (unsigned int *)countarg->arg_val, count_sz);
+
+    int readErrno = 0;
+    int bytes = read(fd, (void *)buff, count);
+
+    return_type fsread_ret;
+    fsread_ret.return_size = sizeof(int) + sizeof(int) + count;
+    fsread_ret.return_val = (void *) malloc(fsread_ret.return_size);
+
+    if (bytes == -1) {
+        readErrno = errno;
+        printf("fsRead() Error: %s\n", strerror(readErrno));
+    }
+
+    memcpy(fsread_ret.return_val, &readErrno, sizeof(int));
+    memcpy(fsread_ret.return_val + sizeof(int), &bytes, sizeof(int));
+    memcpy(fsread_ret.return_val + sizeof(int) + sizeof(int), buff, count);
+
+    return fsread_ret;
 }
 
 /*
@@ -398,7 +426,52 @@ extern return_type fsWrite(const int nparams, arg_type *a) {
  * Returns -1 on error and sets errno.
  */
 extern return_type fsRemove(const int nparams, arg_type *a) {
-    return_type r;
-    return r;
+    printf("fsRemove() called.\n");
+
+    int name_sz = a->arg_size;
+    char *name = (char *) malloc(name_sz);
+    memcpy(name, (char *)a->arg_val, name_sz);
+
+    /*
+     * Folder parsing logic.
+     */
+    int i = 0;
+    bool found_slash = false;
+    char *fwdslash = "/";
+    for(; i < strlen(name); i++) {
+        if(name[i] == '/') {
+            found_slash = true;
+            break;
+        }
+    }
+
+    char *parsed_folder;
+    if(found_slash == true) {
+        parsed_folder = (char *) malloc(strlen(hosted_folder_name) + strlen(name) - i + 1);
+        memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
+        strcat(parsed_folder, name + i);
+    } else {
+        parsed_folder = (char *) malloc(strlen(hosted_folder_name) + 1);
+        memcpy(parsed_folder, hosted_folder_name, strlen(hosted_folder_name) + 1);
+    }
+    /*
+     * End of folder pasrsing logic.
+     */
+
+    int removeErrno = 0;
+    int remove_ret = remove(parsed_folder);
+    if(remove_ret == -1) {
+        removeErrno = errno;
+        printf("fsRemove() Error: %s\n", strerror(removeErrno));
+    }
+
+    return_type fsremove_ret;
+    fsremove_ret.return_size = sizeof(int) + sizeof(int);
+    fsremove_ret.return_val = malloc(fsremove_ret.return_size);
+
+    memcpy(fsremove_ret.return_val, &removeErrno, sizeof(int));
+    memcpy(fsremove_ret.return_val + sizeof(int), &remove_ret, sizeof(int));
+
+    return fsremove_ret;
 }
 

@@ -42,6 +42,18 @@ int main(int argc, char *argv[]) {
 
     int c_return = fsClose(fdw);
 
+    // char *file_to_remove = "leaf/test.txt";
+    // int remove_ret = fsRemove(file_to_remove);
+    // printf("remove ret value %i\n", remove_ret);
+
+    char *file_to_remove = "leaf/one/delete/delete.txt";
+    int remove_ret = fsRemove(file_to_remove);
+    printf("remove ret value %i\n", remove_ret);
+
+    char *dir_to_remove = "leaf/one/delete";
+    remove_ret = fsRemove(dir_to_remove);
+    printf("remove ret value %i\n", remove_ret);    
+
     fsUnmount("leaf");
     return 0;
 }

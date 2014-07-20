@@ -249,6 +249,15 @@ extern int fsOpen(const char *fname, int mode) {
     // Check that we're mounted
     if (mountError(true)) return -1;
 
+    char *root_path = (char *) malloc(strlen(localDirName) + 1);
+    memcpy(root_path, fname, strlen(localDirName));
+
+    if(strcmp(root_path, localDirName) != 0) {
+        printf("root_path and localDirName not the same in fsOpen().\n");
+        errno = ENOENT;
+        return -1;
+    }
+
     int fname_sz = strlen(fname) + 1;
     int mode_sz = sizeof(int);
 
@@ -407,6 +416,37 @@ extern int fsWrite(int fd, const void *buf, const unsigned int count) {
 extern int fsRemove(const char *name) {
     // Check that we're mounted
     if (mountError(true)) return -1;
-    return -1;
+
+    char *root_path = (char *) malloc(strlen(localDirName) + 1);
+    memcpy(root_path, name, strlen(localDirName));
+
+    if(strcmp(root_path, localDirName) != 0) {
+        printf("root_path and localDirName not the same in fsOpen().\n");
+        errno = ENOENT;
+        return -1;
+    }
+
+    return_type ans;
+    ans = make_remote_call(destAddr,
+              destPort,
+              "fsRemove", 1,
+              strlen(name) + 1,
+              (void *)name);
+
+    printf("Got response from fsRemove RPC.\n");
+    int sz = ans.return_size;
+
+    int removeErrno;
+    memcpy(&removeErrno, (int *)ans.return_val, sizeof(int));
+
+    if(removeErrno != 0) {
+        errno = removeErrno;
+        printf("fsRemove() Error: %s\n", strerror(errno));
+    }
+
+    int ret;
+    memcpy(&ret, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+
+    return ret;
 }
 

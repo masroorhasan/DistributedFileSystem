@@ -14,21 +14,22 @@ return_type r;
 
 int addToWaitingQueue(const char* remotepath) {
     int uid = waiting_id;
+    printf("setting uid: %i from waiting_id %i\n", uid, waiting_id);
 
     struct waitingList *node = (struct waitingList *) malloc(sizeof(struct waitingList));
     node->filepath = remotepath;
     node->uid = uid;
     node->next = NULL;
 
-    printf("Adding...\n");
-    printf("filepath %s, uid %i, next %p\n", 
-                node->filepath, node->uid, node->next);
+    // printf("Adding...\n");
+    // printf("filepath %s, uid %i, next %p\n", 
+    //             node->filepath, node->uid, node->next);
 
     if(wl_queue == NULL) {
-        printf("Empty Waiting List.\n");
+        // printf("Empty Waiting List.\n");
         wl_queue = node;
     } else {
-        printf("Non Empty Waiting List.\n");
+        // printf("Non Empty Waiting List.\n");
         waiting_list *list = wl_queue;
         while(list->next != NULL) {
             list = list->next;            
@@ -38,7 +39,9 @@ int addToWaitingQueue(const char* remotepath) {
         wl_queue = list;
     }
 
+    
     waiting_id = waiting_id++;
+    printf("incrementing waiting_id %i\n", waiting_id);
     return uid;
 }
 
@@ -58,10 +61,6 @@ int searchWaitingList(const char* remotepath) {
             if(strcmp(remotepath, list->filepath) == 0) {
                 printf("Matched filepath %s\n", list->filepath);
                 return list->uid;
-                // if(uid == list->uid) {
-                //     printf("Matched uid %i\n", list->uid);
-                //     return list->uid;
-                // }
             }
             
             list = list->next;            
@@ -78,7 +77,7 @@ void removeFromWaitingList(const char* remotepath, int clientuid) {
         while(list != NULL) {
 
             if(strcmp(remotepath, list->filepath) == 0) {
-                printf("Matched filepath %s\n", list->filepath);
+                // printf("Matched filepath %s\n", list->filepath);
                 if(clientuid == list->uid) {
                     printf("Matched uid %i\n", list->uid);
                     list->uid = -1;
@@ -383,7 +382,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
         printf("Couldnt find file in queue.\n");
 
         int open_fd = open(parsed_folder, flags, S_IRWXU);
-        printf("fd on server: %i\n", open_fd);
+        // printf("fd on server: %i\n", open_fd);
         if(open_fd == -1) {
             openErrno = errno;
             printf("fsOpen Error: %s\n", strerror(openErrno));
@@ -394,7 +393,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
             printf("file locked on fsOpen attempt\n");
             // add client to waiting list
             int uidadded = addToWaitingQueue(parsed_folder);
-            printf("added uid %i\n", uidadded);
+            printf("added uid %i to list\n", uidadded);
             // parse payload with state, uid
             
             int state = NACK;
@@ -423,7 +422,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
         if(founduid == clientuid) {
 
             int open_fd = open(parsed_folder, flags, S_IRWXU);
-            printf("fd on server: %i\n", open_fd);
+            // printf("fd on server: %i\n", open_fd);
             if(open_fd == -1) {
                 openErrno = errno;
                 printf("fsOpen Error: %s\n", strerror(openErrno));

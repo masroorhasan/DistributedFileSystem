@@ -32,6 +32,7 @@ int addToWaitingQueue(const char* remotepath) {
         // printf("Non Empty Waiting List.\n");
         waiting_list *list = wl_queue;
         while(list->next != NULL) {
+            printf("filepath %s, uid %i, next %p\n", node->filepath, node->uid, node->next);
             list = list->next;            
         }
 
@@ -40,8 +41,8 @@ int addToWaitingQueue(const char* remotepath) {
     }
 
     
-    waiting_id = waiting_id++;
-    printf("incrementing waiting_id %i\n", waiting_id);
+    waiting_id += 1;
+    printf("incrementing waiting_id to %i\n", waiting_id);
     return uid;
 }
 

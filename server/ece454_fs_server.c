@@ -21,7 +21,7 @@ int addToWaitingQueue(const char* remotepath) {
     node->uid = uid;
     node->next = NULL;
 
-    // printf("Adding...\n");
+    printf("Adding to Waiting List...\n");
     // printf("filepath %s, uid %i, next %p\n", 
     //             node->filepath, node->uid, node->next);
 
@@ -50,7 +50,8 @@ int addToWaitingQueue(const char* remotepath) {
  * Search Waiting List for locked file
  */
 
-int searchWaitingList(const char* remotepath) {
+int searchWaitingList(const char* remotepath, int uid) {
+    if(uid == -1) return -1;
 
     printf("Searching Waiting List...\n");
     if(wl_queue != NULL) {
@@ -377,7 +378,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     /*
      * Check waiting list queue for first uid with filename == parsed_folder
      */
-    int founduid = searchWaitingList(parsed_folder);
+    int founduid = searchWaitingList(parsed_folder, clientuid);
     if(founduid == -1) {
         // Couldnt find file in queue
         printf("Couldnt find file in queue.\n");

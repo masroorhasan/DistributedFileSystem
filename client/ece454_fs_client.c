@@ -323,6 +323,7 @@ extern int fsOpen(const char *fname, int mode) {
 
     char *root_path = (char *) malloc(strlen(localDirName) + 1);
     memcpy(root_path, fname, strlen(localDirName));
+    printf("root_path %s\n", root_path);
 
     if(strcmp(root_path, localDirName) != 0) {
         errno = ENOENT;

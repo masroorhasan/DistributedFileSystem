@@ -6,6 +6,9 @@
  * response to the client. */
 return_type r;
 
+/*
+ * Utility function to view contents of Waiting List
+ */
 void printList() {
     printf("Printing List...\n");
     waiting_list *list = wl_queue;
@@ -15,12 +18,10 @@ void printList() {
     }
 }
 
-
 /*
  * Adds client to Waiting List Queue to maintain entry 
  * level consistancy
  */
-
 int addToWaitingQueue(const char* remotepath) {
     int uid = waiting_id;
 
@@ -30,16 +31,11 @@ int addToWaitingQueue(const char* remotepath) {
     node->next = NULL;
 
     printf("Adding to Waiting List...\n");
-    printf("setting uid: %i\n", uid);
-    // printf("filepath %s, uid %i, next %p\n", 
-    //             node->filepath, node->uid, node->next);
-
     if(wl_queue == NULL) {
         wl_queue = node;
     } else {
         waiting_list *list = wl_queue;
         while(list->next != NULL) {
-            printf("filepath %s, uid %i, next %p\n", node->filepath, node->uid, node->next);
             list = list->next;            
         }
 
@@ -47,10 +43,6 @@ int addToWaitingQueue(const char* remotepath) {
         wl_queue = list;
     }
 
-    printList();
-
-    node = NULL;
-    
     waiting_id += 1;
     return uid;
 }
@@ -58,7 +50,6 @@ int addToWaitingQueue(const char* remotepath) {
 /*
  * Search Waiting List for locked file
  */
-
 int searchWaitingList(const char* remotepath, int uid) {
     if(uid == -1) return -1;
 
@@ -66,11 +57,7 @@ int searchWaitingList(const char* remotepath, int uid) {
     if(wl_queue != NULL) {
         waiting_list *list = wl_queue;
         while(list != NULL) {
-            // printf("filepath %s, uid %i, ws %i, next %p\n", 
-            //     list->filepath, list->uid, list->ws, list->next);
-
             if(strcmp(remotepath, list->filepath) == 0) {
-                printf("Matched filepath %s with uid %i\n", list->filepath, list->uid);
                 int id = list->uid;
                 if(id != -1) return id;
             }
@@ -82,19 +69,17 @@ int searchWaitingList(const char* remotepath, int uid) {
     return -1;
 }
 
+/*
+ * Remove client from Waiting List
+ */
 void removeFromWaitingList(const char* remotepath, int clientuid) {
     printf("Removing From Waiting List...\n");
     if(wl_queue != NULL) {
         waiting_list *list = wl_queue;
         while(list != NULL) {
-
             if(strcmp(remotepath, list->filepath) == 0) {
-                // printf("Matched filepath %s\n", list->filepath);
                 if(clientuid == list->uid) {
-                    printf("Matched uid %i\n", list->uid);
                     list->uid = -1;
-
-                    // printList();
                     return;
                 }
             }
@@ -367,14 +352,13 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     int *mode = (int *) malloc(mode_sz);
     memcpy(mode, (int *)nextarg->arg_val, mode_sz);
 
-    // Get clientuid
+    // Get requesting clientuid
     arg_type *uidarg = nextarg->next;
     int uid_sz = uidarg->arg_size;
 
     int *id = (int *) malloc(uid_sz);
     memcpy(id, (int *)uidarg->arg_val, uid_sz);
     int clientuid = *id;
-    printf("clientuid %i\n", clientuid);
 
     int flags = -1;
     int openErrno = 0;
@@ -392,23 +376,21 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     int founduid = searchWaitingList(parsed_folder, clientuid);
     if(founduid == -1) {
         // Couldnt find file in queue
-        printf("Couldnt find file in queue.\n");
-
         int open_fd = open(parsed_folder, flags, S_IRWXU);
-        // printf("fd on server: %i\n", open_fd);
         if(open_fd == -1) {
             openErrno = errno;
             printf("fsOpen Error: %s\n", strerror(openErrno));
         }
 
         int filelock = flock(open_fd, LOCK_EX | LOCK_NB);
+
+        // Initial attempt at getting file lock
         if(filelock == -1) {
-            printf("file locked on fsOpen attempt\n");
-            // add client to waiting list
+
+            // Couldn't get lock, add client to waiting list
             int uidadded = addToWaitingQueue(parsed_folder);
-            printf("added uid %i to list\n", uidadded);
-            // parse payload with state, uid
             
+            // Parse payload with state, uid
             int state = NACK;
 
             fsopen_ret.return_size = sizeof(int) * 2;
@@ -419,7 +401,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
             return fsopen_ret;
         }
 
-        // parse payload with state, uid, errno and fd
+        // Got lock, parse payload with state, uid, errno and fd
         int state = ACK;
         int uid = -1;
         fsopen_ret.return_size = (sizeof(int)) * 4;
@@ -432,21 +414,18 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
 
         return fsopen_ret;
     } else {
+        // Found requesting client in Waiting List
         if(founduid == clientuid) {
-            printf("founduid == clientuid\n");
-            printf("founduid %i, clientuid %i\n", founduid, clientuid);
-
             int open_fd = open(parsed_folder, flags, S_IRWXU);
-            // printf("fd on server: %i\n", open_fd);
             if(open_fd == -1) {
                 openErrno = errno;
                 printf("fsOpen Error: %s\n", strerror(openErrno));
             }
 
             int filelock = flock(open_fd, LOCK_EX | LOCK_NB);
+            
+            // File is still locked on attempt
             if(filelock == -1) {
-                printf("file is still locked on fsOpen attempt\n");
-                
                 int state = NACK;
 
                 fsopen_ret.return_size = sizeof(int) * 2;
@@ -457,10 +436,10 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
                 return fsopen_ret;
             }
 
-            printf("Got lock on attempt.\n");
+            // Got lock for file, remove client from Waiting List
             removeFromWaitingList(parsed_folder, clientuid);
 
-            // parse payload with state, uid, errno and fd
+            // Parse payload with state, uid, errno and fd
             int state = ACK;
             int uid = -1;
             fsopen_ret.return_size = (sizeof(int)) * 4;
@@ -475,8 +454,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
 
         }
 
-        printf("founduid != clientuid\n");
-
+        // Client requesting file not at head of Waiting List
         int state = NACK;
 
         fsopen_ret.return_size = sizeof(int) * 2;

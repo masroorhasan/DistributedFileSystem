@@ -85,17 +85,9 @@ void printList() {
  */
 extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const char *localFolderName) {
     printf("fsMount()\n");
-    printf("server ip %s\n", srvIpOrDomName);
-    // Check that we aren't mounted
-    // if (mountError(false)) return -1;
-    if(checkMountedState(localFolderName) == false) return -1;
 
-    /*
-     * Initialize mounted_list
-     */
-    
-    // populateMountList(srvIpOrDomName, srvPort, localFolderName);
-    // printList();
+    // Check that we aren't mounted
+    if (mountError(false)) return -1;
 
     // Persisting server name, port and local folder name
     int localfolderName_size = (strlen(localFolderName) + 1);
@@ -154,9 +146,6 @@ extern int fsUnmount(const char *localFolderName) {
         printf("fsUnmount() Error: %s \n", strerror(errno));
         return -1;
     }
-
-    int unmounted = checkUnmountedState(localFolderName);
-    if(unmounted == -1) return unmounted;
 
     return_type ans;
     ans = make_remote_call(destAddr,
@@ -349,10 +338,7 @@ extern int fsOpen(const char *fname, int mode) {
     printf("Got response from fsOpen RPC.\n");
     int sz = ans.return_size;
 
-    // if sz is 8, check first two data items in payload
-    //      if NACK and uid != -1
-    //      keep pinging server with uid request
-    
+    // If NACK sent back from server, file was locked, keep trying    
     waiting_state state;
     memcpy(&state, (int *)ans.return_val, sizeof(int));
     printf("state: %i\n", state);

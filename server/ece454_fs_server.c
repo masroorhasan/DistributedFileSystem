@@ -456,6 +456,8 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
             memcpy(fsopen_ret.return_val + (sizeof(int)*2), &openErrno, sizeof(int));
             memcpy(fsopen_ret.return_val + (sizeof(int)*3), &open_fd, sizeof(int));
 
+            return fsopen_ret;
+
         }
 
         int state = NACK;

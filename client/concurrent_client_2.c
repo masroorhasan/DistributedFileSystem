@@ -12,14 +12,21 @@
 #include "ece454_fs.h"
 
 void timestamp() {
-    time_t ltime;
-    ltime=time(NULL);
-    printf("\n%s",asctime( localtime(&ltime) ) );
+//    time_t ltime;
+//    ltime=time(NULL);
+//    printf("\n%s",asctime( localtime(&ltime) ) );
 }
 
 int main(int argc, char *argv[]) {
 
-    fsMount(argv[1], atoi(argv[2]), "root");
+
+    if(argc < 4) {
+        fprintf(stderr, "usage: %s <srv-ip/name> <srv-port> <local dir name>\n", argv[0]);
+        exit(1);
+    }
+
+    char *dirname = argv[3];
+    printf("fsMount(): %d\n", fsMount(argv[1], atoi(argv[2]), dirname));
 
     timestamp();
     printf("Attempting to open one.txt in grandfather directory\n");

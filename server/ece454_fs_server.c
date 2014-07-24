@@ -6,6 +6,90 @@
  * response to the client. */
 return_type r;
 
+
+/*
+ * Adds client to Waiting List Queue to maintain entry 
+ * level consistancy
+ */
+
+int addToWaitingQueue(const char* remotepath) {
+    int uid = waiting_id;
+
+    struct waitingList *node = (struct waitingList *) malloc(sizeof(struct waitingList));
+    node->filepath = remotepath;
+    node->uid = waiting_id++;
+    node->next = NULL;
+
+    printf("Adding...\n");
+    printf("filepath %s, uid %i, next %p\n", 
+                node->filepath, node->uid, node->next);
+
+    if(wl_queue == NULL) {
+        printf("Empty Waiting List.\n");
+        wl_queue = node;
+    } else {
+        printf("Non Empty Waiting List.\n");
+        waiting_list *list = wl_queue;
+        while(list->next != NULL) {
+            list = list->next;            
+        }
+
+        list->next = node;
+        wl_queue = list;
+    }
+
+    return uid;
+}
+
+/*
+ * Search Waiting List for locked file
+ */
+
+int searchWaitingList(const char* remotepath) {
+
+    printf("Searching Waiting List...\n");
+    if(wl_queue != NULL) {
+        waiting_list *list = wl_queue;
+        while(list != NULL) {
+            // printf("filepath %s, uid %i, ws %i, next %p\n", 
+            //     list->filepath, list->uid, list->ws, list->next);
+
+            if(strcmp(remotepath, list->filepath) == 0) {
+                printf("Matched filepath %s\n", list->filepath);
+                return list->uid;
+                // if(uid == list->uid) {
+                //     printf("Matched uid %i\n", list->uid);
+                //     return list->uid;
+                // }
+            }
+            
+            list = list->next;            
+        }
+    }
+
+    return -1;
+}
+
+void removeFromWaitingList(const char* remotepath, int clientuid) {
+    printf("Removing From Waiting List...\n");
+    if(wl_queue != NULL) {
+        waiting_list *list = wl_queue;
+        while(list != NULL) {
+
+            if(strcmp(remotepath, list->filepath) == 0) {
+                printf("Matched filepath %s\n", list->filepath);
+                if(clientuid == list->uid) {
+                    printf("Matched uid %i\n", list->uid);
+                    list->uid = -1;
+                    return;
+                }
+            }
+            
+            list = list->next;            
+        }
+    }
+}
+
 /*
  * Mounts a remote server folder locally.
  *
@@ -137,14 +221,14 @@ extern return_type fsCloseDir(const int nparams, arg_type *a) {
     int *dir = (int*) malloc(sizeof(int));
 
     memcpy(dir, (int*) a->arg_val, size);
-		int ret_int = -1;
+	int ret_int = -1;
     int closeDirErrno = EPERM;
 
-		if (dir_entries[*dir] != NULL) {
-				ret_int = closedir(dir_entries[*dir]);
-        if(ret_int == 0) closeDirErrno = 0;
+	if (dir_entries[*dir] != NULL) {
+		ret_int = closedir(dir_entries[*dir]);
+    if(ret_int == 0) closeDirErrno = 0;
         dir_entries[*dir] = NULL;
-		}
+	}
 
     return_type closedir_ret;
 
@@ -269,29 +353,120 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     int *mode = (int *) malloc(mode_sz);
     memcpy(mode, (int *)nextarg->arg_val, mode_sz);
 
+    // Get clientuid
+    arg_type *uidarg = nextarg->next;
+    int uid_sz = uidarg->arg_size;
+
+    int *id = (int *) malloc(uid_sz);
+    memcpy(id, (int *)uidarg->arg_val, uid_sz);
+    int clientuid = *id;
+    printf("clientuid %i\n", clientuid);
+
     int flags = -1;
     int openErrno = 0;
 
     if(*mode == 0) {
         flags = O_RDONLY;
     } else if(*mode == 1) {
-        flags = O_WRONLY | O_CREAT;
-    }
-
-    int open_fd = open(parsed_folder, flags, S_IRWXU);
-    if(open_fd == -1) {
-        openErrno = errno;
-        printf("fsOpen Error: %s\n", strerror(openErrno));
+        flags = O_WRONLY | O_TRUNC | O_CREAT;
     }
 
     return_type fsopen_ret;
-    fsopen_ret.return_size = sizeof(int) + sizeof(int);
-    fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
 
-    memcpy(fsopen_ret.return_val, &openErrno, sizeof(int));
-    memcpy(fsopen_ret.return_val + sizeof(int), &open_fd, sizeof(int));
+    /*
+     * Check waiting list queue for first uid with filename == parsed_folder
+     */
+    int founduid = searchWaitingList(parsed_folder);
+    if(founduid == -1) {
+        // Couldnt find file in queue
+        printf("Couldnt find file in queue.\n");
 
-    return fsopen_ret;
+        int open_fd = open(parsed_folder, flags, S_IRWXU);
+        printf("fd on server: %i\n", open_fd);
+        if(open_fd == -1) {
+            openErrno = errno;
+            printf("fsOpen Error: %s\n", strerror(openErrno));
+        }
+
+        int filelock = flock(open_fd, LOCK_EX | LOCK_NB);
+        if(filelock == -1) {
+            printf("file locked on fsOpen attempt\n");
+            // add client to waiting list
+            int uidadded = addToWaitingQueue(parsed_folder);
+            printf("added uid %i\n", uidadded);
+            // parse payload with state, uid
+            
+            int state = NACK;
+
+            fsopen_ret.return_size = sizeof(int) * 2;
+            fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+            memcpy(fsopen_ret.return_val, &state, sizeof(int));
+            memcpy(fsopen_ret.return_val + sizeof(int), &uidadded, sizeof(int));
+
+            return fsopen_ret;
+        }
+
+        // parse payload with state, uid, errno and fd
+        int state = ACK;
+        int uid = -1;
+        fsopen_ret.return_size = (sizeof(int)) * 4;
+        fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+
+        memcpy(fsopen_ret.return_val, &state, sizeof(int));
+        memcpy(fsopen_ret.return_val + sizeof(int), &uid, sizeof(int));
+        memcpy(fsopen_ret.return_val + (sizeof(int)*2), &openErrno, sizeof(int));
+        memcpy(fsopen_ret.return_val + (sizeof(int)*3), &open_fd, sizeof(int));
+
+        return fsopen_ret;
+    } else {
+        if(founduid == clientuid) {
+
+            int open_fd = open(parsed_folder, flags, S_IRWXU);
+            printf("fd on server: %i\n", open_fd);
+            if(open_fd == -1) {
+                openErrno = errno;
+                printf("fsOpen Error: %s\n", strerror(openErrno));
+            }
+
+            int filelock = flock(open_fd, LOCK_EX | LOCK_NB);
+            if(filelock == -1) {
+                printf("file is still locked on fsOpen attempt\n");
+                
+                int state = NACK;
+
+                fsopen_ret.return_size = sizeof(int) * 2;
+                fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+                memcpy(fsopen_ret.return_val, &state, sizeof(int));
+                memcpy(fsopen_ret.return_val + sizeof(int), &clientuid, sizeof(int));
+
+                return fsopen_ret;
+            }
+
+            printf("Got lock on attempt.\n");
+            removeFromWaitingList(parsed_folder, clientuid);
+
+            // parse payload with state, uid, errno and fd
+            int state = ACK;
+            int uid = -1;
+            fsopen_ret.return_size = (sizeof(int)) * 4;
+            fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+
+            memcpy(fsopen_ret.return_val, &state, sizeof(int));
+            memcpy(fsopen_ret.return_val + sizeof(int), &uid, sizeof(int));
+            memcpy(fsopen_ret.return_val + (sizeof(int)*2), &openErrno, sizeof(int));
+            memcpy(fsopen_ret.return_val + (sizeof(int)*3), &open_fd, sizeof(int));
+
+        }
+
+        int state = NACK;
+
+        fsopen_ret.return_size = sizeof(int) * 2;
+        fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+        memcpy(fsopen_ret.return_val, &state, sizeof(int));
+        memcpy(fsopen_ret.return_val + sizeof(int), &founduid, sizeof(int));
+
+        return fsopen_ret;
+    }
 }
 
 
@@ -317,6 +492,9 @@ extern return_type fsClose(const int nparams, arg_type *a) {
         closeErrno = errno;
         printf("fsClose() %s\n", strerror(errno));
     }
+
+    int fileunlock = flock(fd, LOCK_UN | LOCK_NB);
+    // deleteFromWaitingList
 
     return_type fsclose_ret;
     fsclose_ret.return_size = sizeof(int) + sizeof(int);

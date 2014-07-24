@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/file.h>
 #include <dirent.h>
 
 // Network types
@@ -28,6 +29,21 @@ DIR *dir_entries[256];
 
 // Used to keep track of next free index in dir_entries array
 int next_dir_entry;
+
+// Waiting state
+typedef enum {ACK, NACK } waiting_state;
+
+// Queue struct
+typedef struct waitingList {
+	const char* filepath;
+	int uid;
+
+	struct waitingList *next;
+} waiting_list;
+
+waiting_list *wl_queue;
+waiting_list *wl_head;
+int waiting_id;
 
 extern return_type fsMount(const int nparams, arg_type *a);
 extern return_type fsUnmount(const int nparams, arg_type *a);

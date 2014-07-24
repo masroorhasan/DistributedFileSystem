@@ -45,9 +45,21 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "usage: %s <srv-ip/name> <srv-port> <local dir name>\n", argv[0]);
         exit(1);
     }
-
+    
     char *dirname = argv[3];
     printf("fsMount(): %d\n", fsMount(argv[1], atoi(argv[2]), dirname));
+    
+    int fd = fsOpen("leaf/one/one.txt", 1);
+    printf("first fd %i\n", fd);
+
+    fd = fsOpen("leaf/one/one.txt", 1);
+    printf("second fd %i\n", fd);
+
+    fd = fsOpen("leaf/one/one.txt", 1);
+    printf("third fd %i\n", fd);
+
+
+    /*
     FSDIR *fd = fsOpenDir(dirname);
     if(fd == NULL) {
         perror("fsOpenDir"); exit(1);
@@ -132,6 +144,7 @@ int main(int argc, char *argv[]) {
     if(fsUnmount(dirname) < 0) {
         perror("fsUnmount"); exit(1);
     }
+    */
 
     return 0;
 }

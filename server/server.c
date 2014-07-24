@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     register_procedure("fsOpenDir", 1, fsOpenDir);
     register_procedure("fsCloseDir", 1, fsCloseDir);
     register_procedure("fsReadDir", 1, fsReadDir);
-    register_procedure("fsOpen", 2, fsOpen);
+    register_procedure("fsOpen", 3, fsOpen);
     register_procedure("fsClose", 1, fsClose);
     register_procedure("fsRead", 3, fsRead);
     register_procedure("fsWrite", 3, fsWrite);

@@ -17,7 +17,7 @@ int addToWaitingQueue(const char* remotepath) {
 
     struct waitingList *node = (struct waitingList *) malloc(sizeof(struct waitingList));
     node->filepath = remotepath;
-    node->uid = waiting_id++;
+    node->uid = uid;
     node->next = NULL;
 
     printf("Adding...\n");
@@ -38,6 +38,7 @@ int addToWaitingQueue(const char* remotepath) {
         wl_queue = list;
     }
 
+    waiting_id = waiting_id++;
     return uid;
 }
 

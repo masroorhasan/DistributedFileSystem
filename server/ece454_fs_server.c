@@ -382,9 +382,23 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     if(founduid == -1) {
         // Couldnt find file in queue
         int open_fd = open(parsed_folder, flags, S_IRWXU);
+        // open failed with bad filename
         if(open_fd == -1) {
             openErrno = errno;
             printf("fsOpen Error: %s\n", strerror(openErrno));
+
+            // Got lock, parse payload with state, uid, errno and fd
+            int state = ACK;
+            int uid = -1;
+            fsopen_ret.return_size = (sizeof(int)) * 4;
+            fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+
+            memcpy(fsopen_ret.return_val, &state, sizeof(int));
+            memcpy(fsopen_ret.return_val + sizeof(int), &uid, sizeof(int));
+            memcpy(fsopen_ret.return_val + (sizeof(int)*2), &openErrno, sizeof(int));
+            memcpy(fsopen_ret.return_val + (sizeof(int)*3), &open_fd, sizeof(int));
+
+            return fsopen_ret;
         }
 
         int filelock = flock(open_fd, LOCK_EX | LOCK_NB);
@@ -422,9 +436,23 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
         // Found requesting client in Waiting List
         if(founduid == clientuid) {
             int open_fd = open(parsed_folder, flags, S_IRWXU);
+            // open failed with bad filename
             if(open_fd == -1) {
                 openErrno = errno;
                 printf("fsOpen Error: %s\n", strerror(openErrno));
+
+                // Got lock, parse payload with state, uid, errno and fd
+                int state = ACK;
+                int uid = -1;
+                fsopen_ret.return_size = (sizeof(int)) * 4;
+                fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+
+                memcpy(fsopen_ret.return_val, &state, sizeof(int));
+                memcpy(fsopen_ret.return_val + sizeof(int), &uid, sizeof(int));
+                memcpy(fsopen_ret.return_val + (sizeof(int)*2), &openErrno, sizeof(int));
+                memcpy(fsopen_ret.return_val + (sizeof(int)*3), &open_fd, sizeof(int));
+
+                return fsopen_ret;
             }
 
             int filelock = flock(open_fd, LOCK_EX | LOCK_NB);

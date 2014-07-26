@@ -42,7 +42,6 @@ typedef struct waitingList {
 } waiting_list;
 
 waiting_list *wl_queue;
-waiting_list *wl_head;
 int waiting_id;
 
 extern return_type fsMount(const int nparams, arg_type *a);

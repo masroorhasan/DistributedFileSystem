@@ -47,19 +47,82 @@ int main(int argc, char *argv[]) {
     }
     
     char *dirname = argv[3];
-    printf("fsMount(): %d\n", fsMount(argv[1], atoi(argv[2]), dirname));
+    int mounted = fsMount(argv[1], atoi(argv[2]), dirname);
+    printf("fsMount(): %d\n", mounted);
+
+    // dirname = "hasan";
+    // mounted = fsMount(argv[1], atoi(argv[2]), dirname);
+    // printf("fsMount(): %d\n", mounted);    
+
+    // int unmounted = fsUnmount(dirname);
+    // printf("fsUnmount(): %d\n", unmounted);    
+
+    // dirname = "masroor";
+    // unmounted = fsUnmount(dirname);    
+    // printf("fsUnmount(): %d\n", unmounted);
+
+    char *path = "masroor/one";
+    FSDIR *fsdir = fsOpenDir(path);
+
+    struct fsDirent *fdent = NULL;
+    for(fdent = fsReadDir(fsdir); fdent != NULL; fdent = fsReadDir(fsdir)) {
+        printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
+    }
+
+    int closdir = fsCloseDir(fsdir);
+    printf("closedir %i\n", closdir);
+
+    // int fd = fsOpen("masroor/test1.txt", 0);
+    // printf("fd for fsOpen %i\n", fd);
+
+    // int close = fsClose(fd);
+    // printf("closing fd : %i\n", close);
+
     
-    int fd = fsOpen("leaf/one/one.txt", 1);
-    printf("first fd %i\n", fd);
+    // int fd = fsOpen("root/test.txt", 1);
+    // printf("first fd %i\n", fd);
 
-    fd = fsOpen("leaf/one/one.txt", 1);
-    printf("second fd %i\n", fd);
+    // printf("Issuing writes to file\n");
 
-    fd = fsOpen("leaf/one/one.txt", 1);
-    printf("third fd %i\n", fd);
+    // char *buffer = "W7";
+    // int w_return;
+    // w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
+    // printf("Write one code: %i\n", w_return);
 
+    // fsClose(fd);
+
+    // fd = fsOpen("leaf/one/one.txt", 1);
+    // printf("second fd %i\n", fd);
+
+    // fd = fsOpen("leaf/one/one.txt", 1);
+    // printf("third fd %i\n", fd);
+
+
+    // printf("Attempting to open test1.txt in grandfather directory\n");
+    // int fd = fsOpen("root/test1.txt", 1);
+
+
+    // printf("Opened test.txt with fd: %i\n", fd);
+
+
+    // printf("Issuing writes to file\n");
+    // int w_return;
+    // char *buffer = "Client4W1";
+    // w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
+    // printf("Write one code: %i\n", w_return);
+
+    // buffer = "Client4W2";
+    // w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
+    // printf("Write two code: %i\n", w_return);
+
+
+    // printf("Closing test1.txt\n");
+    // int close_fd = fsClose(fd);
+
+    // printf("Closed with code: %i\n", close_fd);
 
     /*
+    
     FSDIR *fd = fsOpenDir(dirname);
     if(fd == NULL) {
         perror("fsOpenDir"); exit(1);
@@ -145,7 +208,6 @@ int main(int argc, char *argv[]) {
         perror("fsUnmount"); exit(1);
     }
     */
-
     return 0;
 }
 

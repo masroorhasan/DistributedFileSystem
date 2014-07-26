@@ -15,20 +15,18 @@ char* localDirName;
 bool mounted;
 
 // fsdir list mapped with localdirname -> maps to server and port
-int opened_fsdir_index = -1;
+int opened_fsdir_index = 0;
 typedef struct fsdirList {
-	const char *localdirname;
-	int localfsdir;
-	int remotefsdir;
+	char *localdirname;
+	FSDIR *remotefsdir;
 } fsdir_list_type;
 
 fsdir_list_type fsdir_list[256];
 
 // fd list mapped with localdirname
-int opened_fd_index = -1;
+int opened_fd_index = 0;
 typedef struct fdList {
-	const char *localDirName;
-	int localfd;
+	char *localdirname;
 	int remotefd;
 } fd_list_type;
 
@@ -37,10 +35,10 @@ fd_list_type fd_list[256];
 // Need multiple mounts support
 int mounted_index = 0;
 typedef struct mountedList {
-    const char *server_ip;
+    char *server_ip;
     unsigned int port;
 
-    const char *localDirName;
+    char *localDirName;
     bool mounted;
 
     struct mountedList *next;

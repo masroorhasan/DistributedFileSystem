@@ -403,7 +403,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
 
         int filelock = flock(open_fd, LOCK_EX | LOCK_NB);
 
-        // Initial attempt at getting file lock
+        // Attempt at getting file lock
         if(filelock == -1) {
 
             // Couldn't get lock, add client to waiting list
@@ -433,8 +433,8 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
 
         return fsopen_ret;
     } else {
-        // Found requesting client in Waiting List
         if(founduid == clientuid) {
+            // Found requesting client in Waiting List
             int open_fd = open(parsed_folder, flags, S_IRWXU);
             // open failed with bad filename
             if(open_fd == -1) {
@@ -703,7 +703,7 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
     if(founduid == -1) {
         printf("Couldn't find file in Waiting List\n");
 
-        // Attempt to get lock for file
+        // Open file to get fd and attempt to get lock
         int rm_fd = open(parsed_folder, O_RDONLY);
 
         // File does not exist
@@ -755,9 +755,6 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
 
         int fileunlock = flock(rm_fd, LOCK_UN | LOCK_NB);
 
-        // Note: check if file needs to be closed
-        printf("removeErrno %s\n", strerror(removeErrno));
-
         // parse payload with ACK, uid, errno and rm_ret
         int state = ACK;
         int uid = -1;
@@ -803,7 +800,7 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
             if(rm_lock == -1) {
                 printf("Lock already taken for file\n");
                 // Lock already taken for file, add to Waiting List
-               if(clientuid == -1) {
+                if(clientuid == -1) {
                     int uidadded = addToWaitingQueue(parsed_folder);
 
                     int state = NACK;
@@ -858,7 +855,6 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
         }
 
         if(clientuid == -1) {
-            printList();
             printf("New client, so add to Waiting List\n");
             int uidadded = addToWaitingQueue(parsed_folder);
 

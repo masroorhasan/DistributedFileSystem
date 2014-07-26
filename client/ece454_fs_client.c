@@ -514,6 +514,8 @@ extern int fsRemove(const char *name) {
     // Check that we're mounted
     if (mountError(true)) return -1;
 
+    printf("Issuing fsRemove Request\n");
+
     char *root_path = (char *) malloc(strlen(localDirName) + 1);
     memcpy(root_path, name, strlen(localDirName));
 
@@ -522,18 +524,50 @@ extern int fsRemove(const char *name) {
         return -1;
     }
 
+    // Client send -1 on first request
+    int uid = -1;
     return_type ans;
     ans = make_remote_call(destAddr,
               destPort,
-              "fsRemove", 1,
+              "fsRemove", 2,
               strlen(name) + 1,
-              (void *)name);
+              (void *)name,
+              sizeof(int),
+              &uid);
 
     printf("Got response from fsRemove RPC.\n");
     int sz = ans.return_size;
 
+    // If NACK sent back from server, file was locked, keep trying    
+    waiting_state state;
+    memcpy(&state, (int *)ans.return_val, sizeof(int));
+    printf("state: %i\n", state);
+
+    memcpy(&uid, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+    printf("uid: %i\n", uid);
+
+    while(state == NACK && uid != -1) {
+        ans = make_remote_call(destAddr,
+              destPort,
+              "fsRemove", 2,
+              strlen(name) + 1,
+              (void *)name,
+              sizeof(int),
+              &uid);
+
+        memcpy(&state, (int *)ans.return_val, sizeof(int));
+        printf("state: %i\n", state);
+
+        memcpy(&uid, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+        printf("uid: %i\n", uid);
+
+        printf("sleeping for 2s...\n");
+        sleep(2);
+    } 
+
+
     int removeErrno;
-    memcpy(&removeErrno, (int *)ans.return_val, sizeof(int));
+    memcpy(&removeErrno, (int *)(ans.return_val + (sizeof(int)*2)), sizeof(int));
 
     if(removeErrno != 0) {
         errno = removeErrno;
@@ -541,7 +575,7 @@ extern int fsRemove(const char *name) {
     }
 
     int ret;
-    memcpy(&ret, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+    memcpy(&ret, (int *)(ans.return_val + (sizeof(int)*3)), sizeof(int));
 
     return ret;
 }

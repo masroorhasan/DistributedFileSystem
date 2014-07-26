@@ -36,11 +36,11 @@ int addToWaitingQueue(const char* remotepath) {
     } else {
         waiting_list *list = wl_queue;
         while(list->next != NULL) {
+            // printf("file %s, uid %i, next %p\n", list->filepath, list->uid, list->next);
             list = list->next;            
         }
 
         list->next = node;
-        wl_queue = list;
     }
 
     waiting_id += 1;
@@ -51,7 +51,7 @@ int addToWaitingQueue(const char* remotepath) {
  * Search Waiting List for locked file
  */
 int searchWaitingList(const char* remotepath, int uid) {
-    if(uid == -1) return -1;
+    // if(uid == -1) return -1;
 
     printf("Searching Waiting List...\n");
     if(wl_queue != NULL) {
@@ -359,6 +359,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     int *id = (int *) malloc(uid_sz);
     memcpy(id, (int *)uidarg->arg_val, uid_sz);
     int clientuid = *id;
+    printf("clientuid on open: %i\n", clientuid);
 
     int flags = -1;
     int openErrno = 0;
@@ -374,6 +375,10 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
      * Check waiting list queue for first uid with filename == parsed_folder
      */
     int founduid = searchWaitingList(parsed_folder, clientuid);
+    printf("founduid %i\n", founduid);
+
+    printList();
+
     if(founduid == -1) {
         // Couldnt find file in queue
         int open_fd = open(parsed_folder, flags, S_IRWXU);
@@ -426,6 +431,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
             
             // File is still locked on attempt
             if(filelock == -1) {
+                printf("file is still locked for %i\n", clientuid);
                 int state = NACK;
 
                 fsopen_ret.return_size = sizeof(int) * 2;
@@ -437,6 +443,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
             }
 
             // Got lock for file, remove client from Waiting List
+            printf("got lock, remove %i from list\n", clientuid);
             removeFromWaitingList(parsed_folder, clientuid);
 
             // Parse payload with state, uid, errno and fd
@@ -454,7 +461,24 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
 
         }
 
+        if(clientuid == -1) {
+            printf("New client, so add to Waiting List\n");
+            int uidadded = addToWaitingQueue(parsed_folder);
+            
+            // Parse payload with state, uid
+            int state = NACK;
+
+            fsopen_ret.return_size = sizeof(int) * 2;
+            fsopen_ret.return_val = (void *) malloc(fsopen_ret.return_size);
+            memcpy(fsopen_ret.return_val, &state, sizeof(int));
+            memcpy(fsopen_ret.return_val + sizeof(int), &uidadded, sizeof(int));
+
+            return fsopen_ret;
+        }
+
         // Client requesting file not at head of Waiting List
+        printf("Client requesting file not at head of Waiting List\n");
+
         int state = NACK;
 
         fsopen_ret.return_size = sizeof(int) * 2;
@@ -490,8 +514,8 @@ extern return_type fsClose(const int nparams, arg_type *a) {
         printf("fsClose() %s\n", strerror(errno));
     }
 
+    printf("Closing and unlocking file\n");
     int fileunlock = flock(fd, LOCK_UN | LOCK_NB);
-    // deleteFromWaitingList
 
     return_type fsclose_ret;
     fsclose_ret.return_size = sizeof(int) + sizeof(int);
@@ -601,7 +625,7 @@ extern return_type fsWrite(const int nparams, arg_type *a) {
  * Returns -1 on error and sets errno.
  */
 extern return_type fsRemove(const int nparams, arg_type *a) {
-    printf("fsRemove() called.\n");
+    printf("fsRemove() CALLED..........................\n");
 
     int name_sz = a->arg_size;
     char *name = (char *) malloc(name_sz);
@@ -632,21 +656,185 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
     /*
      * End of folder pasrsing logic.
      */
-
-    int removeErrno = 0;
-    int remove_ret = remove(parsed_folder);
-    if(remove_ret == -1) {
-        removeErrno = errno;
-        printf("fsRemove() Error: %s\n", strerror(removeErrno));
-    }
+    
+    // Get uid from client
+    arg_type *uidarg = a->next;
+    int uid_sz = uidarg->arg_size;
+    int *id = (int *) malloc(uid_sz);
+    memcpy(id, (int *)uidarg->arg_val, uid_sz);
+    int clientuid = *id;
+    printf("clientuid on remove %i\n", clientuid);
 
     return_type fsremove_ret;
-    fsremove_ret.return_size = sizeof(int) + sizeof(int);
-    fsremove_ret.return_val = malloc(fsremove_ret.return_size);
 
-    memcpy(fsremove_ret.return_val, &removeErrno, sizeof(int));
-    memcpy(fsremove_ret.return_val + sizeof(int), &remove_ret, sizeof(int));
+    int founduid = searchWaitingList(parsed_folder, clientuid);
+    printf("founduid %i\n", founduid);
 
-    return fsremove_ret;
+    printList();
+
+    if(founduid == -1) {
+        printf("Couldn't find file in Waiting List\n");
+
+        // Attempt to get lock for file
+        int rm_fd = open(parsed_folder, O_RDONLY);
+        if(rm_fd == -1) {
+            printf("Error: %s\n", strerror(errno));
+
+            int removeErrno = errno;
+
+            fsremove_ret.return_size = sizeof(int) * 4;
+            fsremove_ret.return_val = malloc(fsremove_ret.return_size);
+
+            int state = ACK;
+            int uid = -1; 
+            int remove_ret = -1;
+
+            memcpy(fsremove_ret.return_val, &state, sizeof(int));
+            memcpy(fsremove_ret.return_val + sizeof(int), &uid, sizeof(int));
+            memcpy(fsremove_ret.return_val + (sizeof(int)*2), &removeErrno, sizeof(int));
+            memcpy(fsremove_ret.return_val + (sizeof(int)*3), &remove_ret, sizeof(int));
+
+            return fsremove_ret;
+        }
+
+        int rm_lock = flock(rm_fd, LOCK_EX | LOCK_NB);
+        if(rm_lock == -1) {
+            printf("Lock already taken for file\n");
+            // Lock already taken for file, add to Waiting List
+            int uidadded = addToWaitingQueue(parsed_folder);
+
+            int state = NACK;
+            
+            fsremove_ret.return_size = sizeof(int) * 2;
+            fsremove_ret.return_val = malloc(fsremove_ret.return_size);
+
+            memcpy(fsremove_ret.return_val, &state, sizeof(int));
+            memcpy(fsremove_ret.return_val + sizeof(int), &uidadded, sizeof(int));
+
+            return fsremove_ret;   
+        }
+
+        printf("Got lock, about to remove.\n");
+        // Got lock, remove file, unlock
+        int removeErrno = 0;
+        int remove_ret = remove(parsed_folder);
+        if(remove_ret == -1) {
+            removeErrno = errno;
+            printf("fsRemove() Error: %s\n", strerror(removeErrno));
+        }
+
+        int fileunlock = flock(rm_fd, LOCK_UN | LOCK_NB);
+
+        // Note: check if file needs to be closed
+        printf("removeErrno %s\n", strerror(removeErrno));
+
+        // parse payload with ACK, uid, errno and rm_ret
+        int state = ACK;
+        int uid = -1;
+
+        fsremove_ret.return_size = sizeof(int) * 4;
+        fsremove_ret.return_val = malloc(fsremove_ret.return_size);
+
+        memcpy(fsremove_ret.return_val, &state, sizeof(int));
+        memcpy(fsremove_ret.return_val + sizeof(int), &uid, sizeof(int));
+        memcpy(fsremove_ret.return_val + (sizeof(int)*2), &removeErrno, sizeof(int));
+        memcpy(fsremove_ret.return_val + (sizeof(int)*3), &remove_ret, sizeof(int));
+
+        return fsremove_ret;
+    } else {
+        if(founduid == clientuid) {
+            printf("Found requesting client in Waiting List %i\n", founduid);
+
+            // Attempt to get lock for file
+            int rm_fd = open(parsed_folder, O_RDONLY);
+            if(rm_fd == -1) {
+                printf("Couldn't open file to get fd.\n");
+            }
+
+            int rm_lock = flock(rm_fd, LOCK_EX | LOCK_NB);
+            if(rm_lock == -1) {
+                printf("Lock already taken for file\n");
+                // Lock already taken for file, add to Waiting List
+               if(clientuid == -1) {
+                    int uidadded = addToWaitingQueue(parsed_folder);
+
+                    int state = NACK;
+                    
+                    fsremove_ret.return_size = sizeof(int) * 2;
+                    fsremove_ret.return_val = malloc(fsremove_ret.return_size);
+
+                    memcpy(fsremove_ret.return_val, &state, sizeof(int));
+                    memcpy(fsremove_ret.return_val + sizeof(int), &uidadded, sizeof(int));
+
+                    return fsremove_ret;    
+                }
+
+                int state = NACK;
+
+                fsremove_ret.return_size = sizeof(int) * 2;
+                fsremove_ret.return_val = (void *) malloc(fsremove_ret.return_size);
+                memcpy(fsremove_ret.return_val, &state, sizeof(int));
+                memcpy(fsremove_ret.return_val + sizeof(int), &clientuid, sizeof(int));
+
+                return fsremove_ret; 
+            }
+
+            // Got lock, remove from waiting list
+            printf("Got lock, about to remove.\n");
+            
+            int removeErrno = 0;
+            int remove_ret = remove(parsed_folder);
+            if(remove_ret == -1) {
+                removeErrno = errno;
+                printf("fsRemove() Error: %s\n", strerror(removeErrno));
+            }
+
+            removeFromWaitingList(parsed_folder, clientuid);
+
+            int fileunlock = flock(rm_fd, LOCK_UN | LOCK_NB);
+
+            // parse payload with ACK, uid, errno and rm_ret
+            int state = ACK;
+            int uid = -1;
+
+            fsremove_ret.return_size = sizeof(int) * 4;
+            fsremove_ret.return_val = malloc(fsremove_ret.return_size);
+
+            memcpy(fsremove_ret.return_val, &state, sizeof(int));
+            memcpy(fsremove_ret.return_val + sizeof(int), &uid, sizeof(int));
+            memcpy(fsremove_ret.return_val + (sizeof(int)*2), &removeErrno, sizeof(int));
+            memcpy(fsremove_ret.return_val + (sizeof(int)*3), &remove_ret, sizeof(int));
+
+            return fsremove_ret;
+
+        }
+
+        if(clientuid == -1) {
+            printList();
+            printf("New client, so add to Waiting List\n");
+            int uidadded = addToWaitingQueue(parsed_folder);
+
+            int state = NACK;
+
+            fsremove_ret.return_size = sizeof(int) * 2;
+            fsremove_ret.return_val = (void *) malloc(fsremove_ret.return_size);
+            memcpy(fsremove_ret.return_val, &state, sizeof(int));
+            memcpy(fsremove_ret.return_val + sizeof(int), &uidadded, sizeof(int));
+
+            return fsremove_ret;
+        }
+
+        // Client requesting file not at head of Waiting List
+        printf("Client requesting file not at head of Waiting List\n");
+
+        int state = NACK;
+
+        fsremove_ret.return_size = sizeof(int) * 2;
+        fsremove_ret.return_val = (void *) malloc(fsremove_ret.return_size);
+        memcpy(fsremove_ret.return_val, &state, sizeof(int));
+        memcpy(fsremove_ret.return_val + sizeof(int), &clientuid, sizeof(int));
+
+        return fsremove_ret;        
+    }
 }
 

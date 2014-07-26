@@ -72,12 +72,56 @@ int main(int argc, char *argv[]) {
     int closdir = fsCloseDir(fsdir);
     printf("closedir %i\n", closdir);
 
-    // int fd = fsOpen("masroor/test1.txt", 0);
-    // printf("fd for fsOpen %i\n", fd);
+    int fd = fsOpen("masroor/test1.txt", 1);
+    printf("fd for fsOpen %i\n", fd);
 
-    // int close = fsClose(fd);
-    // printf("closing fd : %i\n", close);
+    printf("Issuing writes to file\n");
 
+    char *buffer = "Masroor";
+    int w_return = fsWrite(fd, buffer, strlen(buffer) + 1);
+    printf("Write one code: %i\n", w_return);
+
+    char *dirname2 = "hasan";
+    char *server = "192.168.2.15";
+    int port = 10001;
+    // mounted = fsMount(argv[1], atoi(argv[2]), dirname2);
+    mounted = fsMount(server, port, dirname2);
+    printf("fsMount(): %d\n", mounted);
+
+    int close = fsClose(fd);
+    printf("closing fd : %i\n", close);
+
+    int unmount = fsUnmount(dirname);
+    printf("unmount %i\n", unmount);
+
+    // printf("sleeping for 5s\n");
+    // sleep(2);
+    path = "hasan";
+    fsdir = fsOpenDir(path);
+
+    fdent = NULL;
+    for(fdent = fsReadDir(fsdir); fdent != NULL; fdent = fsReadDir(fsdir)) {
+        printf("\t %s, %d\n", fdent->entName, (int)(fdent->entType));
+    }
+
+    closdir = fsCloseDir(fsdir);
+    printf("closedir %i\n", closdir);
+
+
+    int fd2 = fsOpen("hasan/test2.txt", 1);
+    printf("fd2 for fsOpen %i\n", fd2);
+
+    printf("Issuing writes to file\n");
+
+    buffer = "Hasan";
+    w_return = fsWrite(fd2, buffer, strlen(buffer) + 1);
+    printf("Write one code: %i\n", w_return);
+
+    close = fsClose(fd2);
+    printf("closing fd : %i\n", close);
+
+    unmount = fsUnmount(dirname2);
+    printf("unmount %i\n", unmount);
     
     // int fd = fsOpen("root/test.txt", 1);
     // printf("first fd %i\n", fd);

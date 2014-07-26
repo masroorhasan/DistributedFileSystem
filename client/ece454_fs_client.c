@@ -167,7 +167,8 @@ void printMountedList() {
     }
 }
 
-void addToFsdirList(FSDIR *dir, const char* localdirname) {
+int addToFsdirList(FSDIR *dir, const char* localdirname) {
+    int idx = opened_fsdir_index;
     fsdir_list_type node;
 
     int i = 0;
@@ -201,6 +202,8 @@ void addToFsdirList(FSDIR *dir, const char* localdirname) {
 
     fsdir_list[opened_fsdir_index] = node;
     opened_fsdir_index++;
+
+    return idx;
 }
 
 int getFoldernameFromFSDIR(FSDIR *dir) {
@@ -216,7 +219,16 @@ int getFoldernameFromFSDIR(FSDIR *dir) {
     return -1;
 }
 
-void addTofdList(int fd, const char *localdirname) {
+void printFSDIRList() {
+    int i = 0;
+    for(; i < opened_fsdir_index; i++) {
+         printf("localdirName %s, remotefsdir %i\n", 
+            fsdir_list[i].localdirname, *(fsdir_list[i].remotefsdir));
+    }
+}
+
+int addTofdList(int fd, const char *localdirname) {
+    int idx = opened_fd_index;
     fd_list_type node;
 
     int i = 0;
@@ -253,9 +265,29 @@ void addTofdList(int fd, const char *localdirname) {
     fd_list[opened_fd_index] = node;
     opened_fd_index++;
 
+    return idx;
 }
 
-//TODO: getFromfdList()
+int getFoldernameFromFD(int localfd) {
+    if(localfd == -1) return -1;
+
+    int i = 0;
+    for(; i < opened_fd_index; i++) {
+        if(localfd == fd_list[i].remotefd) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void printFDList() {
+    int i = 0;
+    for(; i < opened_fd_index; i++) {
+         printf("localdirName %s, remotefd %i\n", 
+            fd_list[i].localdirname, (fd_list[i].remotefd));
+    }
+}
 
 /*
  * Mounts a remote server folder locally.
@@ -320,7 +352,7 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
  * Returns -1 on failure and sets errno.
  */
 extern int fsUnmount(const char *localFolderName) {
-
+    printf("fsUnmount\n");
     // Check that we're mounted
     // if (mountError(true)) return -1;
     if(!checkMountedState(localFolderName)) return -1;
@@ -381,17 +413,22 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     memcpy(&openDirErrno, (int *)ans.return_val, sizeof(int));
 
     FSDIR *dir = (FSDIR *) malloc(sizeof(FSDIR));
-
+    FSDIR *localdir_ptr = (FSDIR *) malloc(sizeof(FSDIR));
     if(openDirErrno == 0) {
         memcpy(dir, (FSDIR *)(ans.return_val + sizeof(int)), sizeof(FSDIR));
-        addToFsdirList(dir, folderName);
+        int localfsdir = addToFsdirList(dir, folderName);
+        
+        memcpy(localdir_ptr, &localfsdir, sizeof(FSDIR));
+
     } else {
         dir = NULL;
         errno = openDirErrno;
         printf("fsDirOpen() Error: %s \n", strerror(errno));
     }
 
-    return dir;
+    printFSDIRList();
+
+    return localdir_ptr;
 }
 
 /*
@@ -401,9 +438,12 @@ extern FSDIR* fsOpenDir(const char *folderName) {
  * Returns -1 on failure and sets errno.
  */
 extern int fsCloseDir(FSDIR * folder) {
+    printf("fsCloseDir()\n");
     // Check that we're mounted
     // if (mountError(true)) return -1;
-    int fsdir_idx = getFoldernameFromFSDIR(folder);
+    // int fsdir_idx = getFoldernameFromFSDIR(folder);
+    int fsdir_idx = *folder;
+    printf("fsdir_idx %i\n", fsdir_idx);
     if(fsdir_idx == -1) return -1;
 
     if(!checkMountedState(fsdir_list[fsdir_idx].localdirname)) return -1;
@@ -415,7 +455,7 @@ extern int fsCloseDir(FSDIR * folder) {
                 mounted_list[mounted_idx].port,
                 "fsCloseDir", 1,
                 sizeof(FSDIR),
-                folder);
+                fsdir_list[fsdir_idx].remotefsdir);
 
     printf("Got response from fsCloseDir RPC.\n");
     int size = ans.return_size;
@@ -443,9 +483,12 @@ extern int fsCloseDir(FSDIR * folder) {
  * Returns NULL when end of folder reacherd.
  */
 extern struct fsDirent *fsReadDir(FSDIR * folder) {
+    printf("fsReadDir()\n");
     // Check that we're mounted
     // if (mountError(true)) return NULL;
-    int fsdir_idx = getFoldernameFromFSDIR(folder);
+    // int fsdir_idx = getFoldernameFromFSDIR(folder);
+    int fsdir_idx = *folder;
+    printf("fsdir_idx %i\n", fsdir_idx);
     if(fsdir_idx == -1) return NULL;
 
     if(!checkMountedState(fsdir_list[fsdir_idx].localdirname)) return NULL;
@@ -457,7 +500,7 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
             mounted_list[mounted_idx].port,
             "fsReadDir", 1,
             sizeof(FSDIR),
-            folder);
+            fsdir_list[fsdir_idx].remotefsdir);
 
     printf("Got response from fsReadDir RPC.\n");
 
@@ -501,8 +544,9 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
  * Returns -1 on failure and sets errno.
  */
 extern int fsOpen(const char *fname, int mode) {
+    printf("fsOpen\n");
     // Check that we're mounted
-    if (mountError(true)) return -1;
+    // if (mountError(true)) return -1;
     if(!checkMountedState(fname)) return -1;
     int mounted_idx = getMountedServerInfo(fname);
 
@@ -568,9 +612,13 @@ extern int fsOpen(const char *fname, int mode) {
     memcpy(&open_fd, (int *)(ans.return_val + (sizeof(int)*3)), sizeof(int));
 
     //put fd in fdlist
-    addTofdList(open_fd, fname);
+    int localfd = addTofdList(open_fd, fname);
+    printFDList();
 
-    return open_fd;
+
+    // return local fd (index)
+    return localfd;
+    // return open_fd;
 }
 
 
@@ -583,14 +631,21 @@ extern int fsOpen(const char *fname, int mode) {
  */
 extern int fsClose(int fd) {
     // Check that we're mounted
-    if (mountError(true)) return -1;
+    // if (mountError(true)) return -1;
+    int fd_idx = fd; 
+    // int fd_idx = getFoldernameFromFD(fd);
+    if(fd_idx == -1) return -1;
+
+    if(!checkMountedState(fd_list[fd_idx].localdirname)) return -1;
+    int mounted_idx = getMountedServerInfo(fd_list[fd_idx].localdirname); 
 
     return_type ans;
-    ans = make_remote_call(destAddr,
-              destPort,
-              "fsClose", 1,
-              sizeof(int),
-              &fd);
+    ans = make_remote_call(
+                mounted_list[mounted_idx].server_ip,
+                mounted_list[mounted_idx].port,
+                "fsClose", 1,
+                sizeof(int),
+                &(fd_list[fd_idx].remotefd));
 
     printf("Got response from fsClose RPC.\n");
     int sz = ans.return_size;
@@ -620,18 +675,25 @@ extern int fsClose(int fd) {
  */
 extern int fsRead(int fd, void *buf, const unsigned int count) {
     // Check that we're mounted
-    if (mountError(true)) return -1;
+    // if (mountError(true)) return -1;
+    int fd_idx = fd; 
+    // int fd_idx = getFoldernameFromFD(fd);
+    if(fd_idx == -1) return -1;
+
+    if(!checkMountedState(fd_list[fd_idx].localdirname)) return -1;
+    int mounted_idx = getMountedServerInfo(fd_list[fd_idx].localdirname); 
 
     return_type ans;
-    ans = make_remote_call(destAddr,
-              destPort,
-              "fsRead", 3,
-              sizeof(int),
-              (void *)&fd,
-              count,
-              buf,
-              sizeof(unsigned int),
-              (void *)&count);
+    ans = make_remote_call(
+                mounted_list[mounted_idx].server_ip,
+                mounted_list[mounted_idx].port,
+                "fsRead", 3,
+                sizeof(int),
+                &(fd_list[fd_idx].remotefd),
+                count,
+                buf,
+                sizeof(unsigned int),
+                (void *)&count);
 
     printf("Got response from fsRead RPC.\n");
     int sz = ans.return_size;
@@ -665,18 +727,25 @@ extern int fsRead(int fd, void *buf, const unsigned int count) {
  */
 extern int fsWrite(int fd, const void *buf, const unsigned int count) {
     // Check that we're mounted
-    if (mountError(true)) return -1;
+    // if (mountError(true)) return -1;
+    int fd_idx = fd; 
+    // int fd_idx = getFoldernameFromFD(fd);
+    if(fd_idx == -1) return -1;
+
+    if(!checkMountedState(fd_list[fd_idx].localdirname)) return -1;
+    int mounted_idx = getMountedServerInfo(fd_list[fd_idx].localdirname); 
 
     return_type ans;
-    ans = make_remote_call(destAddr,
-              destPort,
-              "fsWrite", 3,
-              sizeof(int),
-              (void *)&fd,
-              count,
-              buf,
-              sizeof(unsigned int),
-              (void *)&count);
+    ans = make_remote_call(
+                mounted_list[mounted_idx].server_ip,
+                mounted_list[mounted_idx].port,
+                "fsWrite", 3,
+                sizeof(int),
+                &(fd_list[fd_idx].remotefd),
+                count,
+                buf,
+                sizeof(unsigned int),
+                (void *)&count);
 
     printf("Got response from fsWrite RPC.\n");
     int sz = ans.return_size;
@@ -704,28 +773,31 @@ extern int fsWrite(int fd, const void *buf, const unsigned int count) {
  */
 extern int fsRemove(const char *name) {
     // Check that we're mounted
-    if (mountError(true)) return -1;
+    // if (mountError(true)) return -1;
+    if(!checkMountedState(name)) return -1;
+    int mounted_idx = getMountedServerInfo(name);
 
     printf("Issuing fsRemove Request\n");
 
-    char *root_path = (char *) malloc(strlen(localDirName) + 1);
-    memcpy(root_path, name, strlen(localDirName));
+    // char *root_path = (char *) malloc(strlen(localDirName) + 1);
+    // memcpy(root_path, name, strlen(localDirName));
 
-    if(strcmp(root_path, localDirName) != 0) {
-        errno = ENOENT;
-        return -1;
-    }
+    // if(strcmp(root_path, localDirName) != 0) {
+    //     errno = ENOENT;
+    //     return -1;
+    // }
 
     // Client send -1 on first request
     int uid = -1;
     return_type ans;
-    ans = make_remote_call(destAddr,
-              destPort,
-              "fsRemove", 2,
-              strlen(name) + 1,
-              (void *)name,
-              sizeof(int),
-              &uid);
+    ans = make_remote_call(
+                mounted_list[mounted_idx].server_ip,
+                mounted_list[mounted_idx].port,
+                "fsRemove", 2,
+                strlen(name) + 1,
+                (void *)name,
+                sizeof(int),
+                &uid);
 
     printf("Got response from fsRemove RPC.\n");
     int sz = ans.return_size;
@@ -739,13 +811,14 @@ extern int fsRemove(const char *name) {
     printf("uid: %i\n", uid);
 
     while(state == NACK && uid != -1) {
-        ans = make_remote_call(destAddr,
-              destPort,
-              "fsRemove", 2,
-              strlen(name) + 1,
-              (void *)name,
-              sizeof(int),
-              &uid);
+        ans = make_remote_call(
+                mounted_list[mounted_idx].server_ip,
+                mounted_list[mounted_idx].port,
+                "fsRemove", 2,
+                strlen(name) + 1,
+                (void *)name,
+                sizeof(int),
+                &uid);
 
         memcpy(&state, (int *)ans.return_val, sizeof(int));
         printf("state: %i\n", state);

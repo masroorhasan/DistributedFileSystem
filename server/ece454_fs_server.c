@@ -677,6 +677,8 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
 
         // Attempt to get lock for file
         int rm_fd = open(parsed_folder, O_RDONLY);
+
+        // File does not exist
         if(rm_fd == -1) {
             printf("Error: %s\n", strerror(errno));
 
@@ -747,8 +749,26 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
 
             // Attempt to get lock for file
             int rm_fd = open(parsed_folder, O_RDONLY);
+
+            // File does not exist
             if(rm_fd == -1) {
-                printf("Couldn't open file to get fd.\n");
+                printf("Error: %s\n", strerror(errno));
+
+                int removeErrno = errno;
+
+                fsremove_ret.return_size = sizeof(int) * 4;
+                fsremove_ret.return_val = malloc(fsremove_ret.return_size);
+
+                int state = ACK;
+                int uid = -1; 
+                int remove_ret = -1;
+
+                memcpy(fsremove_ret.return_val, &state, sizeof(int));
+                memcpy(fsremove_ret.return_val + sizeof(int), &uid, sizeof(int));
+                memcpy(fsremove_ret.return_val + (sizeof(int)*2), &removeErrno, sizeof(int));
+                memcpy(fsremove_ret.return_val + (sizeof(int)*3), &remove_ret, sizeof(int));
+
+                return fsremove_ret;
             }
 
             int rm_lock = flock(rm_fd, LOCK_EX | LOCK_NB);

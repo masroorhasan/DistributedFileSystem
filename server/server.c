@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     register_procedure("fsClose", 1, fsClose);
     register_procedure("fsRead", 3, fsRead);
     register_procedure("fsWrite", 3, fsWrite);
-    register_procedure("fsRemove", 1, fsRemove);
+    register_procedure("fsRemove", 2, fsRemove);
 
 #ifdef _DEBUG_1_
     printf("The folder to be hosted is: %s \n", hosted_folder);

@@ -5,9 +5,7 @@
 #include "ece454_fs.h"
 #include "ece454rpc_types.h"
 
-char* destAddr;
-unsigned int destPort;
-
+#define MAX_SIZE 256
 /*
  * Local folder name remote folder refered to
  */ 
@@ -27,7 +25,7 @@ typedef struct fsdirList {
 } fsdir_list_type;
 
 int opened_fsdir_index = 0;
-fsdir_list_type fsdir_list[256];
+fsdir_list_type fsdir_list[MAX_SIZE];
 
 /*
  * fd list mapped with localdirname
@@ -38,7 +36,7 @@ typedef struct fdList {
 } fd_list_type;
 
 int opened_fd_index = 0;
-fd_list_type fd_list[256];
+fd_list_type fd_list[MAX_SIZE];
 
 /*
  * Need multiple mounts support
@@ -54,15 +52,12 @@ typedef struct mountedList {
 } mounted_list_type;
 
 int mounted_index = 0;
-mounted_list_type mounted_list[256];
+mounted_list_type mounted_list[MAX_SIZE];
 
 /*
- * Need consistancy protocol for file operation
+ * Consistancy protocol for file operations
  */
 typedef enum {ACK, NACK } waiting_state;
-
-
-extern bool mountError(bool expected);
 
 // Utility methods
 extern FSDIR* deserializeFSDIR(return_type ans);

@@ -20,17 +20,18 @@
 
 // Maintains size of dir
 #define SIZE_DIR 200
+#define MAX_DIR_SIZE 256
 
 // Stores the name of directory hosted by the server
 char *hosted_folder_name;
 
 // Used to store open DIRs
-DIR *dir_entries[256];
+DIR *dir_entries[MAX_DIR_SIZE];
 
 // Used to keep track of next free index in dir_entries array
 int next_dir_entry;
 
-// Waiting state
+// Waiting state for concurrency protocol
 typedef enum {ACK, NACK } waiting_state;
 
 // Queue struct

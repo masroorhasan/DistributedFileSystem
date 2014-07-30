@@ -11,5 +11,5 @@ sample_client_app.o:
 	gcc -c client/helper.c client/client_stub.c client/ece454_fs_client.c
 
 clean:
-	rm -rf server/a.out server/*.o server/core server/*.a server/*_app client/a.out client/*.o client/core client/*.a client/*_app server_exectureable client-api.a *.o *.a *_app
+	rm -rf server/a.out server/*.o server/core server/*.a server/*_app client/a.out client/*.o client/core client/*.a client/*_app server_exectureable client-api.a *.o *.a *_app serv_executeable
 

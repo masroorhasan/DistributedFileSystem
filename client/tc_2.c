@@ -6,8 +6,8 @@
 
 int main(int argc, char *argv[]) {
 
-    printf("fsMount(): %d\n", fsMount("129.97.56.12", 10050, "root"));
-    printf("fsMount(): %d\n", fsMount("129.97.56.13", 10009, "leaf"));
+    printf("fsMount(): %d\n", fsMount("10.20.182.182", 10000, "root"));
+    printf("fsMount(): %d\n", fsMount("10.20.182.182", 10001, "leaf"));
 
     FSDIR *fd = fsOpenDir("root");
     struct fsDirent *fdent = NULL;
@@ -37,8 +37,14 @@ int main(int argc, char *argv[]) {
     char* buf2 = "Warren writing to leaf";
     fsWrite(ff2, buf2, 256);
 
+    fsClose(ff);
+    fsClose(ff2);
+
     char* buf3 = (char *) malloc(256);
     char* buf4 = (char *) malloc(256);
+
+    ff = fsOpen("root/rootWrite.txt", 0);
+    ff2 = fsOpen("leaf/leafWrite.txt", 0);
 
     printf("Reading from root.\n");
     int readcount = 0;
@@ -52,6 +58,12 @@ int main(int argc, char *argv[]) {
         printf("Read from leaf failed.\n");
     }
 
+    fsClose(ff);
+    fsClose(ff2);
+
+    printf("fsCloseDir root: %d\n", fsCloseDir(fd));
+    printf("fsCloseDir leaf: %d\n", fsCloseDir(fd2));
+
     printf("Attempting to unmount root.\n");
     if(fsUnmount("root") < 0) {
 	      perror("fsUnmount root"); exit(1);
@@ -61,9 +73,6 @@ int main(int argc, char *argv[]) {
     if(fsUnmount("leaf") < 0) {
 	      perror("fsUnmount leaf"); exit(1);
     }
-
-    printf("fsCloseDir root: %d\n", fsCloseDir(fd));
-    printf("fsCloseDir leaf: %d\n", fsCloseDir(fd2));
 
     return 0;
 }

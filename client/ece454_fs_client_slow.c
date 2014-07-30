@@ -1,24 +1,7 @@
 #include "ece454_fs_client.h"
 
-/*
- * Checks whether there's a call is valid based on client's
- * mounted state.
- *
- * Returns false if no error.
- * Returns true if error and sets errno.
- */
-extern bool mountError(bool expected) {
-    if (mounted != expected) {
-        errno = EPERM;
-        printf("fsMount() Error: %s \n", strerror(errno));
-        return true;
-    }
-
-    return false;
-}
-
 bool checkMountedState(const char *localdirname) {
-    printf("localdirname: %s\n", localdirname);
+    // printf("localdirname: %s\n", localdirname);
 
     int i = 0;
     bool found_slash = false;
@@ -32,7 +15,6 @@ bool checkMountedState(const char *localdirname) {
 
     char *parsed_folder = NULL;
     if(found_slash == true) {
-        // printf("found slash at %i\n", i);
         parsed_folder = (char *) malloc(sizeof(char) * (i+1));
         memset(parsed_folder, 0, sizeof(char) * (i+1));
         memcpy(parsed_folder, localdirname, sizeof(char)*i);
@@ -42,18 +24,13 @@ bool checkMountedState(const char *localdirname) {
         memcpy(parsed_folder, localdirname, strlen(localdirname));
     }
 
-    // printf("parsed_folder %s\n", parsed_folder);
-
     i = 0;
     for(; i < mounted_index; i++) {
         char *root_path = (char *) malloc(strlen(mounted_list[i].localDirName) + 1);
         memset(root_path, 0, strlen(mounted_list[i].localDirName) + 1);
         memcpy(root_path, parsed_folder, strlen(mounted_list[i].localDirName));
 
-        // printf("root_path on checkMountedState %s\n", root_path);
-
         if(strcmp(mounted_list[i].localDirName, root_path) == 0) {
-            // printf("matched %s with root_path %s\n", mounted_list[i].localDirName, root_path);
             return mounted_list[i].mounted;
         }
     }
@@ -61,6 +38,9 @@ bool checkMountedState(const char *localdirname) {
     return false;
 }
 
+/*
+ * Get server ip and port # given a local folder name from list
+ */
 int getMountedServerInfo(const char *localdirname) {
     if(mounted_index == 0) return -1;
     
@@ -76,7 +56,6 @@ int getMountedServerInfo(const char *localdirname) {
 
     char *parsed_folder = NULL;
     if(found_slash == true) {
-        // printf("found slash at %i\n", i);
         parsed_folder = (char *) malloc(sizeof(char) * (i+1));
         memset(parsed_folder, 0, sizeof(char) * (i+1));
         memcpy(parsed_folder, localdirname, sizeof(char)*i);
@@ -86,7 +65,7 @@ int getMountedServerInfo(const char *localdirname) {
         memcpy(parsed_folder, localdirname, strlen(localdirname));
     }
 
-    // printf("parsed_folder %s\n", parsed_folder);
+    // case: mountedlist could have the same localdirname but different server ip, port
 
     i = 0;
     for(; i < mounted_index; i++) {
@@ -94,10 +73,7 @@ int getMountedServerInfo(const char *localdirname) {
         memset(root_path, 0, strlen(mounted_list[i].localDirName) + 1);
         memcpy(root_path, parsed_folder, strlen(mounted_list[i].localDirName));
 
-        // printf("root_path on getMountedServerInfo %s\n", root_path);
-
         if(strcmp(mounted_list[i].localDirName, root_path) == 0) {
-            // printf("matched %s with root_path %s\n", mounted_list[i].localDirName, root_path);
             return i;
         }
     }
@@ -105,10 +81,15 @@ int getMountedServerInfo(const char *localdirname) {
     return -1;
 }
 
+/*
+ * Add new mapping of server ip and port # to local folder name to list
+ */
 int addToMountList(const char *serverip, const unsigned int port, const char *localdirname) {
     int idx = mounted_index;
 
     mounted_list_type node;
+
+    if(serverip == NULL || port == 0 || localdirname == NULL) return -1;
     
     node.server_ip =  (char *) malloc(sizeof(char) * (strlen(serverip) +1));
     memcpy(node.server_ip, serverip, (strlen(serverip) +1));
@@ -120,14 +101,19 @@ int addToMountList(const char *serverip, const unsigned int port, const char *lo
 
     node.mounted = false;
 
+    // check if localdirname exists, overwrite server, port?
+
     mounted_list[mounted_index] = node;
     mounted_index++;
 
     return idx;
 }
 
+/*
+ * Set mounted state of local folder name mapping to server address 
+ */
 int setMountedState(const char *localdirname) {
-    if(mounted_index == 0) return -1;
+    if(mounted_index == 0 || localdirname == NULL) return -1;
 
     int i = 0;
     for(; i < mounted_index; i++) {
@@ -142,6 +128,9 @@ int setMountedState(const char *localdirname) {
     return -1;
 }
 
+/*
+ * Set unmounted state of local folder name mapping to server address 
+ */
 int setUnmountedState(const char *localdirname) {
     if(mounted_index == 0) return -1;
 
@@ -158,12 +147,21 @@ int setUnmountedState(const char *localdirname) {
     return -1;
 }
 
+/*
+ * print mapping between local folder name, port and server address
+ */
 void printMountedList() {
     int i = 0;
     for(; i < mounted_index; i++) {
+         printf("serverip %s, port %i, localdir %s, mounted %i\n", 
+            mounted_list[i].server_ip, mounted_list[i].port, mounted_list[i].localDirName,
+            mounted_list[i].mounted);
     }
 }
 
+/*
+ * Add new mapping of FSDIR* to local folder name in list
+ */
 int addToFsdirList(FSDIR *dir, const char* localdirname) {
     int idx = opened_fsdir_index;
     fsdir_list_type node;
@@ -180,7 +178,6 @@ int addToFsdirList(FSDIR *dir, const char* localdirname) {
 
     char *parsed_folder = NULL;
     if(found_slash == true) {
-        // printf("found slash at %i\n", i);
         parsed_folder = (char *) malloc(sizeof(char) * (i+1));
         memset(parsed_folder, 0, sizeof(char) * (i+1));
         memcpy(parsed_folder, localdirname, sizeof(char)*i);
@@ -203,6 +200,9 @@ int addToFsdirList(FSDIR *dir, const char* localdirname) {
     return idx;
 }
 
+/*
+ * Return index of local folder name from list given an FSDIR pointer
+ */
 int getFoldernameFromFSDIR(FSDIR *dir) {
     int i = 0;
     int fsdir = *dir;
@@ -216,12 +216,20 @@ int getFoldernameFromFSDIR(FSDIR *dir) {
     return -1;
 }
 
+/*
+ * Utility function to print mapping of remote FSDIR and local folder name
+ */
 void printFSDIRList() {
     int i = 0;
     for(; i < opened_fsdir_index; i++) {
+         printf("localdirName %s, remotefsdir %i\n", 
+            fsdir_list[i].localdirname, *(fsdir_list[i].remotefsdir));
     }
 }
 
+/*
+ * Adds a mapping between remote file descriptor to local folder name to list
+ */
 int addTofdList(int fd, const char *localdirname) {
     int idx = opened_fd_index;
     fd_list_type node;
@@ -238,7 +246,6 @@ int addTofdList(int fd, const char *localdirname) {
 
     char *parsed_folder = NULL;
     if(found_slash == true) {
-        // printf("found slash at %i\n", i);
         parsed_folder = (char *) malloc(sizeof(char) * (i+1));
         memset(parsed_folder, 0, sizeof(char) * (i+1));
         memcpy(parsed_folder, localdirname, sizeof(char)*i);
@@ -252,10 +259,7 @@ int addTofdList(int fd, const char *localdirname) {
     memset(node.localdirname, 0, strlen(parsed_folder) + 1);
     memcpy(node.localdirname, parsed_folder, strlen(parsed_folder) + 1);
 
-    // node.remotefd = (int *)malloc(sizeof(FSDIR));
-    // memcpy(&node.remotefd, fd, sizeof(FSDIR));
     node.remotefd = fd;
-
 
     fd_list[opened_fd_index] = node;
     opened_fd_index++;
@@ -263,6 +267,9 @@ int addTofdList(int fd, const char *localdirname) {
     return idx;
 }
 
+/*
+ * Get index of local folder name given local file descriptor from list
+ */
 int getFoldernameFromFD(int localfd) {
     if(localfd == -1) return -1;
 
@@ -275,10 +282,14 @@ int getFoldernameFromFD(int localfd) {
 
     return -1;
 }
-
+/*
+ * Utility function to print List containing remote file descriptors
+ */
 void printFDList() {
     int i = 0;
     for(; i < opened_fd_index; i++) {
+         printf("localdirName %s, remotefd %i\n", 
+            fd_list[i].localdirname, (fd_list[i].remotefd));
     }
 }
 
@@ -289,22 +300,17 @@ void printFDList() {
  * Returns -1 on failure and sets errno.
  */
 extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const char *localFolderName) {
-    // if (mountError(true)) return -1;
+    printf("fsMount()\n");
+    if(srvIpOrDomName == NULL || srvPort == 0 || localFolderName == NULL) return -1;
+    
     // Check that we aren't mounted
     if(checkMountedState(localFolderName)) return -1;
 
     int mount_idx = addToMountList(srvIpOrDomName, srvPort, localFolderName);
-
-    // Persisting server name, port and local folder name
-    int localfolderName_size = (strlen(localFolderName) + 1);
-    localDirName = (char *) malloc(sizeof(char) * localfolderName_size);
-    memcpy(localDirName, localFolderName, sizeof(char) * localfolderName_size);
-
-    int destAddr_size = strlen(srvIpOrDomName) + 1;
-    destAddr = (char *) malloc(sizeof(char) * destAddr_size);
-    memcpy(destAddr, srvIpOrDomName, sizeof(char) * destAddr_size);
-
-    destPort = srvPort;
+    if(mount_idx == -1) {
+        //set errno
+        return -1;
+    }
 
     return_type ans;
     ans = make_remote_call(
@@ -319,12 +325,10 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     memcpy(&value, (int *)ans.return_val, sizeof(int));
 
     if (value == 0) {
-        // mounted = true;
         int mounted_idx = setMountedState(localFolderName);
-        if(mounted_idx != -1)
+        if(mounted_idx != -1) 
             printf("Folder %s was successfully mounted.\n", localFolderName);
     } else {
-        // mounted = false;
         int mountErrno;
         memcpy(&mountErrno, (int *)(ans.return_val + sizeof(int)), sizeof(int));
 
@@ -345,8 +349,9 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
  */
 extern int fsUnmount(const char *localFolderName) {
     printf("fsUnmount\n");
+    if(localFolderName == NULL) return -1;
+
     // Check that we're mounted
-    // if (mountError(true)) return -1;
     if(!checkMountedState(localFolderName)) return -1;
 
     int mounted_idx = getMountedServerInfo(localFolderName);
@@ -383,7 +388,9 @@ extern int fsUnmount(const char *localFolderName) {
  * Returns NULL on failures and sets errno.
  */
 extern FSDIR* fsOpenDir(const char *folderName) {
-    // if (mountError(true)) return -1;
+    printf("fsOpenDir()\n");
+    if(folderName == NULL) return NULL;
+    
     // Check that we're mounted
     if(!checkMountedState(folderName)) return NULL;
     int mounted_idx = getMountedServerInfo(folderName);
@@ -408,6 +415,7 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     if(openDirErrno == 0) {
         memcpy(dir, (FSDIR *)(ans.return_val + sizeof(int)), sizeof(FSDIR));
         int localfsdir = addToFsdirList(dir, folderName);
+        
         memcpy(localdir_ptr, &localfsdir, sizeof(FSDIR));
 
     } else {
@@ -415,8 +423,6 @@ extern FSDIR* fsOpenDir(const char *folderName) {
         errno = openDirErrno;
         printf("fsDirOpen() Error: %s \n", strerror(errno));
     }
-
-    printFSDIRList();
 
     return localdir_ptr;
 }
@@ -429,12 +435,11 @@ extern FSDIR* fsOpenDir(const char *folderName) {
  */
 extern int fsCloseDir(FSDIR * folder) {
     printf("fsCloseDir()\n");
-    // Check that we're mounted
-    // if (mountError(true)) return -1;
-    // int fsdir_idx = getFoldernameFromFSDIR(folder);
+    
     int fsdir_idx = *folder;
     if(fsdir_idx == -1) return -1;
 
+    // Check that we're mounted
     if(!checkMountedState(fsdir_list[fsdir_idx].localdirname)) return -1;
     int mounted_idx = getMountedServerInfo(fsdir_list[fsdir_idx].localdirname);  
 
@@ -473,12 +478,12 @@ extern int fsCloseDir(FSDIR * folder) {
  */
 extern struct fsDirent *fsReadDir(FSDIR * folder) {
     printf("fsReadDir()\n");
-    // Check that we're mounted
-    // if (mountError(true)) return NULL;
-    // int fsdir_idx = getFoldernameFromFSDIR(folder);
+    
     int fsdir_idx = *folder;
+    // printf("fsdir_idx %i\n", fsdir_idx);
     if(fsdir_idx == -1) return NULL;
 
+    // Check that we're mounted
     if(!checkMountedState(fsdir_list[fsdir_idx].localdirname)) return NULL;
     int mounted_idx = getMountedServerInfo(fsdir_list[fsdir_idx].localdirname); 
 
@@ -533,8 +538,9 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
  */
 extern int fsOpen(const char *fname, int mode) {
     printf("fsOpen\n");
+    if(fname == NULL) return -1; 
+
     // Check that we're mounted
-    // if (mountError(true)) return -1;
     if(!checkMountedState(fname)) return -1;
     int mounted_idx = getMountedServerInfo(fname);
 
@@ -561,11 +567,12 @@ extern int fsOpen(const char *fname, int mode) {
     // If NACK sent back from server, file was locked, keep trying    
     waiting_state state;
     memcpy(&state, (int *)ans.return_val, sizeof(int));
+    printf("state: %i\n", state);
 
     memcpy(&uid, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+    printf("uid: %i\n", uid);
 
     while (state == NACK && uid != -1) {
-        printf("sleep for 20s\n");
         sleep(20);
         ans = make_remote_call(
                 mounted_list[mounted_idx].server_ip,
@@ -579,7 +586,10 @@ extern int fsOpen(const char *fname, int mode) {
                 &uid);
 
         memcpy(&state, (int *)ans.return_val, sizeof(int));
+        printf("state: %i\n", state);
+
         memcpy(&uid, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+        printf("uid: %i\n", uid);
 
         printf("sleeping for 2s...\n");
         sleep(2);
@@ -595,15 +605,10 @@ extern int fsOpen(const char *fname, int mode) {
 
     int open_fd;
     memcpy(&open_fd, (int *)(ans.return_val + (sizeof(int)*3)), sizeof(int));
-
+    // printf("Adding remote fd to fdList: %i\n", open_fd);
     //put fd in fdlist
     int localfd = addTofdList(open_fd, fname);
-    printFDList();
-
-
-    // return local fd (index)
     return localfd;
-    // return open_fd;
 }
 
 
@@ -615,12 +620,14 @@ extern int fsOpen(const char *fname, int mode) {
  * Returns -1 on failure and sets errno.
  */
 extern int fsClose(int fd) {
-    // Check that we're mounted
-    // if (mountError(true)) return -1;
+    printf("fsClose()\n");
+
     int fd_idx = fd; 
-    // int fd_idx = getFoldernameFromFD(fd);
     if(fd_idx == -1) return -1;
 
+    // printf("remotefd %i from localfd %i\n", fd_list[fd_idx].remotefd, fd);
+
+    // Check that we're mounted
     if(!checkMountedState(fd_list[fd_idx].localdirname)) return -1;
     int mounted_idx = getMountedServerInfo(fd_list[fd_idx].localdirname); 
 
@@ -659,12 +666,14 @@ extern int fsClose(int fd) {
  * Returns -1 on error and sets errno.
  */
 extern int fsRead(int fd, void *buf, const unsigned int count) {
-    // Check that we're mounted
-    // if (mountError(true)) return -1;
+    printf("fsRead()\n");
+
     int fd_idx = fd; 
-    // int fd_idx = getFoldernameFromFD(fd);
     if(fd_idx == -1) return -1;
 
+    // printf("remotefd %i from localfd %i\n", fd_list[fd_idx].remotefd, fd);
+
+    // Check that we're mounted
     if(!checkMountedState(fd_list[fd_idx].localdirname)) return -1;
     int mounted_idx = getMountedServerInfo(fd_list[fd_idx].localdirname); 
 
@@ -711,12 +720,13 @@ extern int fsRead(int fd, void *buf, const unsigned int count) {
  * Returns -1 on error and sets errno.
  */
 extern int fsWrite(int fd, const void *buf, const unsigned int count) {
-    // Check that we're mounted
-    // if (mountError(true)) return -1;
+    printf("fsWrite()\n");
     int fd_idx = fd; 
-    // int fd_idx = getFoldernameFromFD(fd);
     if(fd_idx == -1) return -1;
 
+    // printf("remotefd %i from localfd %i\n", fd_list[fd_idx].remotefd, fd);
+
+    // Check that we're mounted
     if(!checkMountedState(fd_list[fd_idx].localdirname)) return -1;
     int mounted_idx = getMountedServerInfo(fd_list[fd_idx].localdirname); 
 
@@ -757,19 +767,15 @@ extern int fsWrite(int fd, const void *buf, const unsigned int count) {
  * Returns -1 on error and sets errno.
  */
 extern int fsRemove(const char *name) {
+    printf("fsRemove()\n");
+
+    if(name == NULL) return -1;
+
     // Check that we're mounted
-    // if (mountError(true)) return -1;
     if(!checkMountedState(name)) return -1;
     int mounted_idx = getMountedServerInfo(name);
 
-
-    // char *root_path = (char *) malloc(strlen(localDirName) + 1);
-    // memcpy(root_path, name, strlen(localDirName));
-
-    // if(strcmp(root_path, localDirName) != 0) {
-    //     errno = ENOENT;
-    //     return -1;
-    // }
+    // printf("Issuing fsRemove Request\n");
 
     // Client send -1 on first request
     int uid = -1;
@@ -789,8 +795,10 @@ extern int fsRemove(const char *name) {
     // If NACK sent back from server, file was locked, keep trying    
     waiting_state state;
     memcpy(&state, (int *)ans.return_val, sizeof(int));
+    printf("state: %i\n", state);
 
     memcpy(&uid, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+    printf("uid: %i\n", uid);
 
     while(state == NACK && uid != -1) {
         ans = make_remote_call(
@@ -803,8 +811,10 @@ extern int fsRemove(const char *name) {
                 &uid);
 
         memcpy(&state, (int *)ans.return_val, sizeof(int));
+        printf("state: %i\n", state);
 
         memcpy(&uid, (int *)(ans.return_val + sizeof(int)), sizeof(int));
+        printf("uid: %i\n", uid);
 
         printf("sleeping for 2s...\n");
         sleep(2);

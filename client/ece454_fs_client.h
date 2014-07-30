@@ -8,32 +8,41 @@
 char* destAddr;
 unsigned int destPort;
 
-// Local folder name remote folder refered to
+/*
+ * Local folder name remote folder refered to
+ */ 
 char* localDirName;
 
-// Keeps track if client has mounted FS
+/*
+ * Keeps track if client has mounted FS
+ */
 bool mounted;
 
-// fsdir list mapped with localdirname -> maps to server and port
-int opened_fsdir_index = 0;
+/*
+ * fsdir list mapped with localdirname 
+ */
 typedef struct fsdirList {
 	char *localdirname;
 	FSDIR *remotefsdir;
 } fsdir_list_type;
 
+int opened_fsdir_index = 0;
 fsdir_list_type fsdir_list[256];
 
-// fd list mapped with localdirname
-int opened_fd_index = 0;
+/*
+ * fd list mapped with localdirname
+ */
 typedef struct fdList {
 	char *localdirname;
 	int remotefd;
 } fd_list_type;
 
+int opened_fd_index = 0;
 fd_list_type fd_list[256];
 
-// Need multiple mounts support
-int mounted_index = 0;
+/*
+ * Need multiple mounts support
+ */
 typedef struct mountedList {
     char *server_ip;
     unsigned int port;
@@ -44,10 +53,12 @@ typedef struct mountedList {
     struct mountedList *next;
 } mounted_list_type;
 
-// mounted_list_type *mounted_list;
+int mounted_index = 0;
 mounted_list_type mounted_list[256];
 
-// Need consistancy protocol for file operation
+/*
+ * Need consistancy protocol for file operation
+ */
 typedef enum {ACK, NACK } waiting_state;
 
 

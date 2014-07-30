@@ -36,7 +36,6 @@ int addToWaitingQueue(const char* remotepath) {
     } else {
         waiting_list *list = wl_queue;
         while(list->next != NULL) {
-            // printf("file %s, uid %i, next %p\n", list->filepath, list->uid, list->next);
             list = list->next;            
         }
 
@@ -50,8 +49,7 @@ int addToWaitingQueue(const char* remotepath) {
 /*
  * Search Waiting List for locked file
  */
-int searchWaitingList(const char* remotepath, int uid) {
-    // if(uid == -1) return -1;
+int searchWaitingList(const char* remotepath) {
 
     printf("Searching Waiting List...\n");
     if(wl_queue != NULL) {
@@ -194,8 +192,8 @@ extern return_type fsOpenDir(const int nparams, arg_type *a) {
         memcpy(fsdir_return.return_val, &openDirErrno, sizeof(int));
         memcpy(fsdir_return.return_val + sizeof(int), &next_dir_entry, sizeof(int));
 
-	      // Directory entry has been taken, advance index
-	      next_dir_entry++;
+        // Directory entry has been taken, advance index
+        next_dir_entry++;
     } else {
 	    printf("Server fsOpenDir() Error: %i\n", openDirErrno);
         fsdir_return.return_size = sizeof(int);
@@ -374,7 +372,7 @@ extern return_type fsOpen(const int nparams, arg_type *a) {
     /*
      * Check waiting list queue for first uid with filename == parsed_folder
      */
-    int founduid = searchWaitingList(parsed_folder, clientuid);
+    int founduid = searchWaitingList(parsed_folder);
     printf("founduid %i\n", founduid);
 
     printList();
@@ -695,7 +693,7 @@ extern return_type fsRemove(const int nparams, arg_type *a) {
 
     return_type fsremove_ret;
 
-    int founduid = searchWaitingList(parsed_folder, clientuid);
+    int founduid = searchWaitingList(parsed_folder);
     printf("founduid %i\n", founduid);
 
     printList();

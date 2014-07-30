@@ -24,13 +24,12 @@ void timestamp() {
  */
 int main(int argc, char *argv[]) {
 
-    if(argc < 4) {
-        fprintf(stderr, "usage: %s <srv-ip/name> <srv-port> <local dir name>\n", argv[0]);
+    if(argc < 3) {
+        fprintf(stderr, "usage: %s <srv-ip/name> <srv-port>\n", argv[0]);
         exit(1);
     }
 
-    char *dirname = argv[3];
-    printf("fsMount(): %d\n", fsMount(argv[1], atoi(argv[2]), dirname));
+    printf("fsMount(): %d\n", fsMount(argv[1], atoi(argv[2]),"root"));
 
     timestamp();
     printf("Attempting to open one.txt in grandfather directory\n");

@@ -304,7 +304,11 @@ extern int fsMount(const char *srvIpOrDomName, const unsigned int srvPort, const
     if(srvIpOrDomName == NULL || srvPort == 0 || localFolderName == NULL) return -1;
     
     // Check that we aren't mounted
-    if(checkMountedState(localFolderName)) return -1;
+    if(checkMountedState(localFolderName)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return -1;   
+    }
 
     int mount_idx = addToMountList(srvIpOrDomName, srvPort, localFolderName);
     if(mount_idx == -1) {
@@ -352,7 +356,11 @@ extern int fsUnmount(const char *localFolderName) {
     if(localFolderName == NULL) return -1;
 
     // Check that we're mounted
-    if(!checkMountedState(localFolderName)) return -1;
+    if(!checkMountedState(localFolderName)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return -1;  
+    }
 
     int mounted_idx = getMountedServerInfo(localFolderName);
 
@@ -392,7 +400,12 @@ extern FSDIR* fsOpenDir(const char *folderName) {
     if(folderName == NULL) return NULL;
     
     // Check that we're mounted
-    if(!checkMountedState(folderName)) return NULL;
+    if(!checkMountedState(folderName)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return NULL;  
+    }
+
     int mounted_idx = getMountedServerInfo(folderName);
 
     return_type ans;
@@ -440,7 +453,12 @@ extern int fsCloseDir(FSDIR * folder) {
     if(fsdir_idx == -1) return -1;
 
     // Check that we're mounted
-    if(!checkMountedState(fsdir_list[fsdir_idx].localdirname)) return -1;
+    if(!checkMountedState(fsdir_list[fsdir_idx].localdirname)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return -1;  
+    }
+
     int mounted_idx = getMountedServerInfo(fsdir_list[fsdir_idx].localdirname);  
 
     return_type ans;
@@ -484,7 +502,12 @@ extern struct fsDirent *fsReadDir(FSDIR * folder) {
     if(fsdir_idx == -1) return NULL;
 
     // Check that we're mounted
-    if(!checkMountedState(fsdir_list[fsdir_idx].localdirname)) return NULL;
+    if(!checkMountedState(fsdir_list[fsdir_idx].localdirname)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return NULL;  
+    }
+
     int mounted_idx = getMountedServerInfo(fsdir_list[fsdir_idx].localdirname); 
 
     return_type ans;
@@ -541,7 +564,12 @@ extern int fsOpen(const char *fname, int mode) {
     if(fname == NULL) return -1; 
 
     // Check that we're mounted
-    if(!checkMountedState(fname)) return -1;
+    if(!checkMountedState(fname)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return -1;  
+    }
+
     int mounted_idx = getMountedServerInfo(fname);
 
     int fname_sz = strlen(fname) + 1;
@@ -624,10 +652,13 @@ extern int fsClose(int fd) {
     int fd_idx = fd; 
     if(fd_idx == -1) return -1;
 
-    // printf("remotefd %i from localfd %i\n", fd_list[fd_idx].remotefd, fd);
-
     // Check that we're mounted
-    if(!checkMountedState(fd_list[fd_idx].localdirname)) return -1;
+    if(!checkMountedState(fd_list[fd_idx].localdirname)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return -1;  
+    }
+
     int mounted_idx = getMountedServerInfo(fd_list[fd_idx].localdirname); 
 
     return_type ans;
@@ -670,10 +701,13 @@ extern int fsRead(int fd, void *buf, const unsigned int count) {
     int fd_idx = fd; 
     if(fd_idx == -1) return -1;
 
-    // printf("remotefd %i from localfd %i\n", fd_list[fd_idx].remotefd, fd);
-
     // Check that we're mounted
-    if(!checkMountedState(fd_list[fd_idx].localdirname)) return -1;
+    if(!checkMountedState(fd_list[fd_idx].localdirname)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return -1;  
+    }
+
     int mounted_idx = getMountedServerInfo(fd_list[fd_idx].localdirname); 
 
     return_type ans;
@@ -723,10 +757,13 @@ extern int fsWrite(int fd, const void *buf, const unsigned int count) {
     int fd_idx = fd; 
     if(fd_idx == -1) return -1;
 
-    // printf("remotefd %i from localfd %i\n", fd_list[fd_idx].remotefd, fd);
-
     // Check that we're mounted
-    if(!checkMountedState(fd_list[fd_idx].localdirname)) return -1;
+    if(!checkMountedState(fd_list[fd_idx].localdirname)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return -1;  
+    }
+
     int mounted_idx = getMountedServerInfo(fd_list[fd_idx].localdirname); 
 
     return_type ans;
@@ -771,10 +808,13 @@ extern int fsRemove(const char *name) {
     if(name == NULL) return -1;
 
     // Check that we're mounted
-    if(!checkMountedState(name)) return -1;
-    int mounted_idx = getMountedServerInfo(name);
+    if(!checkMountedState(name)) {
+        errno = EPERM;
+        printf("fsMount() Error: %s \n", strerror(errno));
+        return -1;  
+    }
 
-    // printf("Issuing fsRemove Request\n");
+    int mounted_idx = getMountedServerInfo(name);
 
     // Client send -1 on first request
     int uid = -1;

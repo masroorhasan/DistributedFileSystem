@@ -1,0 +1,254 @@
+Archive:  ece454a4.zip
+   creating: ece454a4/
+  inflating: ece454a4/fsOtherIncludes.h  
+   creating: ece454a4/client/
+  inflating: ece454a4/client/fsOtherIncludes.h  
+  inflating: ece454a4/client/ece454rpc_types.h  
+  inflating: ece454a4/client/ece454_fs.h  
+  inflating: ece454a4/client/client_stub.c  
+  inflating: ece454a4/client/client.c  
+  inflating: ece454a4/client/helper.c  
+  inflating: ece454a4/client/ece454_fs_client_util.c  
+  inflating: ece454a4/client/ece454_fs_client.c  
+  inflating: ece454a4/client/ece454_fs_client.h  
+  inflating: ece454a4/Makefile       
+  inflating: ece454a4/README.md      
+   creating: ece454a4/serv/
+  inflating: ece454a4/serv/fsOtherIncludes.h  
+  inflating: ece454a4/serv/ece454rpc_types.h  
+  inflating: ece454a4/serv/mybind.c  
+  inflating: ece454a4/serv/ece454_fs_server.h  
+  inflating: ece454a4/serv/helper.c  
+  inflating: ece454a4/serv/ece454_fs_server.c  
+  inflating: ece454a4/serv/server.c  
+  inflating: ece454a4/serv/server_stub.c  
+  inflating: ece454a4/serv/ece454_fs_server_util.c  
+rm -rf server/a.out server/*.o server/core server/*.a server/*_app client/a.out client/*.o client/core client/*.a client/*_app server_exectureable client-api.a *.o *.a *_app fsServer
+gcc serv/mybind.c serv/helper.c serv/server_stub.c serv/ece454_fs_server_util.c serv/ece454_fs_server.c serv/server.c -o fsServer
+serv/server_stub.c: In function ‘printRegisteredProcedures’:
+serv/server_stub.c:46: warning: cast from pointer to integer of different size
+gcc -c client/helper.c client/client_stub.c client/ece454_fs_client.c
+ar r libclient-api.a helper.o client_stub.o ece454_fs_client.o
+ar: creating libclient-api.a
+Passed test 1...
+129.97.56.15 10008
+ip=129.97.56.15, port=10008
+Running first test case.
+fsMount(): 0
+	 ece454a4, 1
+	 ece454_fs.h, 0
+	 unpack.sh, 0
+	 t1_client.c, 0
+	 t3_client.c, 0
+	 ece454a4.zip, 0
+	 .., 1
+	 ., 1
+	 t2_client.c, 0
+	 test_file1, 0
+	 t1_client, 0
+	 mark, 0
+fsCloseDir(): 0
+fsOpen(): 0
+fsClose(): 0
+./test_file1
+fsRemove(./test_file1): 0
+Finished running first test case.
+here
+Write stuff...Mo
+129.97.56.15 10009
+ip2=129.97.56.15, port2=10009
+Running second test case.
+fsMount(): 0
+fsMount(): 0
+	 ece454a4, 1
+	 ece454_fs.h, 0
+	 unpack.sh, 0
+	 t1_client.c, 0
+	 t2_client, 0
+	 t3_client.c, 0
+	 ece454a4.zip, 0
+	 .nfs0000000005ec1bd900001385, 0
+	 .., 1
+	 ., 1
+	 test_file2, 0
+	 t2_client.c, 0
+	 test_file1, 0
+	 t1_client, 0
+	 mark, 0
+fsCloseDir(): 0
+	 ece454a4, 1
+	 ece454_fs.h, 0
+	 unpack.sh, 0
+	 t1_client.c, 0
+	 t2_client, 0
+	 t3_client.c, 0
+	 ece454a4.zip, 0
+	 .nfs0000000005ec1bd900001385, 0
+	 .., 1
+	 ., 1
+	 test_file2, 0
+	 t2_client.c, 0
+	 test_file1, 0
+	 t1_client, 0
+	 mark, 0
+fsCloseDir(): 0
+fsOpen(): 0
+fsClose(): 0
+./test_file1
+fsRemove(./test_file1): 0
+fsOpen(): 2
+fsClose(): 0
+local/test_file2
+fsRemove(local/test_file2): 0
+Finsihed running second test case.
+Running second test case.
+fsMount(): 0
+fsMount(): 0
+	 test_file3, 0
+	 ece454a4, 1
+	 ece454_fs.h, 0
+	 unpack.sh, 0
+	 t1_client.c, 0
+	 t2_client, 0
+	 .nfs0000000005ec1c2600001387, 0
+	 t3_client.c, 0
+	 ece454a4.zip, 0
+	 .nfs0000000005ec1bd900001385, 0
+	 .., 1
+	 ., 1
+	 t2_client.c, 0
+	 test_file1, 0
+	 t1_client, 0
+	 mark, 0
+	 .nfs0000000005ec1c2300001388, 0
+fsCloseDir(): 0
+	 test_file3, 0
+	 ece454a4, 1
+	 ece454_fs.h, 0
+	 unpack.sh, 0
+	 t1_client.c, 0
+	 t2_client, 0
+	 .nfs0000000005ec1c2600001387, 0
+	 t3_client.c, 0
+	 ece454a4.zip, 0
+	 .nfs0000000005ec1bd900001385, 0
+	 .., 1
+	 ., 1
+	 t2_client.c, 0
+	 test_file1, 0
+	 t1_client, 0
+	 mark, 0
+	 .nfs0000000005ec1c2300001388, 0
+fsCloseDir(): 0
+fsOpen(): 0
+fsClose(): 0
+./test_file1
+fsRemove(./test_file1): 0
+fsOpen(): 2
+fsClose(): 0
+local/test_file2
+fsRemove(local/test_file2): 0
+Finsihed running second test case.
+Running second test case.
+fsMount(): 0
+fsMount(): 0
+	 test_file3, 0
+	 ece454a4, 1
+	 ece454_fs.h, 0
+	 unpack.sh, 0
+	 t1_client.c, 0
+	 t2_client, 0
+	 .nfs0000000005ec1c2600001387, 0
+	 t3_client.c, 0
+	 ece454a4.zip, 0
+	 .nfs0000000005ec1c2800001389, 0
+	 .nfs0000000005ec1bd900001385, 0
+	 .., 1
+	 ., 1
+	 t2_client.c, 0
+	 test_file1, 0
+	 t1_client, 0
+	 mark, 0
+	 .nfs0000000005ec1c290000138a, 0
+	 .nfs0000000005ec1c2300001388, 0
+fsCloseDir(): 0
+	 test_file3, 0
+	 ece454a4, 1
+	 ece454_fs.h, 0
+	 unpack.sh, 0
+	 t1_client.c, 0
+	 t2_client, 0
+	 .nfs0000000005ec1c2600001387, 0
+	 t3_client.c, 0
+	 ece454a4.zip, 0
+	 .nfs0000000005ec1c2800001389, 0
+	 .nfs0000000005ec1bd900001385, 0
+	 .., 1
+	 ., 1
+	 t2_client.c, 0
+	 test_file1, 0
+	 t1_client, 0
+	 mark, 0
+	 .nfs0000000005ec1c290000138a, 0
+	 .nfs0000000005ec1c2300001388, 0
+fsCloseDir(): 0
+fsOpen(): 0
+fsClose(): 0
+./test_file1
+fsRemove(./test_file1): 0
+Finsihed running second test case.
+Passed test 2...
+Waiting for test 3 to finish
+Running third test case.
+herehere1: 1
+1: 2
+1: 3
+1: 4
+1: 5
+1: 6
+1: 7
+1: 8
+1: 9
+1: 10
+1: 11
+1: 12
+1: 13
+1: 14
+1: 15
+1: 16
+1: 17
+1: 18
+1: 19
+1: 20
+Give full markRunning third test case.
+herehere2: 1
+2: 2
+2: 3
+2: 4
+2: 5
+2: 6
+2: 7
+2: 8
+2: 9
+2: 10
+2: 11
+2: 12
+2: 13
+2: 14
+2: 15
+2: 16
+2: 17
+2: 18
+2: 19
+2: 20
+Finsihed running third test case.
+Passed test 3...
+pkill: 541 - Operation not permitted
+pkill: 20521 - Operation not permitted
+pkill: 20802 - Operation not permitted
+pkill: 21043 - Operation not permitted
+pkill: 23387 - Operation not permitted
+pkill: 31298 - Operation not permitted
+pkill: 31648 - Operation not permitted
+pkill: 32120 - Operation not permitted
+./unpack.sh: line 94:  4796 Terminated              ./fsServer /home/w3smith/scriptAndTests/work >> ./tmp  (wd: ~/scriptAndTests/work/ece454a4)

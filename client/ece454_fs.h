@@ -1,9 +1,3 @@
-/*
- * Mahesh V. Tripunitara
- * University of Waterloo
- * You are NOT allowed to modify this file.
- */
-
 #ifndef _ECE_454_FS_H_
 #define _ECE_454_FS_H_
 #include <sys/types.h>

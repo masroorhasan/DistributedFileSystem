@@ -1,8 +1,3 @@
-/* Mahesh V. Tripunitara
-   University of Waterloo
-   Part of a simplified RPC implementation
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
